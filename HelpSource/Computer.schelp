@@ -1,0 +1,30 @@
+TITLE:: Computer.play
+summary:: Music, Creativity & Code
+categories:: Tutorials
+
+section::Module
+
+definitionList::
+## Module Information ||
+list::
+## link::Handbook::
+## link::Tutorials/Mark_Polishook_tutorial/04_Help::
+::
+## Resources ||
+list::
+## link::Tutorials/Mark_Polishook_tutorial/05_The_network::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites::
+::
+## Links ||
+list::
+## link::Tutorials/Mark_Polishook_tutorial/20_Debugging::
+## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors::
+## link::Tutorials/Mark_Polishook_tutorial/22_Runtime_errors::
+::
+::
+
+section::Happy Coding
+
+code::
+Computer.play("Music", "Cretivity", "Code");
+::
