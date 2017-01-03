@@ -1,6 +1,6 @@
 # Computer.play(Music, Creativity & Code)
 
-Federico Reuben
+Dr Federico Reuben
 
 Department of Music
 
