@@ -27,24 +27,13 @@ Computer {
   *clone {arg path, url;
     path ?? {path = Platform.userExtensionDir};
     url ?? {url = "https://github.com/freuben/ComputerPlay.git"};
-        ("cd " ++ path.shellQuote ++ " && git clone " ++ url.shellQuote).postln;
-    // ("cd " ++ path.shellQuote ++ " && git clone " ++ url.shellQuote).unixCmd;
+   ("cd " ++ path.shellQuote ++ " && git clone " ++ url.shellQuote).unixCmd;
   }
 
    *update {arg path;
     path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
-    ("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master").postln;
-    // ("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master").unixCmd;
+    ("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master").unixCmd;
   }
-
-  message1 {
-    "hello there".postln;
-  }
-
-  message2 {
-
-  }
-
 
   *initClass {
 
