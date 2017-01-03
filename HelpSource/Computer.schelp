@@ -26,5 +26,15 @@ list::
 section::Happy Coding
 
 code::
-Computer.play("Music", "Cretivity", "Code");
+(
+//first time: clone from GitHub website
+~localPath = Platform.userExtensionDir;
+~url = "https://github.com/freuben/ComputerPlay.git";
+("cd " ++ ~localPath.shellQuote ++ " && git clone " ++ ~url.shellQuote).unixCmd;
+)
+
+//After that, do this every time to update materials
+Computer.update;
+//then refresh
+Computer.help;
 ::
