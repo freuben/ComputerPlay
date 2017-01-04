@@ -8,9 +8,9 @@ definitionList::
 ## Module Information ||
 list::
 ## link::Handbook::
-## link::Handbook#Course Materials::
-## link::Handbook#Module Overview::
-## link::Handbook#Assessment::
+## link::Handbook#Course Materials#Course Materials::
+## link::Handbook#Module Overview#Module Overview::
+## link::Handbook#Assessment#Assessment::
 ## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Resources::
 ## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Links::
 ::
@@ -30,16 +30,10 @@ list::
 section::Update Material
 
 code::
-(
-//first time: clone from GitHub website
-~localPath = Platform.userExtensionDir;
-~url = "https://github.com/freuben/ComputerPlay.git";
-("cd " ++ ~localPath.shellQuote ++ " && git clone " ++ ~url.shellQuote).unixCmd;
-)
 
-//After that, do this every time to update materials
+//Evaluate the line below every time you want to update materials:
 Computer.update;
-//then refresh
+//This will refresh them
 Computer.help;
 ::
 
