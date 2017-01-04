@@ -8,22 +8,26 @@ definitionList::
 ## Module Information ||
 list::
 ## link::Handbook::
-## link::Tutorials/Mark_Polishook_tutorial/04_Help::
+## link::Handbook#Course Materials::
+## link::Handbook#Module Overview::
+## link::Handbook#Assessment::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Resources::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Links::
 ::
-## Resources ||
+## Seminars ||
 list::
-## link::Tutorials/Mark_Polishook_tutorial/05_The_network::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites::
+## link::Tutorials/Mark_Polishook_tutorial/05_The_network##Seminar 1: Introduction to Programming::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Seminar 2: Synthesis 1::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Seminar 3: Synthesis 2::
 ::
-## Links ||
+## Workshops ||
 list::
-## link::Tutorials/Mark_Polishook_tutorial/20_Debugging::
-## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors::
-## link::Tutorials/Mark_Polishook_tutorial/22_Runtime_errors::
+## link::Tutorials/Mark_Polishook_tutorial/20_Debugging##Workshop 1: Playing with UGens 1::
+## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors##Workshop 2: Playing with UGens 2::
 ::
 ::
 
-section::Happy Coding
+section::Update Material
 
 code::
 (
@@ -38,3 +42,5 @@ Computer.update;
 //then refresh
 Computer.help;
 ::
+
+image::http://www.federicoreuben.com/computerdotplay/media/SeventhChords.png::

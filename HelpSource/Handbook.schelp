@@ -1,17 +1,73 @@
-TITLE:: Computer.handbook
-summary:: Module Handbook
+TITLE:: Handbook
+summary:: Computer.play(Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
-related:: Computer, Reference/SomeRelatedStuff, etc.
+related:: Computer, Handbook#Course Materials, Handbook#Assessment
 
-section::Module Handbook
+image::CSIR Mk 1.png#Figure: 1. CSIR Mk 1 (1951) - csiropedia.csiro.au::
 
-Computer.play(Music, Creativity & Code)
 
-BA(Hons) Music & BA(Hons) Music and Sound Recording
+definitionlist::
+## BA(Hons) Music
+##BA(Hons) Music and Sound Recording
+##Department of Music
+##University of York
+## Spring Term ||
+::
 
-Spring 2017
+section::Module Outline
+list::
+##strong::Module::: Computer.play(Music, Creativity & Code)
+##strong::Module Credits::: 20
+##strong::Module Leader:::
+list::
+##strong::Name:::Dr Federico Reuben
+##strong::Email::: federico.reuben@york.ac.uk
+##strong::Telephone::: (01904) 32 4132
+##strong::Office::: MRC/002 ::
+##strong::Dates::: January 17 -  April 18 2017
+##strong::Spaces::: Rymer Auditorium, MRC Teaching Room
+##strong::Hand-in & Assessment::: Seminar presentation (weeks 5-6 spring term) and written documentation (week 1 summer term)
+##strong::Contact Time::: 30 hours (seminars and workshops), 3 x 20 minute tutorials.
+##strong::Module Feedback::: A tutorial will be arranged in the summer term for feedback.
+::
 
-section::Module Description
+section::Assessment
+subsection::Assessment Methods
+list::
+##strong::Formative::: Reading and listening tasks, watching sci-fi films, a short electroacoustic piece based on the notion of Sonic Fiction.
+##strong::Summative::: 20-minute seminar presentation (10%) and a 2500-word essay (90%) on a topic related to twentieth century electronic or computer music.
+::
+
+subsection::Assessment Strategy
+
+The assessment criteria specific to this module will be considered and used as a measure to determine your achievement in the assessment process at the end of the module. Seminars will provide the opportunity to gain new knowledge and discuss contextual and technical subjects surrounding the history of electronic and computer music. The technical demonstrations and workshops give you practical experience with technology and the opportunity to experiment with different technologies and techniques. Practical work will provide the opportunity to demonstrate technical and creative skills and your involvement with creative processes and research activities. The written work provides you with an opportunity to demonstrate your level of knowledge and understanding of relevant concepts, debates and contexts and to present this information clearly.
+
+subsection::Assessment Deadlines
+
+list::
+##Seminar Presentation (10%): 10 February and 17 February 2017.
+##Performance, improvisation, composition, installation or demonstration (60%): Week 12
+##Written Documentation (30%): 18 April 2017 by 16:00.
+::
+
+subsection::Learning Outcomes
+
+strong::1st years::: On completion of the module, in their independent work, students should demonstrate Learning Outcomes A1-A8, A10 & A11
+
+strong::2nd years::: On completion of the module, in their independent work, students should demonstrate Learning Outcomes B1-B8, B10 & B11
+
+strong::3rd years::: On completion of the module, in their independent work, students should demonstrate Learning Outcomes C1-C8, C10 & C11
+
+You can find the learning outcomes in the university website (run the code below with shft+return):
+
+code::
+"open http://www.york.ac.uk/music/undergraduate/modules/learning-outcomes/".unixCmd;
+::
+
+section::Module Overview
+
+subsection::Module Description
+
 This project examines the creative potential of computers in music and sound. Computers are powerful tools to aid music theory and practice and can be used creatively in composition, performance, sound art, musicology and production. We will look at the fundamentals of computer programming, focusing on creative coding and themes related to computer music and interactivity. However, many of these principles can also be useful in a variety of contexts, applications and technologies and will give you an insight into how new digital technologies are developed.
 
 We will focus on the SuperCollider programming language but also look at other powerful audio/visual, interactive and web development tools. We will explore the creative possibilities of digital technology and the various contexts in which you may want to present your work: live performance, installation, multimedia, video, analysis and interactive applications, etc. We will engage with creativity by approaching these new technologies playfully and with imagination through artistic exploration and experimentation. At the same time, we will interrogate the notion of creativity and consider the idea that computers may also model, simulate and replicate creative processes.
@@ -20,72 +76,44 @@ Sessions will introduce the creative and practical implementations of digital si
 
 The project assumes no prior computer programming experience. However, some knowledge of music technology or GCSE Maths / Physics might be beneficial, but not essential.
 
-See section link::https://github.com/freuben/##Introduction:: in this document.
+subsection::Module Outcomes
 
-image::http://68.media.tumblr.com/2e6c5779a27dccfa0b2cc515e6f11cbc/tumblr_nro3xfHQTw1tgn60so6_500.png#Figure 1::
-
-CLASSMETHODS::
-
-METHOD:: new
-(new Computer.play method here)
-
-ARGUMENT:: arg1
-(describe argument here)
-
-ARGUMENT:: arg2
-(describe argument here)
-
-ARGUMENT:: arg3
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: initClass
-(describe method here)
-
-returns:: (describe returnvalue here)
+By the end of the taught part of the project all students should:
+list::
+##have developed effective approaches to creative coding in their own music or sound practice
+##have good familiarity with programming environments for interactive audio applications (SuperCollider) and be able to use them in their own creative and professional practice
+##be able to design their own interactive music programs
+##demonstrate a good knowledge on topics related to digital audio and computer music as well as human interface devices, algorithmic and generative music, computer analysis, live electronic performance and interaction.
+##understand the potential for computers to model, simulate and replicate musical creativity
+::
 
 
-INSTANCEMETHODS::
+subsection::Attendance
 
-METHOD:: message2
-(describe method here)
+Attendance to all of the seminars and workshops is mandatory. Attendance will be monitored for each of these sessions. You are expected to be on time to all sessions. There will be additional sessions were we will screen sci-fi movies that relate to the module content. These screening sessions are optional, however if you are not able to come you will still have to watch the films on your own time.
 
-returns:: (describe returnvalue here)
+subsection::Communication
 
-METHOD:: arg2
-(describe method here)
+Please check your university email regularly as this will be the primary form of communication between staff and students. Also, check the VLE regularly to access study material including lecture slides, information about deadlines, assessment briefs, reading materials, etc. Before contacting staff members about information, check the VLE first as most of the module information will be available to you there.
 
-returns:: (describe returnvalue here)
+subsection::Independent study
 
-METHOD:: arg1
-(describe method here)
+According to university regulations, the amount of time you should devote to private study for a 10-credit module is at least 5 hours per week outside your assessment preparation. Therefore, during this time you should be engaging with the readings, watching films, researching on related topics, experimenting with technology, etc. This of course does not include your time in seminars, workshops and tutorials. In addition to this, you will be expected to spend at least 50 hours for assessment preparation to prepare your presentation and essay. This is the very minimum amount of time of independent study expected from you to pass this module.
 
-returns:: (describe returnvalue here)
+section:: Course Materials
 
-METHOD:: arg3
-(describe method here)
+subsection::Resources
 
-returns:: (describe returnvalue here)
+strong::Library::: You will be expected to do a serious piece of academic writing for this module and this will require finding academic sources (books, journals, etc.) at the library.
+Online library resources: The library provides a series of online resources that you can access through the library website:
+code::
+"open http://www.york.ac.uk/library/".unixCmd;
+::
+E-recourses include a large collection of useful journal articles as well as data bases of electronic music.
 
-METHOD:: initBasicClass
-(describe method here)
+subsection::Reading
 
-ARGUMENT:: argument1
-(describe argument here)
-
-ARGUMENT:: argument2
-(describe argument here)
-
-ARGUMENT:: argument3
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: message1
-(describe method here)
-
-returns:: (describe returnvalue here)
+subsection::Listening
 
 
 EXAMPLES::
