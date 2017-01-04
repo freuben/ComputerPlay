@@ -1,6 +1,6 @@
 TITLE:: Computer.handbook
 summary:: Module Handbook
-categories:: Tutorials
+categories:: Tutorials/ComputerDotPlay
 related:: Computer, Reference/SomeRelatedStuff, etc.
 
 section::Module Handbook
@@ -20,6 +20,9 @@ Sessions will introduce the creative and practical implementations of digital si
 
 The project assumes no prior computer programming experience. However, some knowledge of music technology or GCSE Maths / Physics might be beneficial, but not essential.
 
+See section link::https://github.com/freuben/##Introduction:: in this document.
+
+image::Argentina.png#Figure 1::
 
 CLASSMETHODS::
 
