@@ -45,6 +45,37 @@ Computer {
 		cmd.unixCmd;
 	}
 
+	*writeRegister {arg name="student", mode="a";
+		var f, g, path, string, unixFunc;
+
+		unixFunc = {var a, b;
+			a = "id -un".unixCmdGetStdOut;
+			b = "ipconfig getifaddr en1 & ipconfig getifaddr en0".unixCmdGetStdOut;
+			(a.replace(10.asAscii, " ") ++ b.replace(10.asAscii, " "));
+		};
+
+		path = Platform.userExtensionDir ++ "/ComputerPlay/files/register.txt";
+		f = File(path,mode);
+		Platform.case(
+			\osx, {string = unixFunc.value; },
+			\linux, {string = unixFunc.value; },
+			\windows, {string = ("Windows "); }
+		);
+		f.write(name ++ " " ++ string ++ Date.getDate.asString ++ 10.asAscii);
+		f.close;
+	}
+
+	* register {arg name="student", path;
+	path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
+	path = Platform.userExtensionDir ++ "/ComputerPlay";
+		{
+			this.writeRegister(name);
+			0.1.yield;
+			("cd " ++path.shellQuote ++ " && git add files/register.txt && git.commit -m \"" ++
+				name ++ " " ++ Date.getDate ++ "\" && git.push").unixCmd;
+		}.fork;
+	}
+
 	*initClass {
 
 		//SynthDefs come here
