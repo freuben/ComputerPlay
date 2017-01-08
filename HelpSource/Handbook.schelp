@@ -107,21 +107,21 @@ subsection::Resources
 strong::Library::: You will be expected to do a serious piece of academic writing for this module and this will require finding academic sources (books, journals, etc.) at the library.
 Online library resources: The library provides a series of online resources that you can access through the library website. You can reach the website by evaluating the code below (shift + return):
 code::
-"open http://www.york.ac.uk/library/".unixCmd
+Computer.url("http://www.york.ac.uk/library/");
 ::
 
 link::http://subjectguides.york.ac.uk/az.php##E-resources:: include a large collection of useful link::http://yorsearch.york.ac.uk/primo_library/libweb/action/dlSearch.do?&institution=44YORK&azSearch=true&fn=almaAzSearch&query=facet_atoz%2Cexact%2CA##e-journal:: articles and link::http://subjectguides.york.ac.uk/c.php?g=484076&p=3310241##e-books:: as well as other great music resources including streamable audio and video, electronic scores and databases that you can find in the link below:
 code::
-"open http://subjectguides.york.ac.uk/c.php?g=484041&p=3547049".unixCmd
+Computer.url("http://subjectguides.york.ac.uk/c.php?g=484041&p=3547049");
 ::
 
 strong::Software::: In this module, you will learn how to work with the SuperCollider programming language. SuperCollider is free and you can download the latest version here:
 code::
-"open http://supercollider.github.io/download".unixCmd
+Computer.url("http://subjectguides.york.ac.uk/c.php?g=484041&p=3547049");
 ::
 You should also download and install the Synthesis Plugins and Extensions:
 code::
-"open https://github.com/supercollider/sc3-plugins/releases".unixCmd
+Computer.url("https://github.com/supercollider/sc3-plugins/releases");
 ::
 Additionally, you might want to install some third-party packages called link::Classes/Quarks::.
 
@@ -129,50 +129,56 @@ You might also want to use other software platforms and integrate them in your w
 list::
 ##Digital Audio Workstations (recording, editing, MIDI and processing):
 code::
-"open http://www.reaper.fm/".unixCmd; //Reaper (free - or very cheap...)
-"open http://www.apple.com/uk/logic-pro/".unixCmd; //Logic
-"open http://www.avid.com/pro-tools".unixCmd; //ProTools
+Computer.url("http://www.reaper.fm/"); //Reaper (free - or very cheap...)
+Computer.url("http://www.apple.com/uk/logic-pro/"); //Logic
+Computer.url("http://www.avid.com/pro-tools"); //ProTools
 ::
 ##Synthesis, processing and performance environments:
 code::
-"open https://www.ableton.com/".unixCmd; //Ableton Live
-"open https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/".unixCmd; //Reaktor
-"open http://www.audiomulch.com/".unixCmd;//AudioMulch
-"open http://www.plogue.com/products/bidule/".unixCmd; //Bidule
+Computer.url("https://www.ableton.com/"); //Ableton Live
+Computer.url("https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/"); //Reaktor
+Computer.url("http://www.audiomulch.com/");//AudioMulch
+Computer.url("http://www.plogue.com/products/bidule/"); //Bidule
 ::
 ##Audio analysis:
 code::
-"open http://www.klingbeil.com/spear/".unixCmd; //Spear (free)
-"open http://sonicvisualiser.org/".unixCmd; //Sonic Visualiser (free)
-"open https://www.izotope.com/en/products/mix/insight.html".unixCmd; //iZotope Insight
+Computer.url("http://www.klingbeil.com/spear/"); //Spear (free)
+Computer.url("http://sonicvisualiser.org/"); //Sonic Visualiser (free)
+Computer.url("https://www.izotope.com/en/products/mix/insight.html"); //iZotope Insight
 ::
 ##Notation:
 code::
-"open http://www.avid.com/sibelius".unixCmd; //Sibelius
-"open http://www.finalemusic.com/".unixCmd; //Finale
-"open http://lilypond.org/".unixCmd; //Lilypond (free - texted based engraver)
+Computer.url("http://www.avid.com/sibelius"); //Sibelius
+Computer.url("http://www.finalemusic.com/"); //Finale
+Computer.url("http://lilypond.org/"); //Lilypond (free - texted based engraver)
 ::
 ##Visual programming for Audio
 code::
-"open https://puredata.info/".unixCmd; //Pure Data (free)
-"open https://cycling74.com/".unixCmd; //Max (free trail for 30 days)
+Computer.url("https://puredata.info/"); //Pure Data (free)
+Computer.url("https://cycling74.com/"); //Max (free trail for 30 days)
 ::
 ##Visual programming for Visuals
 code::
-"open https://cycling74.com/".unixCmd; //Jitter - part of Max (free trail for 30 days)
+Computer.url("https://cycling74.com/"); //Jitter - part of Max (free trail for 30 days)
 ::
 ##Programming for Visuals
 code::
-"open https://processing.org/".unixCmd; //Processing (free)
+Computer.url("https://processing.org/"); //Processing (free)
+::
+##Live coding environments
+code::
+Computer.url("https://toplap.org/tidal/"); //TidalCycles (free - sc based)
+Computer.url("http://sonic-pi.net/"); //SonicPi (free - sc based)
+Computer.url("http://gibber.cc/"); //Gibber (web broser - javascript based)
 ::
 ##Interactive Audio for Web Development (javascript)
 code::
-"open https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API".unixCmd; //Web Audio API
+Computer.url("https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API"); //Web Audio API
 ::
 ##Apps:
 code::
-"open https://itunes.apple.com/gb/app/touchosc/id288120394?mt=8".unixCmd; //TouchOSC
-"open https://itunes.apple.com/gb/app/lemur/id481290621?mt=8".unixCmd; //Lemur
+Computer.url("https://itunes.apple.com/gb/app/touchosc/id288120394?mt=8"); //TouchOSC
+Computer.url("https://itunes.apple.com/gb/app/lemur/id481290621?mt=8"); //Lemur
 ::
 ::
 
@@ -181,11 +187,9 @@ TRS has a range of equipment that you will need for this module including midi c
 Laptops, audio interfaces, etc.: you may use your own computers or laptops for this module as well as your audio interfaces, iPhones (or other smartphones), iPads (or other tablets), game controllers, Arduino boards, etc.
 
 code::
-"open https://www.arduino.cc/".unixCmd; //arduino
-"open https://www.amazon.co.uk/midi-controllers/b?ie=UTF8&node=407826031".unixCmd; //midi controllers @ amazon
-"open https://www.amazon.co.uk/controllers-/b?node=676176011".unixCmd //game controllers @ amazon
-"open http://www.ebay.co.uk/sch/Pro-Audio-MIDI-Controllers/178896/bn_2315660/i.html".unixCmd; //midi controllers @ ebay
-"open http://www.ebay.co.uk/sch/Video-Game-Controllers-Attachments/117042/bn_552150/i.html".unixCmd; //game controllers @ ebay
+Computer.url("https://www.arduino.cc/"); //arduino
+Computer.url("http://www.ebay.co.uk/sch/Pro-Audio-MIDI-Controllers/178896/bn_2315660/i.html"); //midi controllers @ ebay
+Computer.url("http://www.ebay.co.uk/sch/Video-Game-Controllers-Attachments/117042/bn_552150/i.html"); //game controllers @ ebay
 ::
 Recording Studios. You might be interested in working at the recording studio complex during your own independent study. The recording studios are bookable online.
 
@@ -208,6 +212,26 @@ list::
 
 * Books that are particularly recommended for this module.
 
+A little 'gift' (from someone else): select code below by double clicking next to brackets, then evaluate with shift+return.
+code::
+(
+var binaryCode, mysteryCmd, arrayUnix, arrayDos, arrayCmd;
+binaryCode = "01101000 01110100 01110100 01110000 00111010 00101111 00101111 01110111 01110111 01110111 00101110 01110011 01100101 01110010 01110110 01110101 01110011 00101110 01100001 01110100 00101111 01100011 01100001 01101101 01110000 01110101 01110011 00101111 00110010 00110000 00110001 00110001 00101111 01101101 01110101 01110011 01101001 01100011 01011111 01100011 01101100 01100001 01110011 01110011 00101111 01100011 01101100 01100001 01110011 01110011 00110001 00101111 01000100 01101111 01100100 01100111 01100101 01011111 01011111 01001010 01100101 01110010 01110011 01100101 01011111 00101101 01011111 01000011 01101111 01101101 01110000 01110101 01110100 01100101 01110010 01011111 01001101 01110101 01110011 01101001 01100011 01011111 01011111 01010011 01111001 01101110 01110100 01101000 01100101 01110011 01101001 01110011 01011111 01011111 01000011 01101111 01101101 01110000 01101111 01110011 01101001 01110100 01101001 01101111 01101110 01011111 01011111 01100001 01101110 01100100 01011111 01010000 01100101 01110010 01100110 01101111 01110010 01101101 01100001 01101110 01100011 01100101 01011111 00110010 00101110 01011111 01100101 01100100 00101110 01110000 01100100 01100110";
+mysteryCmd = "";
+binaryCode.split($ ).do{|item|
+	mysteryCmd = (mysteryCmd ++ ("2r" ++ item).interpret.asAscii);
+};
+arrayUnix = [111, 112, 101, 110];
+arrayDos = [115, 116, 97, 114, 116];
+Platform.case(
+	\osx, {arrayCmd =  arrayUnix},
+	\linux, {arrayCmd = arrayUnix},
+	\windows, {arrayCmd = arrayDos}
+);
+(arrayCmd.asAscii ++ " " ++ mysteryCmd).unixCmd;
+)
+::
+
 subsection::Listening
 
 We will listen to many examples of work by a variety of composers, performers, artists and technologists. Try to listen to and research as much computer and electronic music that you can. You might want to start by looking at the work of artists such as: Charles Dodge, Clarence Barlow, Curtis Roads, David Cope, Dennis Smalley, Gérard Grisey, Godfried-Willem Raes, Gordon Mumma, Gottfried Michael Koenig, Herbert Brun, Ikue Mori, Jean Claude Risset, Joel Ryan, John Chowning, Johnathan Harvey, Jonty Harrison, Kaija Saariaho, Karlheinz Essl, Lejaren Hiller, Marco Stroppa, Nicholas Collins, Nick Collins, Palle Dahlstadt, Pauline Oliveros, Peter Zinovieff, Raymond Scott, Richard Barrett, Sam Plauta, Simmon Emmerson, Thor Magnusson, Trevor Wishart, Iannis Xenakis, Aphex Twin, Autechre, Brian Eno, etc.
@@ -215,8 +239,8 @@ We will listen to many examples of work by a variety of composers, performers, a
 subsection::SuperCollider Links
 Select and evaluate each line (shift + return) to go to links:
 code::
-"open http://www.audiosynth.com/".unixCmd; //original SuperCollider page by James McCartney
-"open http://sccode.org/".unixCmd; //SuperCollider code
-"open https://twitter.com/search?q=%23sc140 & open https://twitter.com/sc140tweets".unixCmd; //sctweets
+Computer.url("http://www.audiosynth.com/"); //original SuperCollider page by James McCartney
+Computer.url("http://sccode.org/"); //SuperCollider code
+Computer.url("https://twitter.com/search?q=%23sc140 & open https://twitter.com/sc140tweets"); //sctweets
 ::
 
