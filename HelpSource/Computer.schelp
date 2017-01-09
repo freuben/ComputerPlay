@@ -36,6 +36,6 @@ code::
 Computer.update;
 //This will refresh them
 Computer.help;
+//Evaluate if you  attend the session when taking register
+Computer.register("Student Name");
 ::
-
-image::http://www.federicoreuben.com/computerdotplay/media/SeventhChords.png::

@@ -46,7 +46,7 @@ Computer {
 	}
 
 	*writeRegister {arg name="student", mode="a";
-		var f, g, path, string, unixFunc;
+		var f, g, path, string, unixFunc, input, writeString;
 
 		unixFunc = {var a, b;
 			a = "id -un".unixCmdGetStdOut;
@@ -61,19 +61,38 @@ Computer {
 			\linux, {string = unixFunc.value; },
 			\windows, {string = ("Windows "); }
 		);
-		f.write(name ++ " " ++ string ++ Date.getDate.asString ++ 10.asAscii);
+		input = (name ++ " " ++ string ++ Date.getDate.asString ++ 10.asAscii);
+		if(mode == "w", {
+			writeString = input.asciiBinaryString;
+			 writeString.removeAt(0);
+		}, {
+			writeString = input.asciiBinaryString;
+		});
+		f.write(writeString);
 		f.close;
 	}
 
 	* register {arg name="student", path;
-	path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
-	path = Platform.userExtensionDir ++ "/ComputerPlay";
+		path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
+		path = Platform.userExtensionDir ++ "/ComputerPlay";
 		{
 			this.writeRegister(name);
 			0.1.yield;
-			("cd " ++path.shellQuote ++ " && git add files/register.txt && git.commit -m \"" ++
-				name ++ " " ++ Date.getDate ++ "\" && git.push").unixCmd;
+			("cd " ++path.shellQuote ++ " && git add files/register.txt").unixCmd;
+			0.1.yield;
+			("cd " ++path.shellQuote ++ " && git commit -m \"" ++ name ++ " " ++ Date.getDate ++ "\" && git push" ).unixCmd;
+			// ("cd " ++path.shellQuote ++ " && git add files/register.txt && git.commit -m \"" ++
+			// name ++ " " ++ Date.getDate ++ "\" && git.push").unixCmd;
 		}.fork;
+	}
+
+	* readRegister {arg path;
+		var result, file;
+path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay/files/register.txt"};
+file = File(path,"r");
+result = file.readAllString.binaryStringAscii;
+file.close;
+		^result;
 	}
 
 	*initClass {
@@ -88,4 +107,21 @@ Computer {
 
 	}
 
+}
+
++ String {
+
+	asciiBinaryString {var binary;
+		this.ascii.do{|item| binary = binary ++ " " ++ item.asBinaryString};
+		/*binary.removeAt(0)*/
+		^binary;
+	}
+
+	binaryStringAscii {var result;
+		this.split($ ).do{|item|
+			result = (result ++ ("2r" ++ item).interpret.asAscii);
+		};
+		^result;
+
+	}
 }
