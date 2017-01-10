@@ -1,0 +1,83 @@
+TITLE::Assignment Brief
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Handbook#Assessment#Assessment
+
+section::Assessment Tasks
+subsection::Seminar Presentation (10%)
+A short seminar presentation/demonstration of a SuperCollider project.
+
+strong::Deadline::: 10 and 17 February 2017 (in class).
+
+subsection::Portfolio of Work (60%)
+A performance, improvisation, composition, installation or demonstration.
+
+strong::Deadline::: Dates for performances/presentations to be negociated with tutor.
+
+subsection::Written Documentation (30%)
+A piece of writting (1500 words) analysing the way the practical work relates to the artistic, technological and theoretical subjects explored in the project.
+
+strong::Deadline::: 18 April 2017 by 16:00 (hand-in at Music Reception).
+
+section::Assignment Brief
+
+Throughout this module, you will be introduced to themes related to computer music, digital audio and interactivity. You will study subjects including computer programming, signal processing, sound synthesis, algorithmic composition, audio analysis, interaction, human interface devices, live electronic performance and generative music. You will also examine the creative possibilities of these technologies through experimentation in your own practice.
+
+subsection::Seminar Presentation
+
+???
+
+subsection::Porfolio of Work
+
+For your final portfolio of work (comprising 60% of your mark) you will produce a performance, improvisation, composition, installation or demonstration. You will work in groups to produce a piece of work that will last a minimum of 15 minutes. The work presented will consist of a creative or research project that will utilise computer programming and music technologies for your own creative or professional practice. For this project you will work in groups of 2 or 3, however every member of the group will have to present their work individually (develop separate code and individual written documentation). You will be responsible not only for your own work, but for making sure that the collaboration is successful.
+
+Your project should demonstrate a good working knowledge of the SuperCollider programming languague. You may choose to combine SuperCollider with other software  – you may for example use Max, Ableton Live, or Sibelius depending on the nature of your project. Your code will have to run in real-time without errors. You should also demonstrate the ability to use SuperCollider in your own creative and professional practice to design your own programs to be incorporated into your workflow. You should demonstrate through your work that you have responded to the module themes, understand key topics in computer music, and that you have the ability to specialise in areas of computer music that are relevant to your creative practice / research.
+
+It is required that through your project you demonstrate a good knowledge of the three following areas:
+numberedlist::
+##Digital Signal Processing (Synthesis and Effects)
+## Human Computer Interaction (Human Interfaces, MIDI, Machine Listening)
+## Algorithmic Composition (Ruled-based Composition, Stochastic and Generative Processes)
+::
+
+Your practical project will need to be negotiated before it is approved.
+
+subsection::Written Documentation
+
+Your written documentation (30%) will be a 1500-word piece of writing explaining the research and reasoning behind the creative output submitted as the portfolio of practical work. This piece of writing should be a critical reflection on your work, with well-developed arguments grounded on research using reliable academic sources (books, journals, etc.). It should be a serious piece of writing addressing technical and aesthetic issues and should not simply be a list of things you did for the practical project. Even though you will be working in groups, it is crucial that your written documentation focuses on your unique contribution and on your own code.
+
+As part of your submission you should also include documentation of the project (recording, video, photos, etc.) as well as your code, which should run without errors. All supporting materials used in the patch – audio files, video files, external libraries, etc. should also be included.
+
+In your written documentation, you should seek to do the following:
+list::
+##Explain your initial concept/idea of your project
+##Show evidence of the research you did for your project
+##Include the patch/code you developed and supporting materials (audio/video, recordings, photos, etc.)
+##Explain your creative project and your musical/artistic and aesthetic aims
+##Show that you were organized and spent a good amount of time in the project. You should also demonstrate that you were able to work well with others and that you participated and were in attendance in sessions.
+##Present your documentation in an organised way and write clearly with a reasonable use of academic language
+##Exhibit a fair amount of critical thinking about your project and that you critically evaluated the creative output (what are the conclusions?)
+::
+
+You should respond to the following criteria that will be evaluated:
+list::
+##Concept/Idea of Project (Project, Written Documentation)
+##Research (Project, Written Documentation)
+##Programming Skills (Patch/Code, Written Documentation)
+##Creative Realisation and Musical/Artistic output (Project, Written Documentation)
+##Project Management (Project, Written Documentation)
+##Presentation (Project, Written Documentation)
+##Critical Evaluation (Project, Written Documentation)
+::
+
+The work that you submit as written documentation should include:
+
+numberedlist::
+##1500-2000 word piece of writing (printed). In your written documentation you should credit all of the people that were involved in the project (any collaborators), as well as any samples of music or sounds by other people that you used in your track.
+##A CD/DVD or USB drive containing the following:
+list::
+##Word, Text or PDF of the written documentation.
+##Code and supporting materials (audio, video and image files, external libraries, etc.)
+##Documentation (any audio/video recordings of your performance/installation, photographs, other documentation)::
+::
+The wrtten documentation has to be handed-in by 16:00 on the 18th of April at the Music Reception in Sally Baldwin Buildings - Block D. Please do not leave things to the last minute and bear in mind that it might be wise for you to hand-in your project with enough time before the submission time. Also, please make sure that your disk, patches, files, etc. work on different computers/platforms before you hand it in. If your disk or code does not work you will fail the assignment.
