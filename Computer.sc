@@ -45,6 +45,8 @@ Computer {
 		cmd.unixCmd;
 	}
 
+	//first time to start register Computer.writeRegister("Federico Reuben", "w");
+
 	*writeRegister {arg name="student", mode="a";
 		var f, g, path, string, unixFunc, input, writeString;
 
