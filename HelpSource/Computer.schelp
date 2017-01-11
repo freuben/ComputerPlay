@@ -18,14 +18,19 @@ list::
 ::
 ## Seminars ||
 list::
-## link::Tutorials/Mark_Polishook_tutorial/05_The_network##Seminar 1: Introduction to Programming::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Seminar 2: Synthesis 1::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Seminar 3: Synthesis 2::
+## link::Tutorials/Mark_Polishook_tutorial/05_The_network##Introduction to Computer.play::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Composing with Computers 1::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Audio Analysis and Machine Listening::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Human and Computer Interaction::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Composing with Computers 2::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Advanced Topics 1::
+## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Advanced Topics 2::
 ::
 ## Workshops ||
 list::
-## link::Tutorials/Mark_Polishook_tutorial/20_Debugging##Workshop 1: Playing with UGens 1::
-## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors##Workshop 2: Playing with UGens 2::
+## link::Workshops/Programming Concepts 1::
+## link::Tutorials/Mark_Polishook_tutorial/20_Debugging##Playing with UGens 1::
+## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors##Playing with UGens 2::
 ::
 ::
 
@@ -35,8 +40,8 @@ code::
 
 //Evaluate the line below every time you want to update materials:
 Computer.update;
-//This will refresh them
+//This will refresh the help files
 Computer.help;
-//Evaluate if you  attend the session when taking register
+//Replace Student Name with your name, and evaluate if you attend the session when taking register
 Computer.register("Student Name");
 ::

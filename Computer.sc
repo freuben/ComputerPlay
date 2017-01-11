@@ -34,7 +34,9 @@ Computer {
 	*update {arg path;
 		path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
 		("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master")
-		.unixCmd({this.help;	});
+		.unixCmd({
+			/*this.help;*/
+		});
 	}
 
 	*url {arg url;

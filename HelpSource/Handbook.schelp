@@ -247,6 +247,8 @@ subsection::SuperCollider Links
 Select and evaluate each line (shift + return) to go to links:
 code::
 Computer.url("http://www.audiosynth.com/"); //original SuperCollider page by James McCartney
+Computer.url("http://supercollider.github.io/pages"); //SuperCollider Wiki
+Computer.url("http://supercollider.github.io/community/mailing-lists"); //SuperCollider Mailing List - sc-users
 Computer.url("http://sccode.org/"); //SuperCollider code
 Computer.url("https://twitter.com/search?q=%23sc140 & open https://twitter.com/sc140tweets"); //sctweets
 ::

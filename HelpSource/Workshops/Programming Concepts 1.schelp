@@ -1,0 +1,485 @@
+TITLE:: Programming Concepts 1
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Handbook#Course Materials#Course Materials, Handbook#Assessment#Assessment
+
+section::Getting Started
+
+subsection::Before we start
+
+Warning::Computers don't speak human!::
+
+Warning::Code can be annoying for humans!::
+
+Code in SC is written in the SC Language – a computer language! Computer languages are NOT like the human languages we speak – they have different rules and it’s important that you learn them. You would be surprised how some students think they can just write in plain English telling the computer what to do!! :-\
+
+So, remember, code is different from human languages. A challenge of writing computer code is also that if you make any mistakes, the code will not run… Therefore, the code needs to have no mistakes (typos, spelling, syntax, etc.) in order for the computer to ‘understand’ and run the code. Computers are (still) not as smart as us (we can sometimes still understand incorrect language by someone how’s just learning… but unfortunately computers can’t).
+
+But, we all still make mistakes writing code (obiously at the beginning you will make more mistakes). Fortunately, the computer will point out approximately where in your code you made a mistake through an Error message (more on this later).
+
+Therefore, with SC we have to be patient at the beginning! The learning curve might seem a bit steeper than learning other software, but as you will see: if your persevere it will pay off!
+
+I will be looking at the Mac version of SuperCollider. There are slight variations (in shortcuts for example) in the SuperCollider version for Linux and Windows. They are not substantial though as the SuperCollider IDE.
+
+subsection::SuperCollider IDE
+
+The SuperCollider IDE (Integrated Development Environment) is a cross-platform coding environment based on Qt (cross-platform software development tool).
+
+subsection::Getting Help
+
+The most important thing in SC is where to find the help documentation. Of course, you can look in the Help in the Menu bar, but also it is helpful to know the shortcut to get your help files. In Mac you can do that with emphasis::cmd + d::. In Windows emphasis::ctrl:: is used instead of emphasis::cmd::. Also if you select a Class that you want to search documentation for, you have to select the word and then press emphasis::cmd + d::.
+
+Note::Useful Shortcut: emphasis::cmd + d::::
+
+Example:
+
+Select the word bellow and then press emphasis::cmd + d::.
+code::
+SinOsc
+::
+This will take you to the help file of this class, which is a simple sine oscillator
+
+subsection::Keyboard Shortcuts
+
+If you want to know all of the keyboard shortcuts across different platforms (MacOS,Windows,Linuxs) you might want to look at the Keyboard Shortcuts helpfile by selecting the two words bello and then pressing cmd + d
+code::
+Keyboard Shortcuts
+::
+
+subsection::Evaluation
+
+note::strong::Important information::: The Post window is the window where all the errors and other useful data are printed.::
+
+strong::Always keep an eye on it!::
+
+Useful Shortcuts:
+cmd + p   =  Post Window to Front
+shift + cmd + p   =  Clear Post Window
+
+When it comes to running code or evaluating it, you have to select the code that you want to evaluate (or if all of the code is in one line, position the cursor in the line you want to evaluate) and then press cmd + return or shift + return
+
+Useful Shortcut: cmd + return or shift + return = Evaluate
+
+Run the code bellow by put the cursor in the line where the code is and then evaluate it:
+
+code::
+"I am a frog".speak
+::
+
+Now run this line:
+code::
+31+13
+::
+The answer is returned in the post window!
+
+Sometimes, code is longer than one line; therefore you have to select all of it for it to run.
+
+Select all the following code, and evaluate it.
+code::
+(
+s.waitForBoot({var tune;
+	tune = [60,60,62,64,60,64,62,55,
+	60,60,62,64,73,60.4,59.6];
+	Pbind(\midinote, Pseq(tune,1),
+	\amp, 0.8,
+	\dur, 0.2).play;
+});
+)
+::
+Another way of selecting code that exceeds one line is by putting the code you want to select within parenthesis () – with this type of brackets! – and then double clicking next to the parenthesis:
+code::
+(
+"code
+accross
+different
+lines
+".postln
+)
+::
+Evaluate the next piece of code by clicking next to the brackets:
+code::
+(
+{var n;
+n=10;
+
+Resonz.ar(
+Mix.arFill(n,{
+var freq, numcps;
+
+freq= rrand(50,560.3);
+numcps= rrand(2,20);
+Pan2.ar(Gendy1.ar(6.rand,6.rand,1.0.rand,1.0.rand,freq ,freq, 1.0.rand, 1.0.rand, numcps, SinOsc.kr(exprand(0.02,0.2), 0, numcps/2, numcps/2), 0.5/(n.sqrt)), 1.0.rand2)
+})
+,MouseX.kr(100,2000), MouseY.kr(0.01,1.0))
+;
+}.play
+)
+::
+To stop the sound, press command key and then period: cmd + .
+
+Note::Useful Shortcut: cmd + . = Kill all sound::
+
+"Comments"
+
+//this is a comment
+/* this is another comment */
+
+"Comments are made as a reminder of what the piece of code stands for. The computer doesn’t understand comments – it actually ignores them. Comments are for humans to remember something about the piece of code.
+
+Example:"
+
+{Pan2.ar(SinOsc.ar(MouseX.kr(440,880),0,0.1),0.0)}.play;  //this is a Theremin, move mouse from left to right
+
+"Remember: To stop the sound, press cmd + .
+
+The computer ignores the comment (if you erase the comment it has no effect in the programme). If you forget to put the // before the comment, /* */ around the comment, you will get an error though because your talking a different language here that is not for computers!"
+
+//Useful Shortcuts:
+//cmd + / - comment selection
+//alt + cmd + / - uncomment selection
+
+/*Exercise: try uncommenting this comment and then comment it back!*/
+
+"Syntax Colorize
+
+Your code will be color-coded according to the SC language syntax!
+
+Simple Numbers, Simple Math"
+
+1 //evaluate
+0.5
+
+"Note: we need a cero leading decimal numbers less than 0 (0.5, 0.3, etc.)"
+
+.5 //produces an error
+
+"Basic Math operations from left to right (not right to left like in Max!. Some basic operations:"
+
+1+2
+3*2 //multiply
+5/4 //divide
+3+2/2 //left to right
+3+(2/2) //not the same! Use brackets for nested operations
+
+"Variables
+
+Variables can be used to break the code into separate lines. A variable is precisely that: a “container” with variable content. You may assign different content to a variable. Variables also need to be defined at the beginning of the expression. Variables have to be inside the expression and have to be evaluated within it (if we evaluate the following piece of code line by line it produces error = we need to evaluate the whole piece of code for it to work)."
+
+( //double click next to this parenthesis
+var num1, num2, num3, numbers; //we define the variables we are going to use
+num1 = 2; //we assign number 2 to the variable called “num1”
+num2 = 3; //we assign number 3 to the variable called “num2”
+num3 = num1 * 4; //we assign the result of the multiplication of 4 times the content of variable “num1” (2)
+numbers = num1 + num2 + num3; //we add variables “num1”, “num2” and “num3”
+)
+
+"Global Variables
+
+Variables can be local or global. Variables that are local and have to be declared (normal variables). Global variables can be declared and accessed wherever and whenever, regardless where they are in a piece of code or when they are declared. In SC, Global Variables can be Letters a-z. We can therefore assign different content to the letters a-z and evaluate it separately.
+
+For example:"
+
+a = 2; //we assign the number 2 to the global variables “a”
+b = 3; //we assign the number 3 to the global variables “a”
+a + b; //this is the equivalent of 2 plus 3
+b = 4; //know lets change the content of “b”, we are now assigning 4
+a + b; //the answer now is different, it’s 6!
+
+"With global variables you can do complex algebraic calculations. Remember that if a global variable has not been assigned to anything, it will return nothing (represented as “nil”)"
+
+c //evaluate this line – should return nil
+c = 3/4 //now c is 0.75
+
+a + b * c;
+
+"Punctuation
+
+By now you have seen the semicolon (;) used in computer code, but what is it doing? The semicolon is used as punctuation. It divides the code in different parts (and lines) that hold a logical progression. If you evaluate a long piece of code, you will need to use the semicolon to divide the different parts of the programme that need to be evaluated in order.
+
+For a moment, consider this operation without the semicolon:"
+
+(   //double click next to this parenthesis
+a = 100;
+a = a + 100;
+b = a;
+b = b / 2;
+a + b;
+)
+
+"It wouldn’t make sense, would it!?!?
+In the first line we need to know that “a” is 100 before saying that “a” equals “a” (already a hundred) plus 100 in the second line, meaning that by now “a” equals 200. Then in the third line “b” is equal to “a” (by now 200). And in the forth line “b” equals “b” (already 200) divided by 2, which equals 100. The final answer is therefore 300, the sum of “a” (by now 200) and “b” (by now 100). Without the use of the semicolon, this wouldn’t make sense! :-|
+
+Exercises:
+1. Write an arithmetic operation using only local variables
+2. Write another operation using only global variables this time (be creative in how you use them!)
+3. Write comments next to your code, explaining what it’s doing
+4. Colorize your code!
+
+Before we start making music, we still need to know a couple more things…
+
+Functions
+
+Functions are operations that can be stored without running them, and to be evaluated at any time. They define a context, without the necessity to detail everything: what and when. Functions are written within this type of brackets: {code}"
+
+{1 + 2} //this is a function
+
+"Ones defined, functions may be evaluated by adding “.value” at the end of the function."
+
+{1 + 2}.value; //gives result
+a = {1 + 2 * 3} //store a function in global variable “a”
+a.value //runs the function and gives result
+
+"Arguments
+
+Functions may have arguments. Arguments don’t need to be defined at the time of defining the function. They can also change when the function is run.
+
+Arguments can be expressed as:"
+
+f = {arg a,b; a*b} //defines function “f”
+
+f.value(10,2) //runs function “f” with values 10 and 2 as arguments
+f.value(3,5) //runs same function with different values as arguments (getting a different result!)
+
+"Arguments may have default values that can be defined within the function. This default values will be used if the argument is not specified when evaluating the function:"
+
+f = {arg a=2,b=4; a*b} //defines function “f”
+f.value; //uses all default arguments
+f.value(3); //changes the first argument, but uses the second as default since it is not defined
+f.value(3,5); //changes both default arguments
+f.value(a: 3, b:5); //same as above but specifies which arguments the values are changing
+f.value(b:5); //changes only argument b
+
+"Functions may have also have variables. Variables are different to arguments, as they do have to be defined while the function is defined and they cannot change. Arguments on the other hand don’t need to be defined and can change every time the function is evaluated."
+
+(
+f = {arg a=2,b=4;
+var num, result;
+num = 3;
+result = a + b / num;
+}
+)
+
+f.value(7,8) //only the arguments can change
+
+"Functions can also be evaluated iteratively:"
+
+1.do{"Hello".postln}; //evaluates function ones
+10.do{"Hello".postln}; //evaluates function 10 times
+
+"Exercise:
+1. Write a function with arguments and variables
+2. Write a function that is evaluated through iteratition
+
+Objects and Messages
+
+The SC Language is an Object Oriented Programming (OOP) language. Most things that do anything in SC are objects that receive messages. In SC the objects start with uppercase letters and messages with lowercase letters. Usually messages follow objects and are separated by a period."
+
+Env.sine; //object Env (envelope), with message sine (a type of envelope)
+
+"Objects might receive messages (it might receive many messages too)."
+
+Env.perc.test.plot
+
+"SC is a polymorphic language: objects respond differently to a message. A message generally has some underlying meaning and it is the responsibility of each class to respond in a way appropriate to that meaning.
+
+In the following example, the object Env responds differently to the messages: adsr, sine, linen and triangle - all generating a different type of envelops. The specific types of envelopes are therefore envelope objects."
+
+Env.adsr.plot
+Env.sine.plot
+Env.linen.plot
+Env.triangle.plot
+
+"So, capitalized words are objects and ones they are colorized, they are blue! These objects are like the boxes in Max and they respond differently to the stuff you “connect to them”. Messages on the other hand are written in low-case letters and follow an object with a period (.) in front of them. The messages that are associated to the object make the object behave/respond differently according to the “meaning” of the message.
+
+There are a few objects that are not expressed as capitalized words. For example numbers are also objects! They also respond differently to different messages:"
+
+0.5.sin //sine of 0.5
+0.5.cos //cosine of 0.5
+60.midicps //midi numbers to cycles per second (frequency)
+440.cpsmidi //freq to midi
+10.rand //random numbers from 0 to 10
+10.rand2 //random numbers between-10 and 10
+10.squared //square root of 10
+
+"For more messages that numbers respond to, check the help file of:"
+
+SimpleNumber //cmd + d
+
+"Messages actually call a function within the object. Messages therefore also respond to arguments. Again, arguments are values (and other things too!) that can be changed to affect a function (in this case defined by the message). Using different values as arguments can therefore affect what the message does. In the following example, we are changing the argument values for the message adsr affecting the Env object. The arguments are written after the message in parenthesis and separated by commas. Here these values are changing (in order) the attack, decay, sustain and release times of the adsr envelope. With different arguments we get different adsr envelope shapes."
+
+Env.adsr(0.1,0.05,0.5,0.1).test.plot;
+Env.adsr(0.01,0.1,0.1,0.1).test.plot;
+Env.adsr(1.0,0.1,0.0,0.01).test.plot;
+
+"If no arguments are written, the object will take default values:"
+
+Env.adsr.test.plot;
+
+"If you want to look at the default values, you can go to the source code and see the function that the message triggers as well as the default arguments."
+
+adsr //select the adsr message and press cmd + i
+
+//Useful Shortcut:
+//cmd + i – implementations of message (source code)
+
+"In SuperCollider, as well as in other programming languages (and human languages too!), there are different ways of expressing the same thing. There are often different ways of writing something and getting the same result.
+
+There are two main ways of writing things in SC:
+
+receiver notation:"  Object.message
+   	                  	440.cpsmidi.round
+
+"functional notation:  function (argument)"
+ 	                 cpsmidi(440)
+                      round(cpsmidi(440))
+
+"These are all different ways of writing the same thing - random between two limits:"
+
+	rrand(10,20)
+	rrand(10,20.0)
+	10.rrand(20)
+
+
+"Recap on Brackets"
+
+(		//double click within the parenthesis to select the piece of code
+
+
+)
+
+(
+ 2
+ +
+ 2
+ *
+ 3
+)
+
+"Types of brackets"
+
+(  )  //to group experssions
+
+{  }  //function
+
+[  ]  //collection (lists of data)
+
+"The SC language consists of a lot of nested expressions – you can select between the brackets to check the fragments of code.
+Double click over the different brackets in the next piece of code:"
+
+(
+
+if(5 > 4, {
+
+	if(3 <=3, {
+		"well done!!".postln
+	});
+
+});
+
+)
+
+"Try the same with shift + cmd + b – this way you can access the different levels of code"
+
+//Useful Shortcut:
+//shift + cmd + b – check brackets are balanced
+
+"Collections
+
+Collections are lists of items (data). Like numbers, collections are objects. The items are separated by commas and are enclosed by this type of brackets: [items]
+
+For example:"
+
+[3,4,2,5,4]; //a collection of numbers
+[1,2,\foo,"hello"]; //this is a varied list of stuff
+
+"To see the different types of Collections, select:"
+
+Collections  //double click to select
+
+"and cmd + d for help
+
+some messages that respond to collections:"
+
+[1,2,3,4,5,6].choose
+[1,2,3,4,5,6].scramble
+[1,2,3,4,5,6].rotate
+[1,2,3,4,5,6] + 10
+
+"collections can be specified with the following shortcuts:"
+
+(1..5)
+// is the same as:
+[ 1, 2, 3, 4, 5 ]
+
+
+f = (10..20)
+f[0] //gets the first item of the list
+f[1] //gets the second item of the list
+f.last //gets the last item of the list
+f.size //tells you how many items are in the list
+
+f[1]
+// is the same as:
+f.at(1)
+
+(10,12..20)
+
+(1,3..8) + (1,4..8)
+
+"Ways of creating collections (Arrays are a kind of collection):"
+
+Array.series(10,1,100) //arguments: size, start, step
+Array.fill(10, {rrand(400,800)})  // size, function
+Array.fill(10, rrand(400,800))  // if function not specified with brackets, then returns the same result 10 times
+Array.rand(10, 0.7,2.4); //10 random numbers between 0.7 and 2.4 with lineal distribution
+
+"Other ways of manipulating collections: evaluate each line and check the result in the post window:"
+
+a = [1,3,5,6];
+a+5
+a*8
+a**2 //squared
+a.squared
+a.sqrt
+a.scramble //evaluate several times!
+a.reverse
+
+"Change items in an Array:"
+
+b=[2,3,4,7]
+
+b[0] //returns the item at index number 0
+
+b[0]= 74 //assigns 74 in index 0
+
+b //has changed
+
+"for more methods that respond to collections, see the help files for:" Collection, ArrayedCollection, SequenceableCollection and Array.
+
+////////////////////////////////
+
+"Answer the following questions:
+
+1. What is the difference between local and global variables?
+2. What is a function?
+3. What is an argument?
+4. What is Object Oriented Programming (OOP)?
+5. What is an object?
+6. What is a message?
+7. Name some of the differences between computer and human languages.
+8. How are arguments related to messages?
+9. What is the semicolon for?
+10. What is polymorphism?
+11. What kinds of brackets do we use in SC and for what purpose?
+12. What is a collection?
+
+"
+
+
+
+
+
+
+//Important Note:
+//Various examples, ideas, etc. have been taken or derived from the SC documentation and Nick Collins, Paul Berg, David Cottle, and probably lots of other people as well.
+
