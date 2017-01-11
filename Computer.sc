@@ -6,6 +6,7 @@ Computer {
 
 	init {arg arg1, arg2, arg3;
 		( "Welcome to Computer.play(" ++ arg1 ++ ", " ++ arg2 ++ " & " ++ arg3 ++ ")").postln;
+		this.help;
 	}
 
 	*play {arg arg1="Music", arg2="Creativity", arg3="Code";
@@ -32,7 +33,8 @@ Computer {
 
 	*update {arg path;
 		path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
-		("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master").unixCmd;
+		("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master")
+		.unixCmd({this.help;	});
 	}
 
 	*url {arg url;
