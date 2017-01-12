@@ -56,7 +56,7 @@ Computer {classvar <>fileRegister;
 	}
 
 	* readRegister {arg path;
-		var name;
+		var name, ip;
 		if(NetAddr.langPort != 57120, {
 			"Language Port is not 57120!!!!! restart SC please".warn;
 		}, {
@@ -64,12 +64,26 @@ Computer {classvar <>fileRegister;
 			name = Date.getDate.asString ++ ".txt";
 			fileRegister = File(path ++ name, "w");
 
-			thisProcess.openUDPPort(57120);
-			OSCdef(\register, {|msg, time, addr, recvPort|
-				fileRegister.write((msg[1].asString ++ " " ++ Date.getDate ++ 10.asAscii));
-				msg[1].asString.postln;
-			}, '/chat');
-			"Ready to go".postln;
+			{
+				while ( {ip = "ipconfig getifaddr en0 && ipconfig getifaddr en1".unixCmdGetStdOut;
+					if(ip.ascii.isEmpty.not, {
+						ip = ip.replace(10.asAscii);
+						//here goes the code
+						thisProcess.openUDPPort(57120);
+						OSCdef(\register, {|msg, time, addr, recvPort|
+							fileRegister.write((msg[1].asString ++ " " ++ Date.getDate ++ 10.asAscii));
+							msg[1].asString.postln;
+						}, '/chat');
+						"Ready to go".postln;
+						("IP address is: " ++ ip).postln;
+						if(ip.replace(10.asAscii) != "169.254.156.250", {
+							"IP address does not match 169.254.156.250".warn;
+						});
+						//code ends
+					});
+					ip.ascii.isEmpty }, { "waiting for IP".postln; 0.5.yield; });
+			}.fork;
+
 		});
 	}
 
