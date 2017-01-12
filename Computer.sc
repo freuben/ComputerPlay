@@ -34,9 +34,7 @@ Computer {classvar <>fileRegister;
 	*update {arg path;
 		path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
 		("cd " ++path.shellQuote ++ " && git fetch origin && git reset --hard origin/master")
-		.unixCmd({
-			/*this.help;*/
-		});
+		.unixCmd;
 	}
 
 	*url {arg url;
@@ -67,7 +65,7 @@ Computer {classvar <>fileRegister;
 			fileRegister = File(path ++ name, "w");
 
 			thisProcess.openUDPPort(57120);
-			OSCdef(\test, {|msg, time, addr, recvPort|
+			OSCdef(\register, {|msg, time, addr, recvPort|
 				fileRegister.write((msg[1].asString ++ " " ++ Date.getDate ++ 10.asAscii));
 				msg[1].asString.postln;
 			}, '/chat');
@@ -78,6 +76,7 @@ Computer {classvar <>fileRegister;
 	*writeRegister {
 		if(fileRegister.notNil, {
 			fileRegister.close;
+			OSCdef(\register).free;
 		});
 	}
 
