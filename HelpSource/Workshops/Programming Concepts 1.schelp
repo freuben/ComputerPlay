@@ -48,17 +48,20 @@ Keyboard Shortcuts
 
 subsection::Evaluation
 
-note::strong::Important information::: The Post window is the window where all the errors and other useful data are printed.::
+note::The Post window is the window where all the errors and other useful data are printed.::
 
 strong::Always keep an eye on it!::
 
-Useful Shortcuts:
-cmd + p   =  Post Window to Front
-shift + cmd + p   =  Clear Post Window
+Note::Useful Shortcuts:
+
+emphasis::cmd + p::  =  Post Window to Front
+
+emphasis::shift + cmd + p::  =  Clear Post Window
+::
 
 When it comes to running code or evaluating it, you have to select the code that you want to evaluate (or if all of the code is in one line, position the cursor in the line you want to evaluate) and then press cmd + return or shift + return
 
-Useful Shortcut: cmd + return or shift + return = Evaluate
+Note::Useful Shortcut: emphasis::cmd + return or shift + return:: = Evaluate::
 
 Run the code bellow by put the cursor in the line where the code is and then evaluate it:
 
@@ -74,9 +77,8 @@ The answer is returned in the post window!
 
 Sometimes, code is longer than one line; therefore you have to select all of it for it to run.
 
-Select all the following code, and evaluate it.
+Select strong::all:: the following code, and evaluate it.
 code::
-(
 s.waitForBoot({var tune;
 	tune = [60,60,62,64,60,64,62,55,
 	60,60,62,64,73,60.4,59.6];
@@ -84,7 +86,6 @@ s.waitForBoot({var tune;
 	\amp, 0.8,
 	\dur, 0.2).play;
 });
-)
 ::
 Another way of selecting code that exceeds one line is by putting the code you want to select within parenthesis () – with this type of brackets! – and then double clicking next to the parenthesis:
 code::
@@ -100,71 +101,97 @@ Evaluate the next piece of code by clicking next to the brackets:
 code::
 (
 {var n;
-n=10;
-
-Resonz.ar(
-Mix.arFill(n,{
-var freq, numcps;
-
-freq= rrand(50,560.3);
-numcps= rrand(2,20);
-Pan2.ar(Gendy1.ar(6.rand,6.rand,1.0.rand,1.0.rand,freq ,freq, 1.0.rand, 1.0.rand, numcps, SinOsc.kr(exprand(0.02,0.2), 0, numcps/2, numcps/2), 0.5/(n.sqrt)), 1.0.rand2)
-})
-,MouseX.kr(100,2000), MouseY.kr(0.01,1.0))
-;
+	n=10;
+	Resonz.ar(
+		Mix.arFill(n,{
+			var freq, numcps;
+			freq= rrand(50,560.3);
+			numcps= rrand(2,20);
+			Pan2.ar(Gendy1.ar(6.rand, 6.rand, 1.0.rand, 1.0.rand,
+				freq, freq, 1.0.rand, 1.0.rand, numcps,
+				SinOsc.kr(exprand(0.02,0.2), 0, numcps/2, numcps/2), 0.5/(n.sqrt)),
+			1.0.rand2)
+		}),
+		MouseX.kr(100,2000), MouseY.kr(0.01,1.0));
 }.play
 )
 ::
-To stop the sound, press command key and then period: cmd + .
+To stop the sound, press command key and then period: emphasis::cmd + .::
 
-Note::Useful Shortcut: cmd + . = Kill all sound::
+Note::Useful Shortcut: emphasis::cmd + .:: = Kill all sound::
 
-"Comments"
+subsection::Comments
 
+code::
 //this is a comment
 /* this is another comment */
+::
 
-"Comments are made as a reminder of what the piece of code stands for. The computer doesn’t understand comments – it actually ignores them. Comments are for humans to remember something about the piece of code.
+Comments are made as a reminder of what the piece of code stands for. The computer doesn’t understand comments – it actually ignores them. Comments are for humans to remember something about the piece of code.
 
-Example:"
+strong::Example:::
 
-{Pan2.ar(SinOsc.ar(MouseX.kr(440,880),0,0.1),0.0)}.play;  //this is a Theremin, move mouse from left to right
+code::
+(
+{Pan2.ar(
+	SinOsc.ar(
+		MouseX.kr(440,880)
+		,0,0.1),
+	0.0);
+}.play;  //this is a Theremin, move mouse from left to right
+)
+::
 
-"Remember: To stop the sound, press cmd + .
+strong::Remember::: To stop the sound, press emphasis::cmd + .::
 
-The computer ignores the comment (if you erase the comment it has no effect in the programme). If you forget to put the // before the comment, /* */ around the comment, you will get an error though because your talking a different language here that is not for computers!"
+The computer ignores the comment (if you erase the comment it has no effect in the programme). If you forget to put the code:://:: before the comment, code::/* */:: around the comment, you will get an error though because your talking a different language here that is not for computers!
 
-//Useful Shortcuts:
-//cmd + / - comment selection
-//alt + cmd + / - uncomment selection
+Note::
+Useful Shortcuts: emphasis::cmd + /::  = comment or uncomment selection
+::
 
-/*Exercise: try uncommenting this comment and then comment it back!*/
+strong::Exercise::: copy the text bellow into an empty Document, then:
+code::
+try commenting this text and then uncomment it back!
+::
 
-"Syntax Colorize
+subsection::Syntax Colorize
 
 Your code will be color-coded according to the SC language syntax!
 
-Simple Numbers, Simple Math"
-
+subsection::Simple Numbers, Simple Math
+SimpleNumber is the base class for numbers representing one dimentional value including integers and floats.
+code::
 1 //evaluate
 0.5
+::
 
-"Note: we need a cero leading decimal numbers less than 0 (0.5, 0.3, etc.)"
-
+Note::We need a zero leading decimal numbers less than 0 (0.5, 0.3, etc.)::
+code::
 .5 //produces an error
+::
 
-"Basic Math operations from left to right (not right to left like in Max!. Some basic operations:"
-
+Basic Math operations from left to right. Some basic operations:
+code::
 1+2
 3*2 //multiply
 5/4 //divide
 3+2/2 //left to right
 3+(2/2) //not the same! Use brackets for nested operations
+::
 
-"Variables
+For more basic math operations, see the following helpfiles (emphasis::cmd + d::):
+code::
+SimpleNumber
+Float
+Integer
+::
 
-Variables can be used to break the code into separate lines. A variable is precisely that: a “container” with variable content. You may assign different content to a variable. Variables also need to be defined at the beginning of the expression. Variables have to be inside the expression and have to be evaluated within it (if we evaluate the following piece of code line by line it produces error = we need to evaluate the whole piece of code for it to work)."
+subsection::Variables
 
+Variables can be used to break the code into separate lines. A variable is precisely that: a “container” with variable content. You may assign different content to a variable. Variables also need to be defined at the beginning of the expression. Variables have to be inside the expression and have to be evaluated within it (if we evaluate the following piece of code line by line it produces error = we need to evaluate the whole piece of code for it to work).
+
+code::
 ( //double click next to this parenthesis
 var num1, num2, num3, numbers; //we define the variables we are going to use
 num1 = 2; //we assign number 2 to the variable called “num1”
@@ -172,32 +199,39 @@ num2 = 3; //we assign number 3 to the variable called “num2”
 num3 = num1 * 4; //we assign the result of the multiplication of 4 times the content of variable “num1” (2)
 numbers = num1 + num2 + num3; //we add variables “num1”, “num2” and “num3”
 )
+::
 
-"Global Variables
+Note::
+When naming variables, it is standard practice to give them names that will tell you something about what that variable might contain. Good examples for variables would be: strong::name, occupation, note, value::. It is also standard practice if you want to name a variable with two or more words, to capitalise the first letter of the subsecuent words. For example: strong::firstName, bassClef, spectralEnvelope::. We do this also to make the code readible without relying on so many comments.
+::
+
+subsection::Global Variables
 
 Variables can be local or global. Variables that are local and have to be declared (normal variables). Global variables can be declared and accessed wherever and whenever, regardless where they are in a piece of code or when they are declared. In SC, Global Variables can be Letters a-z. We can therefore assign different content to the letters a-z and evaluate it separately.
 
-For example:"
-
+For example:
+code::
 a = 2; //we assign the number 2 to the global variables “a”
 b = 3; //we assign the number 3 to the global variables “a”
 a + b; //this is the equivalent of 2 plus 3
 b = 4; //know lets change the content of “b”, we are now assigning 4
 a + b; //the answer now is different, it’s 6!
+::
 
-"With global variables you can do complex algebraic calculations. Remember that if a global variable has not been assigned to anything, it will return nothing (represented as “nil”)"
+With global variables you can do complex algebraic calculations. Remember that if a global variable has not been assigned to anything, it will return nothing (represented as emphasis::nil::).
 
+code::
 c //evaluate this line – should return nil
 c = 3/4 //now c is 0.75
-
 a + b * c;
+::
 
-"Punctuation
+subsection::Punctuation
 
 By now you have seen the semicolon (;) used in computer code, but what is it doing? The semicolon is used as punctuation. It divides the code in different parts (and lines) that hold a logical progression. If you evaluate a long piece of code, you will need to use the semicolon to divide the different parts of the programme that need to be evaluated in order.
 
-For a moment, consider this operation without the semicolon:"
-
+For a moment, consider this operation without the semicolon:
+code::
 (   //double click next to this parenthesis
 a = 100;
 a = a + 100;
@@ -205,52 +239,62 @@ b = a;
 b = b / 2;
 a + b;
 )
+::
 
-"It wouldn’t make sense, would it!?!?
-In the first line we need to know that “a” is 100 before saying that “a” equals “a” (already a hundred) plus 100 in the second line, meaning that by now “a” equals 200. Then in the third line “b” is equal to “a” (by now 200). And in the forth line “b” equals “b” (already 200) divided by 2, which equals 100. The final answer is therefore 300, the sum of “a” (by now 200) and “b” (by now 100). Without the use of the semicolon, this wouldn’t make sense! :-|
+It wouldn’t make sense, would it!?!?
+In the first line we need to know that emphasis::a:: is 100 before saying that emphasis::a:: equals emphasis::a:: (already a hundred) plus 100 in the second line, meaning that by now emphasis::a:: equals 200. Then in the third line emphasis::b:: is equal to emphasis::a:: (by now 200). And in the forth line emphasis::b:: equals emphasis::b:: (already 200) divided by 2, which equals 100. The final answer is therefore 300, the sum of emphasis::a:: (by now 200) and “b” (by now 100). Without the use of the semicolon, this wouldn’t make sense! :-|
 
-Exercises:
-1. Write an arithmetic operation using only local variables
-2. Write another operation using only global variables this time (be creative in how you use them!)
-3. Write comments next to your code, explaining what it’s doing
-4. Colorize your code!
+subsection::Exercises
+numberedlist::
+##Write an arithmetic operation using only local variables, make sure you use punctuation and brackets
+##Write another operation using only global variables this time (remember to give them a name that makes sense)
+##Write comments next to your code, explaining what it’s doing
+::
 
 Before we start making music, we still need to know a couple more things…
 
-Functions
+subsection::Functions
 
-Functions are operations that can be stored without running them, and to be evaluated at any time. They define a context, without the necessity to detail everything: what and when. Functions are written within this type of brackets: {code}"
+Functions are operations that can be stored without running them, and to be evaluated at any time. They define a context, without the necessity to detail everything: what and when. Functions are written within this type of brackets: {code}
 
+code::
 {1 + 2} //this is a function
+::
 
-"Ones defined, functions may be evaluated by adding “.value” at the end of the function."
+Ones defined, functions may be evaluated by adding “.value” at the end of the function.
 
+code::
 {1 + 2}.value; //gives result
 a = {1 + 2 * 3} //store a function in global variable “a”
 a.value //runs the function and gives result
+::
 
-"Arguments
+subsection::Arguments
 
 Functions may have arguments. Arguments don’t need to be defined at the time of defining the function. They can also change when the function is run.
 
-Arguments can be expressed as:"
-
+Arguments can be expressed as:
+code::
 f = {arg a,b; a*b} //defines function “f”
 
 f.value(10,2) //runs function “f” with values 10 and 2 as arguments
 f.value(3,5) //runs same function with different values as arguments (getting a different result!)
+::
 
-"Arguments may have default values that can be defined within the function. This default values will be used if the argument is not specified when evaluating the function:"
+Arguments may have default values that can be defined within the function. This default values will be used if the argument is not specified when evaluating the function:
 
+code::
 f = {arg a=2,b=4; a*b} //defines function “f”
 f.value; //uses all default arguments
 f.value(3); //changes the first argument, but uses the second as default since it is not defined
 f.value(3,5); //changes both default arguments
 f.value(a: 3, b:5); //same as above but specifies which arguments the values are changing
 f.value(b:5); //changes only argument b
+::
 
-"Functions may have also have variables. Variables are different to arguments, as they do have to be defined while the function is defined and they cannot change. Arguments on the other hand don’t need to be defined and can change every time the function is evaluated."
+Functions may have also have variables. Variables are different to arguments, as they do have to be defined while the function is defined and they cannot change. Arguments on the other hand don’t need to be defined and can change every time the function is evaluated.
 
+code::
 (
 f = {arg a=2,b=4;
 var num, result;
@@ -260,39 +304,49 @@ result = a + b / num;
 )
 
 f.value(7,8) //only the arguments can change
+::
 
-"Functions can also be evaluated iteratively:"
+Functions can also be evaluated iteratively:
 
+code::
 1.do{"Hello".postln}; //evaluates function ones
 10.do{"Hello".postln}; //evaluates function 10 times
+::
 
-"Exercise:
+Exercise:
 1. Write a function with arguments and variables
 2. Write a function that is evaluated through iteratition
 
-Objects and Messages
+subsection::Objects and Messages
 
-The SC Language is an Object Oriented Programming (OOP) language. Most things that do anything in SC are objects that receive messages. In SC the objects start with uppercase letters and messages with lowercase letters. Usually messages follow objects and are separated by a period."
+The SC Language is an Object Oriented Programming (OOP) language. Most things that do anything in SC are objects that receive messages. In SC the objects start with uppercase letters and messages with lowercase letters. Usually messages follow objects and are separated by a period.
 
+code::
 Env.sine; //object Env (envelope), with message sine (a type of envelope)
+::
 
-"Objects might receive messages (it might receive many messages too)."
+Objects might receive messages (it might receive many messages too).
 
+code::
 Env.perc.test.plot
+::
 
-"SC is a polymorphic language: objects respond differently to a message. A message generally has some underlying meaning and it is the responsibility of each class to respond in a way appropriate to that meaning.
+SC is a polymorphic language: objects respond differently to a message. A message generally has some underlying meaning and it is the responsibility of each class to respond in a way appropriate to that meaning.
 
-In the following example, the object Env responds differently to the messages: adsr, sine, linen and triangle - all generating a different type of envelops. The specific types of envelopes are therefore envelope objects."
+In the following example, the object Env responds differently to the messages: adsr, sine, linen and triangle - all generating a different type of envelops. The specific types of envelopes are therefore envelope objects.
 
+code::
 Env.adsr.plot
 Env.sine.plot
 Env.linen.plot
 Env.triangle.plot
+::
 
-"So, capitalized words are objects and ones they are colorized, they are blue! These objects are like the boxes in Max and they respond differently to the stuff you “connect to them”. Messages on the other hand are written in low-case letters and follow an object with a period (.) in front of them. The messages that are associated to the object make the object behave/respond differently according to the “meaning” of the message.
+So, capitalized words are objects and ones they are colorized, they are blue! These objects are like the boxes in Max and they respond differently to the stuff you “connect to them”. Messages on the other hand are written in low-case letters and follow an object with a period (.) in front of them. The messages that are associated to the object make the object behave/respond differently according to the “meaning” of the message.
 
-There are a few objects that are not expressed as capitalized words. For example numbers are also objects! They also respond differently to different messages:"
+There are a few objects that are not expressed as capitalized words. For example numbers are also objects! They also respond differently to different messages:
 
+code::
 0.5.sin //sine of 0.5
 0.5.cos //cosine of 0.5
 60.midicps //midi numbers to cycles per second (frequency)
@@ -300,48 +354,59 @@ There are a few objects that are not expressed as capitalized words. For example
 10.rand //random numbers from 0 to 10
 10.rand2 //random numbers between-10 and 10
 10.squared //square root of 10
+::
 
-"For more messages that numbers respond to, check the help file of:"
-
+For more messages that numbers respond to, again, check the help file of:
+code::
 SimpleNumber //cmd + d
+::
+Messages actually call a function within the object. Messages therefore also respond to arguments. Again, arguments are values (and other things too!) that can be changed to affect a function (in this case defined by the message). Using different values as arguments can therefore affect what the message does. In the following example, we are changing the argument values for the message adsr affecting the Env object. The arguments are written after the message in parenthesis and separated by commas. Here these values are changing (in order) the attack, decay, sustain and release times of the adsr envelope. With different arguments we get different adsr envelope shapes.
 
-"Messages actually call a function within the object. Messages therefore also respond to arguments. Again, arguments are values (and other things too!) that can be changed to affect a function (in this case defined by the message). Using different values as arguments can therefore affect what the message does. In the following example, we are changing the argument values for the message adsr affecting the Env object. The arguments are written after the message in parenthesis and separated by commas. Here these values are changing (in order) the attack, decay, sustain and release times of the adsr envelope. With different arguments we get different adsr envelope shapes."
-
+code::
 Env.adsr(0.1,0.05,0.5,0.1).test.plot;
 Env.adsr(0.01,0.1,0.1,0.1).test.plot;
 Env.adsr(1.0,0.1,0.0,0.01).test.plot;
+::
 
-"If no arguments are written, the object will take default values:"
+If no arguments are written, the object will take default values:
 
+code::
 Env.adsr.test.plot;
+::
 
-"If you want to look at the default values, you can go to the source code and see the function that the message triggers as well as the default arguments."
+If you want to look at the default values, you can go to the source code and see the function that the message triggers as well as the default arguments.
 
+code::
 adsr //select the adsr message and press cmd + i
+::
 
-//Useful Shortcut:
-//cmd + i – implementations of message (source code)
+Note::Useful Shortcut: emphasis:::cmd + i::  = implementations of message (source code)::
 
-"In SuperCollider, as well as in other programming languages (and human languages too!), there are different ways of expressing the same thing. There are often different ways of writing something and getting the same result.
+In SuperCollider, as well as in other programming languages (and human languages too!), there are different ways of expressing the same thing. There are often different ways of writing something and getting the same result.
 
 There are two main ways of writing things in SC:
 
-receiver notation:"  Object.message
-   	                  	440.cpsmidi.round
+receiver notation:
+code::
+    Object.message
+   	440.cpsmidi.round
+::
 
-"functional notation:  function (argument)"
- 	                 cpsmidi(440)
-                      round(cpsmidi(440))
+functional notation:  function (argument):
+code::
+    cpsmidi(440)
+    round(cpsmidi(440))
+::
 
-"These are all different ways of writing the same thing - random between two limits:"
-
+These are all different ways of writing the same thing - random between two limits:
+code::
 	rrand(10,20)
 	rrand(10,20.0)
 	10.rrand(20)
+::
 
-
-"Recap on Brackets"
-
+Recap on Brackets
+code::
 (		//double click within the parenthesis to select the piece of code
 
 
@@ -354,59 +419,55 @@ receiver notation:"  Object.message
  *
  3
 )
-
-"Types of brackets"
-
+::
+Types of brackets
+code::
 (  )  //to group experssions
 
 {  }  //function
 
 [  ]  //collection (lists of data)
+::
 
-"The SC language consists of a lot of nested expressions – you can select between the brackets to check the fragments of code.
-Double click over the different brackets in the next piece of code:"
-
+The SC language consists of a lot of nested expressions – you can select between the brackets to check the fragments of code.
+Double click over the different brackets in the next piece of code:
+code::
 (
-
 if(5 > 4, {
-
 	if(3 <=3, {
 		"well done!!".postln
 	});
-
 });
-
 )
+::
+Try the same with shift + cmd + b – this way you can access the different levels of code
 
-"Try the same with shift + cmd + b – this way you can access the different levels of code"
+Useful Shortcut: emphasis::shift + cmd + b:: = check brackets are balanced
 
-//Useful Shortcut:
-//shift + cmd + b – check brackets are balanced
-
-"Collections
+Collections
 
 Collections are lists of items (data). Like numbers, collections are objects. The items are separated by commas and are enclosed by this type of brackets: [items]
 
-For example:"
-
+For example:
+code::
 [3,4,2,5,4]; //a collection of numbers
 [1,2,\foo,"hello"]; //this is a varied list of stuff
-
-"To see the different types of Collections, select:"
-
+::
+To see the different types of Collections, select:
+code::
 Collections  //double click to select
+::
+and emphasis::cmd + d:: for help
 
-"and cmd + d for help
-
-some messages that respond to collections:"
-
+some messages that respond to collections:
+code::
 [1,2,3,4,5,6].choose
 [1,2,3,4,5,6].scramble
 [1,2,3,4,5,6].rotate
 [1,2,3,4,5,6] + 10
-
-"collections can be specified with the following shortcuts:"
-
+::
+collections can be specified with the following shortcuts:
+code::
 (1..5)
 // is the same as:
 [ 1, 2, 3, 4, 5 ]
@@ -425,16 +486,16 @@ f.at(1)
 (10,12..20)
 
 (1,3..8) + (1,4..8)
-
-"Ways of creating collections (Arrays are a kind of collection):"
-
+::
+Ways of creating collections (Arrays are a kind of collection):
+code::
 Array.series(10,1,100) //arguments: size, start, step
 Array.fill(10, {rrand(400,800)})  // size, function
 Array.fill(10, rrand(400,800))  // if function not specified with brackets, then returns the same result 10 times
 Array.rand(10, 0.7,2.4); //10 random numbers between 0.7 and 2.4 with lineal distribution
-
-"Other ways of manipulating collections: evaluate each line and check the result in the post window:"
-
+::
+Other ways of manipulating collections: evaluate each line and check the result in the post window:
+code::
 a = [1,3,5,6];
 a+5
 a*8
@@ -443,9 +504,9 @@ a.squared
 a.sqrt
 a.scramble //evaluate several times!
 a.reverse
-
-"Change items in an Array:"
-
+::
+Change items in an Array:
+code::
 b=[2,3,4,7]
 
 b[0] //returns the item at index number 0
@@ -453,33 +514,35 @@ b[0] //returns the item at index number 0
 b[0]= 74 //assigns 74 in index 0
 
 b //has changed
+::
+for more methods that respond to collections, see the help files for:
+code::
+Collection
+ArrayedCollection
+SequenceableCollection
+Array
+::
 
-"for more methods that respond to collections, see the help files for:" Collection, ArrayedCollection, SequenceableCollection and Array.
+subsection::Exercises
 
-////////////////////////////////
-
-"Answer the following questions:
-
-1. What is the difference between local and global variables?
-2. What is a function?
-3. What is an argument?
-4. What is Object Oriented Programming (OOP)?
-5. What is an object?
-6. What is a message?
-7. Name some of the differences between computer and human languages.
-8. How are arguments related to messages?
-9. What is the semicolon for?
-10. What is polymorphism?
-11. What kinds of brackets do we use in SC and for what purpose?
-12. What is a collection?
-
-"
+Answer the following questions:
+numberedlist::
+##What is the difference between local and global variables?
+##What is a function?
+##What is an argument?
+##What is Object Oriented Programming (OOP)?
+##What is an object?
+##What is a message?
+##Name some of the differences between computer and human languages.
+##How are arguments related to messages?
+##What is the semicolon for?
+##What is polymorphism?
+##What kinds of brackets do we use in SC and for what purpose?
+##What is a collection?
+::
 
 
 
-
-
-
-//Important Note:
-//Various examples, ideas, etc. have been taken or derived from the SC documentation and Nick Collins, Paul Berg, David Cottle, and probably lots of other people as well.
-
+Note::
+Various examples, ideas, etc. have been taken or derived from the SC documentation and Nick Collins, Paul Berg, David Cottle, and probably lots of other people as well.
+::
