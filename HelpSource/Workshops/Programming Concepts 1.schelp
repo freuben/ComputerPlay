@@ -202,7 +202,7 @@ numbers = num1 + num2 + num3; //we add variables “num1”, “num2” and “n
 ::
 
 Note::
-When naming variables, it is standard practice to give them names that will tell you something about what that variable might contain. Good examples for variables would be: strong::name, occupation, note, value::. It is also standard practice if you want to name a variable with two or more words, to capitalise the first letter of the subsecuent words. For example: strong::firstName, bassClef, spectralEnvelope::. We do this also to make the code readible without relying on so many comments.
+When naming variables, it is standard practice to give them names that will tell you something about what that variable might contain. Good examples for variables would code::var name, occupation, note, value;:: . It is also standard practice if you want to name a variable with two or more words, to capitalise the first letter of the subsecuent words - also called code::CamelCase:: and specifically for variables code::lowerCamelCase::. For example: code::var firstName, bassClef, spectralEnvelope;:: . We do this also to make the code readible without relying on so many comments.
 ::
 
 subsection::Global Variables
