@@ -130,6 +130,14 @@ You should also download and install the Synthesis Plugins and Extensions:
 code::
 Computer.url("https://github.com/supercollider/sc3-plugins/releases");
 ::
+For quick installation for Mac, evaluate each line of code individually:
+code::
+Computer.url("https://github.com/supercollider/sc3-plugins/releases/download/Version-3.8.0/sc3-plugins_OSX_SC3.8_692f92f.zip"); //download current version of sc-plugins for mac
+("open " ++ "~/Downloads/sc3-plugins_OSX_SC3.8_692f92f.zip".standardizePath.shellQuote).unixCmd;
+//open zip file
+("mv " ++ "~/Downloads/SC3plugins/".standardizePath.shellQuote ++ " " ++ (Platform.userExtensionDir++ "/SC3plugins/").shellQuote).unixCmd; //move the folder to where it belongs
+::
+
 Additionally, you might want to install some third-party packages called link::Classes/Quarks::.
 
 You might also want to use other software platforms and integrate them in your workflow with SuperCollider. Here are some suggestions:
