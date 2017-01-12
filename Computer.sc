@@ -1,4 +1,4 @@
-Computer {
+Computer {classvar <>fileRegister;
 
 	*new {arg arg1="Music", arg2="Creativity", arg3="Code";
 		^super.new.init(arg1, arg2, arg3);
@@ -49,56 +49,36 @@ Computer {
 		cmd.unixCmd;
 	}
 
-	//first time to start register Computer.writeRegister("Federico Reuben", "w");
-
-	*writeRegister {arg name="student", mode="a";
-		var f, g, path, string, unixFunc, input, writeString;
-
-		unixFunc = {var a, b;
-			a = "id -un".unixCmdGetStdOut;
-			b = "ipconfig getifaddr en1 & ipconfig getifaddr en0".unixCmdGetStdOut;
-			(a.replace(10.asAscii, " ") ++ b.replace(10.asAscii, " "));
-		};
-
-		path = Platform.userExtensionDir ++ "/ComputerPlay/files/register.txt";
-		f = File(path,mode);
-		Platform.case(
-			\osx, {string = unixFunc.value; },
-			\linux, {string = unixFunc.value; },
-			\windows, {string = ("Windows "); }
-		);
-		input = (name ++ " " ++ string ++ Date.getDate.asString ++ 10.asAscii);
-		if(mode == "w", {
-			writeString = input.asciiBinaryString;
-			 writeString.removeAt(0);
-		}, {
-			writeString = input.asciiBinaryString;
-		});
-		f.write(writeString);
-		f.close;
-	}
-
-	* register {arg name="student", path;
-		path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay"};
-		path = Platform.userExtensionDir ++ "/ComputerPlay";
-		{
-			this.writeRegister(name);
-			0.1.yield;
-			("cd " ++path.shellQuote ++ " && git add files/register.txt").unixCmd;
-			0.1.yield;
-			("cd " ++path.shellQuote ++ " && git commit -m \"" ++ name ++ " " ++ Date.getDate ++ "\" && git push" ).unixCmd;
-			// ("cd " ++path.shellQuote ++ " && git add files/register.txt && git.commit -m \"" ++
-			// name ++ " " ++ Date.getDate ++ "\" && git.push").unixCmd;
-		}.fork;
+	* register {arg name, ip, port;
+		var network;
+		ip ?? {ip = "169.254.156.250" };
+		port ?? {port = 57120};
+		network = NetAddr(ip, 57120); // loopback
+		network.sendMsg("/chat", name);
 	}
 
 	* readRegister {arg path;
-		var result, file;
-path ?? {path = Platform.userExtensionDir ++ "/ComputerPlay/files/register.txt"};
-file = File(path,"r");
-result = file.readAllString.binaryStringAscii;
-file.close;
-		^result;
+		var name;
+		if(NetAddr.langPort != 57120, {
+			"Language Port is not 57120!!!!! restart SC please".warn;
+		}, {
+			path ?? {path = "~/Desktop/ComputerPlay/register/".standardizePath;};
+			name = Date.getDate.asString ++ ".txt";
+			fileRegister = File(path ++ name, "w");
+
+			thisProcess.openUDPPort(57120);
+			OSCdef(\test, {|msg, time, addr, recvPort|
+				fileRegister.write((msg[1].asString ++ " " ++ Date.getDate ++ 10.asAscii));
+				msg[1].asString.postln;
+			}, '/chat');
+			"Ready to go".postln;
+		});
+	}
+
+	*writeRegister {
+		if(fileRegister.notNil, {
+			fileRegister.close;
+		});
 	}
 
 	*initClass {
