@@ -71,7 +71,8 @@ Computer {classvar <>fileRegister;
 						//here goes the code
 						thisProcess.openUDPPort(57120);
 						OSCdef(\register, {|msg, time, addr, recvPort|
-							fileRegister.write((msg[1].asString ++ " " ++ Date.getDate ++ 10.asAscii));
+							fileRegister.write((msg[1].asString ++ " " ++
+								Date.getDate ++ 10.asAscii));
 							msg[1].asString.postln;
 						}, '/chat');
 						"Ready to go".postln;
