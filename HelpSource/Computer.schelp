@@ -19,18 +19,11 @@ list::
 ## Seminars ||
 list::
 ## link::Tutorials/Mark_Polishook_tutorial/05_The_network##Introduction to Computer.play::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Composing with Computers 1::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Audio Analysis and Machine Listening::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Human and Computer Interaction::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Composing with Computers 2::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Advanced Topics 1::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Advanced Topics 2::
 ::
 ## Workshops ||
 list::
 ## link::Workshops/Programming Concepts 1::
-## link::Tutorials/Mark_Polishook_tutorial/20_Debugging##Playing with UGens 1::
-## link::Tutorials/Mark_Polishook_tutorial/21_Syntax_errors##Playing with UGens 2::
+## link::Workshops/Playing with UGens 1::
 ::
 ::
 

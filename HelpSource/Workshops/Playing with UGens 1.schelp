@@ -1,0 +1,801 @@
+TITLE:: Playing with UGens 1
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Handbook#Course Materials#Course Materials, Handbook#Assessment#Assessment
+
+section::UGens
+
+
+Unit Generators or UGens are objects that generate numbers very fast and run in a lower level programming language (C++) for efficiency purposes. The numbers run at a sample level and are used for synthesis/analysis of audio. To see the available UGens (unit generators) evaluate the following:
+code::
+ 	 UGen.dumpClassSubtree
+::
+
+strong::Excercise::: Go  on a tour of SuperCollider UGens:
+
+link::Guides/Tour_of_UGens::
+
+Note:: UGens are objects, therefore they are written starting with Upper-case letters.::
+
+UGens can run at audio rate (sampling rate):
+with the message code::.ar::
+
+or control rate: with the message code::.kr::
+
+Within a function, UGens can produce audio and control signals
+
+Each UGen has a help file that explains what it does.
+
+code::
+SinOsc //select and cmd + d
+::
+
+subsection::Booting the Server
+
+To get any sound from a UGen, first we have to boot the server.
+
+Note::To boot server press emphasis::cmd + b::.::
+
+Alternatively, you can boot the server by evaluating the following line of code:
+code::
+s.boot; //turns on the server on
+s.quit; //to quit the server
+::
+
+subsection::UGen arguments
+
+UGens tend to have default values for their arguments. To discover these, access the code which contains the list of arguments and their default values.
+code::
+SinOsc //select object and press cmd + i
+
+{SinOsc.ar}.play
+{SinOsc.ar(mul: 0.2)}.scope
+::
+strong::Remember::: to stop the sound: emphasis::cmd + . (period)::
+
+Note::UGens need the messege code::.ar:: (for audio rate) or code::.kr:: (for control rate).::
+
+To get help for SinOsc, select it and emphasis::cmd + d::.
+
+UGens may have one or a list of arguments (10,2,3) that are written after the message and are separated by commas
+
+code::
+{SinOsc.ar(mul: 0.1)}.scope
+{SinOsc.ar(220,0,0.3)}.scope //args: freq, phase, mul
+::
+To use different values for arguments, without specifying the value for the preceding ones, you may use the following notation:
+code::
+{SinOsc.ar(220, mul: 0.3)}.scope
+::
+instead of:
+code::
+{SinOsc.ar(220, 0, 0.3)}.scope
+::
+
+subsection::Combining signals
+
+
+The argument for a UGen can be another UGen:
+code::
+{Pulse.ar(Saw.kr(MouseX.kr(0.2,100), mul: 50, add: 400/4), 0.5, mul: SinOsc.kr(1, mul:0.5, add:1))}.scope;
+::
+
+A more simple example: here we modulate the frequency of code::SinOsc:: with another code::SinOsc::.
+
+code::
+{SinOsc.ar(SinOsc.kr(0.5,0,50,400),0,0.5)}.scope; //args: freq, phase, mul, add
+::
+
+strong::Discussion:::
+list::
+##code::mul:: can be seen as the emphasis::range::
+##the values for code::SinOsc:: are between -1.0 and 1.0
+##if code::mul == 4::, then they oscillate between -4.0 and 4.0
+##code::add:: can be seen as the emphasis::center::
+##normal values between -1.0 and 1.0
+##code::add::, if code::add == 2::, then values between 1.0 and 3.0
+##In the example above, the oscillator modulates between 350 Hz (400-50) and 450 Hz (400+50) every second.
+::
+
+Other examples of modulations with code::SicOsc::.
+code::
+{SinOsc.ar(SinOsc.kr(0.5,0,100,500),0,0.5)}.scope;
+//mouse changes frequency of moduling oscillator:
+{SinOsc.ar(SinOsc.kr(MouseX.kr(0.1, 10),0,100,500),0,0.5)}.scope;
+::
+
+code::LFNoise0:: produces emphasis::low frequency noise:::
+code::
+LFNoise0(freq,mul,add)   // freq is the frequency in which the values are generated
+
+{LFNoise0.ar(10)}.scope
+
+{Pulse.ar(LFNoise0.ar(10,100,150), mul:0.2)}.scope  // mul is the range, add is the center value                                               // freq between 400 and 600 Hz
+::
+
+strong::Adding 2 signals:::
+code::
+(
+{ Saw.ar(400,0.3)
+	+
+  SinOsc.ar(120,0.3)
+  }.scope
+)
+::
+
+strong::Multiplying 2 signals:::
+code::
+(
+{ Saw.ar(400)
+	*
+  Saw.ar(100)
+  }.scope
+)
+::
+
+The name of parameters can be specified if it helps to understand the organisation of the expression:
+code::
+(
+{Pulse.ar (freq: LFNoise0.ar( freq: MouseX.kr(0.2,1000),
+						   mul: 100,
+						   add: 200),
+		   mul: 0.3
+		  )
+}.scope
+)
+::
+
+subsection::Multi-channel expansion (and contraction)
+
+a collection (array) given to a parameter in a UGen results in a multi-channel output"
+
+{SinOsc.ar(#[220,365])}.scope
+
+"Mix is an object that mixes a multi-channel output to one channel"
+
+{Mix.ar(SinOsc.ar((100,400..1000),0,0.6/19))}.scope
+
+"The result is similar to: "
+
+{ SinOsc.ar(220,mul: 0.3) + SinOsc.ar(365, mul: 0.3)}.scope
+
+
+"MouseX, MouseY
+
+Arguments may be tested using MouseX and MouseY:
+"
+
+MouseX.kr(minval, maxval, warp, lag)
+    //warp curve is 0 for linear, 1 for exponential or 'linear', 'exponential'
+    //lag dalays the mouse movement
+
+{SinOsc.ar(MouseX.kr(100,2000),0,0.1)}.scope
+{SinOsc.ar(MouseX.kr(100,2000, 'exponential'),0,0.1)}.scope
+{SinOsc.ar(MouseX.kr(100,2000, 'exponential', 5),0,0.1)}.scope //lags mouse movement for 5 secs
+
+"Using MouseY too:"
+
+(
+{SinOsc.ar(freq: MouseX.kr(100,2000, 'exponential'),
+	mul: MouseY.kr(0.1,0.01))  // in the upper part of the screen amp is higher
+}.scope
+)
+
+
+XLine, Line
+
+"Controling values with XLine:"
+	XLine (start, end, dur, mul, add, doneAction)  ar or kr
+	//generates an exponential curve
+	//start and end cannot be 0
+	//duration in seconds
+
+"note: the last value stays unless one specifies to kill the sound with doneAction. The options for doneAction are explained in the" EnvGen "help file.
+
+doneAction: frees the synth on the Server"
+
+{SinOsc.ar(XLine.kr(100,2000,1),0,0.3)}.scope
+
+{SinOsc.ar(XLine.kr(100,2000,1, doneAction: 2),0,0.1)}.scope
+
+"Line generates a lineal change:"
+	Line (start, end, dur, mul, add, doneAction)  .ar or .kr
+
+{SinOsc.ar(Line.kr(100,2000,10, doneAction: 2),0,0.1)}.scope
+
+
+
+"Envelopes - Env, EnvGen
+
+Envelopes can be specified using Env"
+
+
+Env.linen (1,2,1,0.6).plot
+Env.linen (1,2,1,0.6).test
+       linen (attackTime, sustainTime, releaseTime, level)
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'exponential').plot
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'exponential').test.plot
+       Env.new([levels], [times], curve)
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'sine').test.plot
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'welch').test.plot
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], 4).test.plot
+Env.new([0.001,1,0.3,0.001],[1,0.5,2], -4).test.plot
+
+	Env.triangle (duration, level)
+Env.triangle(1,1).test.plot
+
+	Env.sine(duration,  level)     // Hanning window
+Env.sine (1,1).test.plot
+
+	Env.perc(attackTime, releaseTime,peakLevel, curve)
+Env.perc(0.05,1,1,-4).test.plot
+
+	cutoff(releaseTime, level, curve)   //no attack
+Env.cutoff(1,1,'sine').test.plot
+
+"For more envelope examples see Env help file.
+
+To generate envelopes, the" Env "UGen has to be used as an argument of" EnvGen
+	"(envelope, gate, levelScale, levelBias, timeScale, doneAction)
+	envelope - an instance of" Env
+	"gate control signal that keeps" EnvGen "open"
+
+{ EnvGen.kr(Env.linen(1,2,1,0.6),doneAction: 2) * BrownNoise.ar}.scope
+
+(
+{ EnvGen.kr(Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'exponential'),
+	doneAction: 2)
+* BrownNoise.ar}.scope
+)
+
+"envelope for frequency:"
+
+(
+{	Blip.ar(EnvGen.kr(Env.new([1000,500,400,200],[5,2,3],'sine'), doneAction: 2), mul: 0.1)
+}.scope
+)
+
+
+"
+Remember variables?
+
+Variables can be used to break the algorithm into separate lines of code. Note that the
+lines of code end with a semicolon (that is how the expressions are divided.) Variables have to be inside the expression and have to be evaluated within it (if we evaluate the following piece of code line by line it produces error = we need to evaluate the whole piece of code for it to work).
+"
+
+(
+	var envelope, freq = 200;
+
+	envelope = Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'exponential');
+
+	{EnvGen.ar(envelope,1,doneAction: 2) * SinOsc.ar(freq,0,0.5)}.scope;
+)
+
+//or
+
+(
+{	var envelope, freq = 200;
+
+	envelope = Env.new([0.001,1,0.3,0.001],[1,0.5,2], 'exponential');
+
+	EnvGen.ar(envelope,1,doneAction: 2) * SinOsc.ar(freq,0,0.5)
+}.scope
+)
+
+
+"
+Remember Global Variables?
+
+Variables can be local or global. Variables that are local and have to be declared. Global variables can be declared and accessed wherever and whenever, regardless where they are in a piece of code or when they are declared. Global variables can be letters a-z (stored in the interpreter), but may also be written using ~ before a written variable.
+
+
+Example:"
+
+~cuatro = 4;
+~cinco = 5;
+
+~cuatro + ~cinco;
+
+
+"
+These type of global variables are stored in an Environment. If you want to clear the enviroment you can by evaluating the following piece of code:"
+
+currentEnvironment.clear;
+
+~cuatro
+~cinco
+
+
+"For more information about environments select"
+
+
+Environment
+
+
+"and cmd + d
+
+
+Random sine waves"
+
+
+// random frequencies
+
+"Fill an array:"
+
+
+Array.fill(10,1.0.rand)  // fills an array with the same random value
+Array.fill(10,{1.0.rand})  // fills an array with different values
+
+"another way of doing the same:"
+
+{1.0.rand}.dup(10)    // dup duplicates an array produced by a function several times
+{1.00.rand} ! 10      // ! same as dup (ver SymbolicNotations)
+
+[1,0.5,0.3].normalizeSum //normalizes an array:
+
+(
+{
+var harmArray, ampArray, fund,num; //variable declaration
+fund = 100;
+num = 20;
+harmArray ={rrand(1.0, 20)} ! num;  // an array of num amount of values
+ampArray = {1.0.rand}.dup(num).normalizeSum; //normalize the array so that amp is not too much
+Mix.ar(SinOsc.ar(harmArray * fund, 0, ampArray));
+}.scope
+)
+
+"We add an envelope to the random frequencies:"
+
+(
+{
+var harmArray, ampArray, fund,n,env;
+fund = 100;
+n = 20;
+harmArray ={rrand(1,20.0)} ! n;
+ampArray = {1.0.rand}.dup(n).normalizeSum;
+env = Env.linen(1,10,3,0.6); //Lineal envelope
+Mix.ar(SinOsc.ar(harmArray * fund, 0, ampArray) * EnvGen.kr(env,1,doneAction:2));
+}.scope;
+)
+
+
+"a different envelope for each frequency"
+
+(
+{
+var harmArray, ampArray, fund,n,env; fund = 100;
+n = 20;
+harmArray ={rrand(1.0,20)}! n;
+ampArray = {1.0.rand}.dup(n).normalizeSum;
+env = {EnvGen.kr(Env.linen(rrand(1,10.0).postln,10,3,0.6))} ! n;
+Mix.ar(SinOsc.ar(harmArray * fund, 0, ampArray) * env);
+}.scope;
+)
+
+
+// another way duplicate the whole function
+(
+{
+var harmArray, ampArray, fund,n; fund = 100;
+n = 20;
+Mix.ar({SinOsc.ar(rrand(1,20.0) * fund, 0, 0.3.rand) *
+	EnvGen.kr(Env.linen(rrand(1.0,10),rrand(5.0,10),3,0.2))} ! n);
+}.scope;
+)
+
+
+"Noise"
+
+WhiteNoise.dumpClassSubtree //different types of Noise
+
+{WhiteNoise.ar(0.5)}.scope
+{PinkNoise.ar(0.5)}.scope
+{BrownNoise.ar(0.5)}.scope
+{GrayNoise.ar(0.5)}.scope
+
+Impulse.ar(freq, phase, mul, add) // Random impulses
+{Impulse.ar(MouseX.kr(1,500))}.scope
+
+Dust.ar(density, mul, add) // random impulses
+{Dust.ar(MouseX.kr(10,500))}.scope
+
+Dust "as trigger of an envelope. The argument gate activates when the signal is > (greater than) 0 :"
+
+(
+{	SinOsc.ar(440, mul: EnvGen.kr(Env.perc(0.001,1.0),
+							  Dust.kr(MouseX.kr(0.5,5))))
+}.scope
+)
+
+Env.perc(0.001,0.05).plot
+
+
+"Filters"
+
+Filter.dumpClassSubtree
+
+RLPF   resonant low pass filter
+RHPF   resonant high pass filter
+BPF	  bandpass filter
+
+RLPF.ar(in, freq, rq, mul, add)
+
+
+//freq is the cuttoffFreq, rq is the reciprocal of Q: bandwidth/cutoffFreq
+
+{ RLPF.ar(WhiteNoise.ar,500,0.1)}.scope
+{ RLPF.ar(WhiteNoise.ar,500,0.9)}.scope
+{ RLPF.ar(WhiteNoise.ar,MouseX.kr(200,2000,0, 0.5),MouseY.kr(0.01,0.5,0, 0.5))}.scope
+// MouseX is cutoff freq and MouseY is rq
+
+
+"BPF - 2nd order Butterworth bandpass filter"
+
+{ BPF.ar(WhiteNoise.ar,MouseX.kr(200,2000,0, 0.5),MouseY.kr(0.01,0.5,0, 0.5))}.scope
+
+
+Resonz - resonant filter
+Resonz.ar(in,freq,rq, mul,add)
+
+{Resonz.ar(WhiteNoise.ar(0.5),2000,0.1)}.scope
+
+
+// modulate bandwidth
+{ Resonz.ar(WhiteNoise.ar(0.5), 2000, XLine.kr(1, 0.001, 8)) }.play
+
+(
+  {Resonz.ar(WhiteNoise.ar(0.3),2000,0.1)
+  +
+  Resonz.ar(WhiteNoise.ar(0.3),1207,0.1)
+  +
+ Resonz.ar(WhiteNoise.ar(0.3),387,0.1)}.scope;
+)
+
+
+
+"Klank - bank of resonators
+
+Klank.ar(specificationsArrayRef, input, freqscale, freqoffset, decayscale)
+specificationsArrayRef - a Ref to an Array of three Arrays :
+	frequencies - an Array of filter frequencies.
+	amplitudes - an Array of filter amplitudes, or nil. If nil, then amplitudes default to 1.0
+	ring times - an Array of 60 dB decay times for the filters.
+
+	If there are only two arrays in the main array, the ring times have been omitted"
+
+
+// ` to prevent multi-channel expantion
+
+(
+{
+	Klank.ar(
+		`[[100,200,300,400,500,600,700,800, 900,1000],
+		  [0.05,0.2,0.04,0.06,0.11,0.01,0.15,0.03,0.15,0.02]],
+		PinkNoise.ar(MouseX.kr(0.01,0.1)))
+}.scope
+)
+
+
+Array.series(10,50,100)     // size, start, step
+Array.series(10,1.0,-0.1)
+(1.0,0.9..0.1)
+
+(
+{
+Klank.ar(
+	`[Array.series(10,50,134),
+	  Array.series(10,1.0,-0.05)],
+	PinkNoise.ar(0.01))
+}.scope
+)
+
+
+"To convert dBs (decibels) to amp values:"
+
+		-6.dbamp
+
+"Using amps as dBs
+   (freq and amps from formant table of Csound for alto E"
+
+(
+{
+Klank.ar(
+	`[[400,1600,2700,3300,4950],
+	  [0,-24,-30,-35,-60].dbamp.postln],
+	  PinkNoise.ar(0.01))
+}.scope
+)
+
+  "(freq and amps from formant table of Csound for alto "o")"
+
+(
+{
+Klank.ar(
+	`[[450,800,2830,3500,4950],
+	  [0,-9,-16,-28,-55].dbamp],
+	  PinkNoise.ar(0.01))
+}.scope
+)
+
+"note: look also at DynKlank (it is a dynamic Klank values of arrays can change)
+
+Formlet FOF-like filter"
+Formlet.ar(in, freq, attacktime, decaytime, mul, add)
+
+"Resonant filter with an impulse response similar to that of a sine wave with exponential decay.
+
+If the attacktime and  decaytime are the same, the signal is canceled.
+if attacktime > decaytime, the impulse response is inverted."
+
+{Formlet.ar(PinkNoise.ar(0.1), 1000,0.01,0.1)}.scope
+{Formlet.ar(Impulse.ar(20,0.5), 1000,0.01,0.1)}.scope  // Impulse maybe sounds
+
+	"band-limited impulse oscillator"
+	Blip.ar(kfreq, numharmonics, mul, add)
+
+	{Blip.ar(100,100,0.5)}.scope
+
+	{Blip.ar(SinOsc.kr(5,0,20,300), 1000,0.4)}.scope
+
+"modulate formant frequency with Blip input signal:"
+
+(
+{
+	var in;
+	in = Blip.ar(SinOsc.kr(5,0,20,300), 1000, 0.1);
+	Formlet.ar(in, XLine.kr(1500,700,8, doneAction: 2), 0.005, 0.04);
+}.scope;
+)
+
+"
+Comb filter
+
+CombL.ar(in,maxdelaytime, delaytime, decaytime, mul, add);
+
+CombL uses lineal delay (see also CombN, CombC)
+
+decayTime is the time that it takes for the echoes to diminish by 60 dB"
+
+{ CombL.ar(WhiteNoise.ar(0.1), 0.01, 0.01, 0.2) }.scope;
+
+// modulate delayTime:
+{ CombL.ar(WhiteNoise.ar(0.1), 0.01, XLine.kr(0.001,0.01,10), 0.2) }.scope;
+
+
+"
+Karplus-Strong
+
+Using CombL for Karplus-Strong model:"
+
+69.midicps   				 // frequency
+69.midicps.reciprocal  		// period
+
+(
+{
+	var burstEnv, att = 0, dec = 0.001;
+	var delayTime, decayTime = 10;
+	var midiPitch = 69;
+	delayTime = midiPitch.midicps.reciprocal;
+	burstEnv = EnvGen.kr(Env.perc(att, dec));
+	CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime);
+}.scope
+)
+
+
+// Using Mouse as Trigger
+
+(
+{
+	var burstEnv, att = 0, dec = 0.05;  // now with more dec
+	var delayTime, decayTime = 10;
+	delayTime = MouseX.kr(36,74, lag: 0).midicps.reciprocal;  // MouseX controls note
+	burstEnv = EnvGen.kr(Env.perc(att, dec), gate: MouseButton.kr(0,1,0)); // MouseButton controls gate
+	CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime);
+}.scope
+)
+
+// try with different Noises (for example: PinkNoise, BrownNoise, GrayNoise, etc)
+
+
+
+"Stereo Panning"
+
+Pan2.ar(signal, position)   -1 is left, 1 is right
+
+{Pan2.ar(Dust.ar(50), MouseX.kr(-1,1))}.scope
+
+
+// adding panning to karplus
+(
+{
+	var burstEnv, att = 0, dec = 0.05;
+	var delayTime, decayTime = 10;
+	delayTime = MouseX.kr(36,74, lag: 0).midicps.reciprocal;
+	burstEnv = EnvGen.kr(Env.perc(att, dec), gate: MouseButton.kr(0,1,0)); 	Pan2.ar(CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime),
+	        MouseX.kr(1,-1))
+}.scope
+)
+
+"Reverb"
+
+// add reverb McCartney style to karplus
+//  an array of AllPass filter, without interpolation
+//	y = signal;
+//	Mix.fill(5,{ y = AllpassN.ar(y, 0.05,0.05.rand,3)});
+//	signal + (y * 0.0) // dry signal + signal with reverb
+
+
+(
+{
+	var burstEnv, att = 0.0, dec = 0.05, y, panned;
+	var delayTime, decayTime = 10;
+	delayTime = MouseX.kr(36,74, lag: 0).midicps.reciprocal;
+	burstEnv = EnvGen.kr(Env.perc(att, dec), gate: MouseButton.kr(0,1,0));
+	panned = Pan2.ar(CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime),
+	        MouseX.kr(1,-1));
+	y = panned;
+	Mix.fill(5, { y = AllpassN.ar(y, 0.05,0.05.rand, 1)});
+	panned + (y * 0.4)
+}.scope
+)
+
+
+"note: For better quality reverb look at: FreeVerb and FreeVerb2
+
+
+Server
+
+
+Synthesis engine that receives commands (OSC) from the language
+     (or some other application)
+     the synth server and its clients may be on the same machine or across a network
+
+synthesis definitions (SynthDef) are loaded to the server
+
+The server does not send or receive MIDI. It is expected that the client will send control messages.
+
+Server uses trees of nodes (a network) which are either synths or groups
+
+Synth is a collection of Unit Generators that run together
+Group is a collection of nodes represented as a linked list
+            (each node points to the next one).
+      A new node is added to the head (the beginning) or the tail (the end) of the list.
+
+The order of execution of SynthDefs can be important (e.g. a signal must first be
+made before it can be processed in a reverb unit). The order of execution is determined
+with the order of the nodes (head or tail).
+
+Audio can be routed from one SynthDef to another and to the Audio Output device via
+Audio Buffers (an array of 128 channels).
+
+Control information can be routed with control buses (an array of 4096 buses)"
+
+{SinOsc.ar(440,mul: 0.1)}.play(s);
+
+"the messages play and scope produce a synthesis definition (look at the post window):"
+
+
+
+Synth("temp__46" : 1005)   // the name (in this case temporal name itgoing to be different than the one here) and the node of the synth definiton will appear in the post window)
+
+"Global variables (for example letters a z) can be used to store the synthesis definition"
+
+a = {SinOsc.ar(440,mul: 0.1)}.play(s);
+b = {SinOsc.ar(660,mul: 0.1)}.play(s);
+c = {SinOsc.ar(740,mul: 0.1)}.play(s);
+
+a.free;
+b.free;
+c.free;
+
+"
+SynthDef
+
+A SynthDef gives a name to a specific patch. When loaded to the server, a SynthDef can receive messages to change the values thorough its arguments.
+
+Basic format:
+"
+
+SynthDef("name", { Out.ar(busNumber,UGen});
+
+"name" can also be written as \name
+
+(
+SynthDef("sines",{ |freq = 440,bus = 0|
+	Out.ar(bus,SinOsc.ar(freq,0,0.1));
+	}).load(s);   // save definition and loaded to server (s)
+)
+
+"SynthDefs can be written to a file for later use, or written and loaded, or just loaded.
+The default directory for SynthDef files is synthdefs/
+(look at /Library/Application Support/SuperCollider/synthdefs/)
+
+
+writeDefFile (dir)   writes the def as a file
+load(server)  write the defFile and send a message to server to load the file
+send(server)  compile the def and send it to server without writing it to a file
+play(server)  compile def, sends to server, and creates one synth from this definition
+
+Read help file of" SynthDef "to see more messages the class responds to.
+
+It is possible to send raw messages (OSC messages) directly to the server to make a new instance of a SynthDef or to change the argument value of an existing one.
+
+A description of the OSC messages available:"
+ [Server-Command-Reference]
+
+
+"A convenient way of creating instances of a synth is using the classes from the SC language"
+
+Synth("sines")
+Synth("sines",[\freq, 200])
+
+
+z = Synth("sines");
+
+z.run(false);
+z.run(true);
+
+z.set("freq",600);
+z.set("bus", 1);
+z.set("freq",300, "bus",0);
+
+"To free the synth from the Server:"
+
+z.free;
+
+
+"Another SynthDef:"
+
+(
+SynthDef("filterNoise", {arg center = 2000;
+	Out.ar(0,Resonz.ar(WhiteNoise.ar(0.5), center,0.1));
+	}).load(s);
+)
+
+a = Synth("filterNoise",[\center,500]);
+b = Synth("filteredNoise",[\center,1000]);
+a.free;
+b.free;
+
+
+"To browse available SynthDefs:"
+
+(
+SynthDescLib.global.read;
+SynthDescLib.global.browse;
+)
+
+"Karplus-Strong as SynthDef"
+
+(
+SynthDef("Karplus",
+{
+	arg midiPitch = 69, decayTime = 2.0;
+	var burstEnv, att = 0, dec = 0.001, signalOut, delayTime;
+	delayTime = midiPitch.midicps.reciprocal;
+	burstEnv = EnvGen.kr(Env.perc(att, dec));
+	signalOut = CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime);
+	DetectSilence.ar(signalOut, doneAction: 2);
+	Out.ar(0,signalOut);
+}).send(s)
+)
+
+// note the different syntax in the argument declaration (arg ..  ;   en lugar de |arg, arg|
+// note the way Out is used
+// note that we are just sending this SynthDef to the server and we are not writing it as a file
+// DetectSilence is a UGen that sends a doneAction the input is smaller than a threshold (to detect silence)
+
+
+Synth("Karplus")
+Synth("Karplus", [\midiPitch, 60])   // uses a different node every time
+
+a = Synth("Karplus"); //the synth turns off because we use DetectSilence
+a.set(\midiPitch, 60);   // if we want to change the value, we have to do it very fast, before DetectSilence turns the synth off
+
+Synth("Karplus", [\midiPitch, rrand(50,80), \decayTime, 3.0]); //evaluate several times!
+
+
+
+Note::
+Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.
+::
