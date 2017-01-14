@@ -25,6 +25,39 @@ subsection::SuperCollider IDE
 
 The SuperCollider IDE (Integrated Development Environment) is a cross-platform coding environment based on Qt (cross-platform software development tool).
 
+The central components of the ScIDE are:
+
+definitionlist::
+## Title Bar || Displays the current session name (see link::#Sessions::), and the filename of the current document.
+## Code Editor || The editor takes the central place. Here is where you will spend most of your time, writing code. Read more in the link::#Code editor:: section.
+## Document Tabs || Above the editor, there is a series of tabs, one for each open document. Clicking on a tab
+will display the related document in the editor. The tabs can be drag-and-dropped to change their order.
+## Tool Panel || This is where various tools related to code editing are displayed. The panel is initially hidden, and is only displayed when one of the tools is activated. You can activate each of the available tools via the menu strong::View > Tool Panels::, as well as using keyboard shortcuts. This the list of tools:
+  list::
+	## Find (Ctrl+F) - Find text in the current document.
+	## Replace (Ctrl+R) - Find and replace text in the current document.
+	## Go-to-line (Ctrl+L) - Jump to a particular line of the current document by number.
+	## Command Line (Ctrl+E) - Write and evaluate single lines of code, as in a terminal.
+	::
+## Status Bar || Contains status information about the interpreter and the sound server. Also displays any occasional notifications related to the IDE.
+::
+
+strong::Docklets::
+
+Around the central area described above, there are strong::dock areas:: where various other panels called strong::docklets:: are displayed. They are named so, because they can be moved around to different positions in the dock areas, or even be undocked to float above the main window, and they may also be hidden. You can show or hide each of the available docklets via the menu strong::View > Docklets::.
+
+Here is a list of available docklets:
+
+definitionlist::
+## Help Browser || Displays and navigates through help pages.
+## Post Window || Displays the response of the interpreter: results of code evaluation and various notifications, warnings, errors, etc...
+## Documents List || A list of open documents; when you have a lot of them, this may be more handy than the Document tabs.
+::
+
+The docklets may be moved to different areas by strong::drag-and-dropping:: them by their own title bar. There are four dock areas, along each of the edges of the screen: left, right, top and bottom. .
+
+link::SCIde::
+
 subsection::Getting Help
 
 The most important thing in SC is where to find the help documentation. Of course, you can look in the Help in the Menu bar, but also it is helpful to know the shortcut to get your help files. In Mac you can do that with emphasis::cmd + d::. In Windows emphasis::ctrl:: is used instead of emphasis::cmd::. Also if you select a Class that you want to search documentation for, you have to select the word and then press emphasis::cmd + d::.
@@ -120,6 +153,7 @@ To stop the sound, press command key and then period: emphasis::cmd + .::
 
 Note::Useful Shortcut: emphasis::cmd + .:: = Kill all sound::
 
+section::Programming Concepts
 subsection::Comments
 
 code::
@@ -251,7 +285,28 @@ numberedlist::
 ##Write comments next to your code, explaining what it’s doing
 ::
 
-Before we start making music, we still need to know a couple more things…
+section::Intermezzo
+Ok, let's have a break and have some fun with this example:
+code::
+(
+{var a, c, d, s, z, y;
+d = 6; //try changing this value with numbers from 1 to 100.
+c = 5; //try changing this value with numbers from 1 to 50.
+a = 4; //change this with values between 1 and 100.
+	s = Mix.ar(Array.fill(d, { Resonz.ar(Dust.ar(2/d, 50), 200 + 3000.0.rand, 0.003)}) );
+	z = DelayN.ar(s, 0.048);
+	y = Mix.ar(CombL.ar(z, 0.1, LFNoise1.kr(Array.fill(c,{0.1.rand}), 0.04, 0.05), 15));
+	a.do({ y = AllpassN.ar(y, 0.050, [0.050.rand,0.050.rand], 1) });
+	s+(0.2*y)
+}.play
+)
+::
+
+Warning::Remember to stop the sound with emphasis::cmd + .::::
+
+section::Back to programming...
+
+Before we continue making more music, we still need to know a couple more things…
 
 subsection::Functions
 
@@ -544,5 +599,5 @@ numberedlist::
 
 
 Note::
-Various examples, ideas, etc. have been taken or derived from the SC documentation and Nick Collins, Paul Berg, David Cottle, and probably lots of other people as well.
+Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.
 ::
