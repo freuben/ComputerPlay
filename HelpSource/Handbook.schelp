@@ -37,7 +37,7 @@ subsection::Assessment Methods
 list::
 ##strong::Formative::: Independent learning on SuperCollider and coding, reading and listening tasks, coding exercises, researching computer music subjects.
 ##strong::Summative:::
-numberedlist::##A short seminar presentation/demonstration (10%) of a SuperCollider project that you will develop by following a brief.
+numberedlist::##A short seminar presentation/demonstration (10%) of a SuperCollider project.
 ##A portfolio of work in the form of a performance, improvisation, composition, installation or demonstration (60%) with written documentation (30%, 1500 words) analysing the way the practical work relates to the artistic, technological and theoretical subjects explored in the project. Your practical project will need to be negotiated before it is approved.::
 
 You can read the strong::Assignment Brief:: link::Assignment Brief##here::.
@@ -184,7 +184,7 @@ Computer.url("https://processing.org/"); //Processing (free)
 code::
 Computer.url("https://toplap.org/tidal/"); //TidalCycles (free - sc based)
 Computer.url("http://sonic-pi.net/"); //SonicPi (free - sc based)
-Computer.url("http://gibber.cc/"); //Gibber (web broser - javascript based)
+Computer.url("http://gibber.cc/"); //Gibber (web browser - javascript based)
 ::
 ##Interactive Audio for Web Development (javascript)
 code::
@@ -197,16 +197,16 @@ Computer.url("https://itunes.apple.com/gb/app/lemur/id481290621?mt=8"); //Lemur
 ::
 ::
 
-strong::Equipment::: In this module you will become familiar with a variety of equipment for audio capture and synthesis, including various types of microphones, portable recorders and synthesisers.
-TRS has a range of equipment that you will need for this module including midi controllers, audio interfaces, microphones and human interface devices (HIDs including joysticks, sensors, EEG, etc.).
-Laptops, audio interfaces, etc.: you may use your own computers or laptops for this module as well as your audio interfaces, iPhones (or other smartphones), iPads (or other tablets), game controllers, Arduino boards, etc.
+strong::Equipment::: For this module you can use a variety of equipment to interface with your computer. At the Department of Music we have a range of equipment and resources that you can book for work on this module. The stores at the MRC contain microphones, portable recorders, audio interfaces, video cameras, midi controllers, audio interfaces, other human interface devices (HIDs including joysticks, game contorllers, etc.) as well as cables and accessories. You can use anything you like that is made accessible to you by the Department. You can use the computers in the studios if you have limited access to a laptop. You can book spaces and equipment online or talk to the Department technician Ben Eyes (ben.eyes@york.ac.uk).
 
+You may also use your own equipment for this module including your computers, audio interfaces, iPhones (or other smartphones), iPads (or other tablets), game controllers, etc. You can also purchase some specialist equipment if you desire to. If you want to continue working in computer music after this module, it might be a good idea to purchase some basic items like an audio interface and a midi controller. You can buy relatively cheap equipment for interfacing with your computer - here are some examples:
 code::
-Computer.url("https://www.arduino.cc/"); //arduino
+Computer.url("http://www.ebay.co.uk/sch/Audio-MIDI-Interfaces/123445/i.html?_from=R40&_nkw=audio+interface") //audio interfaces @ ebay
 Computer.url("http://www.ebay.co.uk/sch/Pro-Audio-MIDI-Controllers/178896/bn_2315660/i.html"); //midi controllers @ ebay
 Computer.url("http://www.ebay.co.uk/sch/Video-Game-Controllers-Attachments/117042/bn_552150/i.html"); //game controllers @ ebay
+Computer.url("https://www.arduino.cc/"); //arduino
 ::
-Recording Studios. You might be interested in working at the recording studio complex during your own independent study. The recording studios are bookable online.
+If you need advice on what piece of equipment to buy for a particular purpose, talk to me or Ben, or any other technology enthusiast at the Department.
 
 subsection::Reading
 list::

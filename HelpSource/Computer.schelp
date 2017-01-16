@@ -13,8 +13,6 @@ list::
 ## link::Handbook#Assessment#Assessment::
 ## link::Assignment Brief::
 ## link::moduleplan.htm##Module Plan::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Resources::
-## link::Tutorials/Mark_Polishook_tutorial/06_Prerequisites##Links::
 ::
 ## Seminars ||
 list::
@@ -37,4 +35,36 @@ Computer.update;
 Computer.help;
 //Replace Student Name with your name, and evaluate if you attend the session when taking register
 Computer.register("Student Name");
+::
+
+section::News
+
+code::Computer.play:: related news, announcements, events, concerts, talks, links, etc:
+
+subsection::Concerts
+COME TO MY CONCERT ON THE 27 JANUARY AT 7:30pm @ LYONS CONCERT HALL!!
+
+Live coding, old meets new technology, algorithmic compositions, improvisations, etc.
+
+More info here:
+code::
+Computer.url("https://www.york.ac.uk/concerts/programme/spiritustelecommunitas/");
+::
+
+subsection::Talks
+
+25/01/2017 Link::https://www.mstrcyork.org/events/event/research-seminar-aleks-kolkowski/##Research Seminar: Aleks Kolkowski::
+
+15/02/2017 Link::https://www.mstrcyork.org/events/event/research-seminar-nick-collins/##Research Seminar: Nick Collins::
+
+18/03/2017 Link::https://www.mstrcyork.org/events/event/research-seminar-john-murray/##Research Seminar: John Murray::
+
+subsection::Links
+
+code::
+Computer.url("https://www.mstrcyork.org/"); //Music, Science and Technology Research Cluster (mstrc)
+Computer.url("https://www.mstrcyork.org/technologies-for-musical-creativity/"); //Technologies for Musical Creativity Group (TMCG)
+Computer.url("https://algorave.com/"); //Algoraves, next on the 28/03 in Leeds
+Computer.url("https://yorkshiresoundwomen.wordpress.com/"); //YSWN – Yorkshire Sound Women Network
+
 ::
