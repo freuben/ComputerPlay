@@ -1,0 +1,43 @@
+TITLE::Introduction to ComputerDotPlay
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Handbook
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.001.png#CSIR Mk 1 (1951) - csiropedia.csiro.au::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.002.png#66 YEARS OF COMPUTER MUSIC!!! CSIRAC with Trevor Pearcey - computerhistory.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.003.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.004.png#From Ada: the Enchantress of Numbers (Toole, B., 1998)::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.005.png#Ada Lovelace - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.006.png#Charles Babbage's plans for the Analytical Engine - computerhistory.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.007.png#Only part of the Analytical Engine to be completed in Babbage's life - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.008.png#The Thrilling Adventures of Lovelace and Babbage by Sydney Padua::
+code::
+Computer.url("http://sydneypadua.com/2dgoggles/the-book/");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.009.png#A Jacquard Loom - addiator.blogspot.co.uk::
+code::
+Computer.url("https://youtu.be/OlJns3fPItE");
+Computer.url("https://youtu.be/shh1F6MgjV4");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.010.png#Reconstruction of Difference Engine 2 by Science Museum (1984-2002) - computerhistory.org::
+code::
+Computer.url("https://youtu.be/KBuJqUfO4-w"); //short documentary on Difference Engine
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.011.png#Konrad Zuse's Z3 electro-mechanical computer (1941) - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.012.png#Colossus Computer (1943) by Tommy Flowers- wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.013.png#Harwell CADET (1953) - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.014.png#Die of Intel Pentium P54C - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.015.png#Binary Code::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.016.png#IBM 704 - cs.princeton.edu::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.017.png#IBM 704 Operator Console - computer-history.info::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.018.png#IBM 704 in use - flickr.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.019.png#Die of Core Memory ca. 1965 - uh.edu::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.020.png#ENIAC programmers ca. 1946 - computerhistory.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.021.png#Programming the IBM 650 - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.022.png#FORTRAN - blogspot.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.023.png#FORTRAN - blogspot.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.024.png#C code - googleapis.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.025.png#Python code - irawd.wordpress.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.026.png#SuperCollider code - warwick.ac.uk::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.027.png#SuperCollider GUI - supercollider.github.io::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar1/seminar1.028.png#Live Coding in SuperCollider - lighthouse.org.uk::
