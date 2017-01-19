@@ -25,14 +25,9 @@ list::
 ::
 ::
 
-section::Update Material
-
+section::Register
+This at the moment only works for Mac computers.
 code::
-
-//Evaluate the line below every time you want to update materials:
-Computer.update;
-//This will refresh the help files
-Computer.help;
 //Replace Student Name with your name, and evaluate if you attend the session when taking register
 Computer.register("Student Name");
 ::

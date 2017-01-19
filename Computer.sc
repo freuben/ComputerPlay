@@ -49,7 +49,7 @@ Computer {classvar <>fileRegister;
 
 	* register {arg name, ip, port;
 		var network;
-		ip ?? {ip = "169.254.156.250" };
+		ip ?? {ip = "192.168.0.2" };
 		port ?? {port = 57120};
 		network = NetAddr(ip, 57120); // loopback
 		network.sendMsg("/chat", name);
@@ -65,7 +65,7 @@ Computer {classvar <>fileRegister;
 			fileRegister = File(path ++ name, "w");
 
 			{
-				while ( {ip = "ipconfig getifaddr en0 && ipconfig getifaddr en1".unixCmdGetStdOut;
+				while ( {ip = "ipconfig getifaddr en6".unixCmdGetStdOut;
 					if(ip.ascii.isEmpty.not, {
 						ip = ip.replace(10.asAscii);
 						//here goes the code
@@ -77,8 +77,8 @@ Computer {classvar <>fileRegister;
 						}, '/chat');
 						"Ready to go".postln;
 						("IP address is: " ++ ip).postln;
-						if(ip.replace(10.asAscii) != "169.254.156.250", {
-							"IP address does not match 169.254.156.250".warn;
+						if(ip.replace(10.asAscii) != "192.168.0.2", {
+							"IP address does not match 192.168.0.2".warn;
 						});
 						//code ends
 					});
