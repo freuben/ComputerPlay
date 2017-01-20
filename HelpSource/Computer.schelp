@@ -21,19 +21,21 @@ list::
 ## Workshops ||
 list::
 ## link::Workshops/Programming Concepts 1::
-## link::Workshops/Playing with UGens 1::
-## link::Workshops/Playing with UGens 2::
+## link::Workshops/Playing with UGens::
 ::
 ## Study Guides ||
 list::
 ## link::Study Guides/Digital Audio::
 ::
+## Code Examples ||
+list::
+## link::Code Examples/Code for Fun::
+::
 ::
 
 section::Register
-This at the moment only works for Mac computers.
+Replace "Student Name" with your name, and evaluate if you attend the session when taking register
 code::
-//Replace Student Name with your name, and evaluate if you attend the session when taking register
 Computer.register("Student Name");
 ::
 

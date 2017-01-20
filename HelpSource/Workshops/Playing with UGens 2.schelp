@@ -251,57 +251,6 @@ code::
 )
 ::
 
-section::Quick Intro to Routines
-
-In SC to schedule events, we use Routines.
-
-code::Routine:: is a series of events, values or messages that are executed in a sequence. It’s a function that can be stopped, reset and restarted ones it is started.
-
-The yield or wait (wait just accepts simple numbers) messages waits a specitic amount of time.
-
-The simplest way to define a code::Routine:: is with the message code::.fork:: at the end of a function:
-
-code::
-(
-{"hi".postln;
-1.wait;
-"bye".postln;
-}.fork
-)
-::
-
-We can specify how many times we want to repeat the routine with another function within the routine:
-code::
-(
-{
-	3.do{
-	"hi".postln;
-0.2.wait;
-		"bye".postln;
-0.3.wait;
-	}
-}.fork
-)
-::
-
-We can loop a routine and assign it to a global variable, to stop and restart
-code::
-(
-a = {
-	{
-	"hi".postln;
-0.2.wait;
-		"bye".postln;
-0.3.wait;
-	}.loop
-}.fork
-)
-
-a.stop; //stop
-a.reset.play; //reset and play again
-::
-
-Note::We will come back to Routines and Scheduling later on.::
 
 section:: Additive Synthesis
 
@@ -804,7 +753,7 @@ code::
 
 subsection::Frequency modulation
 
-Can be done (with out envelope) in the following way:
+Can be done (without envelope) in the following way:
 code::
 (
 var carrierFreq = 400, modFreq = 50, deviation = 100;
@@ -1055,4 +1004,8 @@ a=Array.fill(width*height,{arg i;
 b.sendCollection(a);
 )
 b.plot;
+::
+
+Note::
+Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.
 ::

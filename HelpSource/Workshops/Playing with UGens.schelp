@@ -1,4 +1,4 @@
-TITLE:: Playing with UGens 1
+TITLE:: Playing with UGens
 summary:: Computer.play(Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
 related:: Computer, Workshops/Playing with UGens 2
@@ -622,7 +622,7 @@ code::
 	delayTime = MouseX.kr(36,74, lag: 0).midicps.reciprocal;
 	burstEnv = EnvGen.kr(Env.perc(att, dec), gate: MouseButton.kr(0,1,0));
 	Pan2.ar(CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime),
-	        MouseX.kr(1,-1))
+		MouseX.kr(1,-1))
 }.scope
 )
 ::
@@ -641,8 +641,8 @@ signal + (y * 0.0) // dry signal + signal with reverb
 	var delayTime, decayTime = 10;
 	delayTime = MouseX.kr(36,74, lag: 0).midicps.reciprocal;
 	burstEnv = EnvGen.kr(Env.perc(att, dec), gate: MouseButton.kr(0,1,0));
-	panned = Pan2.ar(CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime, decayTime),
-	        MouseX.kr(1,-1));
+	panned = Pan2.ar(CombL.ar(WhiteNoise.ar(burstEnv), delayTime, delayTime,
+		decayTime), MouseX.kr(1,-1));
 	y = panned;
 	Mix.fill(5, { y = AllpassN.ar(y, 0.05,0.05.rand, 1)});
 	panned + (y * 0.4)
@@ -710,7 +710,7 @@ code::
 (
 SynthDef("sines",{ |freq = 440,bus = 0|
 	Out.ar(bus,SinOsc.ar(freq,0,0.1));
-	}).load(s);   // save definition and loaded to server (s)
+}).load(s);   // save definition and loaded to server (s)
 )
 ::
 SynthDefs can be written to a file for later use, or written and loaded, or just loaded.
@@ -759,7 +759,7 @@ code::
 (
 SynthDef("filterNoise", {arg center = 2000;
 	Out.ar(0,Resonz.ar(WhiteNoise.ar(0.5), center,0.1));
-	}).load(s);
+}).load(s);
 )
 
 a = Synth("filterNoise",[\center,500]);
@@ -779,8 +779,7 @@ SynthDescLib.global.browse;
 subsection::Karplus-Strong as SynthDef
 code::
 (
-SynthDef("Karplus",
-{
+SynthDef("Karplus", {
 	arg midiPitch = 69, decayTime = 2.0;
 	var burstEnv, att = 0, dec = 0.001, signalOut, delayTime;
 	delayTime = midiPitch.midicps.reciprocal;
@@ -809,6 +808,97 @@ a.set(\midiPitch, 60);   // if we want to change the value, we have to do it ver
 Synth("Karplus", [\midiPitch, rrand(50,80), \decayTime, 3.0]); //evaluate several times!
 ::
 
+section::Quick Intro to Routines
+
+In SC to schedule events, we use Routines.
+
+code::Routine:: is a series of events, values or messages that are executed in a sequence. It’s a function that can be stopped, reset and restarted ones it is started.
+
+The yield or wait (wait just accepts simple numbers) messages waits a specitic amount of time between events.
+
+The simplest way to define a code::Routine:: is with the message code::.fork:: at the end of a function:
+
+code::
+(
+	{"hi".postln;
+		1.yield;
+		"bye".postln;
+	}.fork
+)
+::
+
+We can specify how many times we want to repeat the routine with another function within the routine:
+code::
+(
+	{
+		3.do{
+			"hi".postln;
+			0.2.yield;
+			"bye".postln;
+			0.3.yield;
+		}
+	}.fork
+)
+::
+
+We can ask the routine to repeat an infinate amount of time
+code::
+(
+	a = {
+		inf.do{
+			"hi".postln;
+			0.2.yield;
+			"bye".postln;
+			0.3.yield;
+		}
+	}.fork
+)
+::
+Note::Stop the sound with emphasis::cmd + .:: ::
+
+We can use the code:: .loop:: message instead of  code::inf.do::. We can assign the routine to a global variable, to stop and restart
+code::
+(
+	a = {
+		{
+			"hi".postln;
+			0.2.yield;
+			"bye".postln;
+			0.3.yield;
+		}.loop
+	}.fork
+)
+
+a.stop; //stop
+a.reset.play; //reset and play again
+::
+
+Note::We will come back to Routines and Scheduling later on.::
+
+Now, let's try a routine with the Karplus SynthDef:
+
+code::
+(
+a = {
+	inf.do{
+		4.do{
+			Synth("Karplus", [\midiPitch, rrand(40,80)]);
+			0.1.yield;
+			Synth("Karplus", [\midiPitch, rrand(40,80)]);
+			0.4.yield;
+			Synth("Karplus", [\midiPitch, rrand(40,80)]);
+			0.1.yield;
+		};
+		20.do{
+			Synth("Karplus", [\midiPitch, 100]);
+			0.05.yield;
+		}
+	}
+}.fork
+)
+a.stop;
+a.reset.play;
+::
 
 Note::
 Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.

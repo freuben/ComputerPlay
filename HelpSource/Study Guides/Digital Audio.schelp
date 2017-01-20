@@ -197,11 +197,11 @@ code::
 0.asInteger.asHexString(4)
 (2**16-1).asInteger.asHexString(4)
 ::
-Sting to hexadecimal:
+String to hexadecimal:
 code::
 "how are you?".ascii.collect{|item| item.asHexString(2); }
 ::
-Sting to binary:
+String to binary:
 code::
 "how are you?".ascii.collect{|item| item.asBinaryString(2); }
 ::
