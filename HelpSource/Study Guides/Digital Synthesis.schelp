@@ -1,0 +1,293 @@
+TITLE:: Digital Synthesis
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Guides/Digital Audio, Workshops/Playing with UGens 1, Workshops/Playing with UGens 2
+
+section::Digital Audio
+
+Digital vs Analogue = Continuous vs Discrete signals
+
+subsection:: Analog-to-Digital Conversion
+
+A/D is not chopped audio!
+A/D conversion:
+list::
+##Analog signal (mic for example) passes through A/D convertor
+##Convertor measures signal many times per second
+##Each time it’s measured, a binary number is generated (representing voltage/amplitude of signal)
+##Stored as modulated square wave
+::
+
+D/A conversion is the opposite:
+list::
+##Convertor translates numbers into analog signal made of voltage steps
+##An anti-imaging filter (lowpass filter, smoothing filter) smooths the steps into an analog signal
+##Nothing is lost!!
+::
+
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure1.png#Fig. 1: A/D to D/A chain::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure2.png#Fig. 2: Digital sampling::
+
+subsection::Audio Sampling
+list::
+##Analog signal is a time-continuous electrical waveform
+##A/D converter turns signal into time-discrete sequence of binary numbers
+##Pulse code modulation (PCM) is the method to digitally represent analog signals
+##Audio sampling is the process were the A/D converter measures the analog waveform at regular intervals
+##Samples are like “still frames” in a film, which give impression of continuous movement
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure3.png#Fig. 3: Waveform to sample pulses::
+
+subsection::Sampling Rate
+list::
+##Rate at which a/d converter samples a signal.
+##Higher sampling rate - higher frequency response
+##Also remember: higher sampling rate = more memory space in your hard drive
+##44.100 Hz or 44.1 khz is the CD sampling freq
+##48 khz is the ‘professional’ rate (DVD, blu-ray)
+::
+
+subsection::Sampling Theorem
+list::
+##The emphasis::sampling theorem:: or the emphasis::nyquist-shannon theorem:: states:
+##To well represent an audio signal, the sampling rate needs to be at least twice  the highest frequency contained in the sound of the signal
+##This frequency is called the emphasis::nyquist frequency::
+##Therefore, at least two samples must be taken by audio cycle so that no information is lost
+##If too few samples are taken by cycle, samples may produce wave other than original
+::
+
+subsection::Aliasing
+list::
+##Phenomenon where ‘alias’ unwanted representation of sampled signal constructed through d/a conversion
+##Sidebands produced by under-sampling signal
+##Frequencies above nyquist frequency are reproduced as lower sidebands
+##Spectral repetition (mirror image of original)
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure4.png#Fig. 4: Undersampling produces sidebands::
+
+strong::Examples:::
+
+A sine wave with sample and hold demonstrate principle:
+code::
+{Latch.ar(SinOsc.ar(440,0,0.25), Impulse.ar(MouseX.kr(440,22000)))}.scope;
+::
+
+Load soundfile in buffer:
+code::
+b = Buffer.loadDialog;
+::
+Play buffer:
+code::
+{PlayBuf.ar(2, b)}.scope;
+::
+Use Sample and Hold (code::Latch::) to change of sampling rate:
+code::
+{Latch.ar(PlayBuf.ar(2, b), Impulse.ar(MouseX.kr(20,22000)))}.scope;
+::
+Sample and hold using code::Dust:::
+code::
+{Latch.ar(PlayBuf.ar(2, b), Dust.ar(MouseX.kr(20,22000)))}.scope;
+::
+
+
+subsection::Filtering and Aliasing
+list::
+##If analog signal is not filtered, aliasing occurs:
+list::##High frequencies above nyquist freqency appear as lower frequencies (sidebands).
+##Ultrasonic frequencies may be converted to audible tones::
+##Anti-aliasing filter:
+list::##We need to filter frequencies above the nyquist frequency to avoid aliasing.
+##Anti aliasing filter (lowpass filter) is used in original analog signal before a/D conversion::
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure5.png#Fig. 5: Anti-aliasing filter::
+
+strong::Examples:::
+Now let's reduce the sample rate but with smoothing. Your can still hear aliasing!
+code::
+{SmoothDecimator.ar(Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(20,22000)), MouseX.kr(20,22000), smoothing: 1)}.scope;
+::
+
+subsection::Digital-to-Analog Conversion
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure6.png#Fig. 6: D/A conversion::
+
+subsection::Quantising
+
+list::
+##After sampling the modulated pule chain is quantised
+##Amplitude is mapped onto a scale of stepped binary values
+##Each sample amplitude is represented by unique binary number
+##Binary numbers are represented as power of two (only two options, 1 or 2)
+##Binary (base2), Hexadecimal (base16), decimal(BASE10)
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure7.png#Fig. 7: 3-bit quantizing::
+
+subsection::Binary for Beginners
+list::
+##A binary word or ‘byte’ (8-bits):
+##code::0 1 1 1 0 0 1 0:: - one number is 1 bit - or 1 'switch'.
+::
+table::
+##Binary || 0 || 1 || 1 || 1 || 0 || 0 || 1 || 0
+##Decimal weighting || 128 || 64 || 32 || 16 || 8 || 4 || 2|| 1
+##Decimal equivalent   || 0 +||64 +||32 +||16 +||0 +||0 +||2 +|| 0 = 114
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure8.png#Fig. 8: Binary/Hexadecimal/Decimal::
+
+subsection::Bit-depth
+
+Bit-depth dictates the number of discrete volume levels that create the dynamic range available in digital audio
+bit words and bit resolution:
+list::
+##2-bit = code::2**2:: (4 steps)
+##3-bit = code:: 2**3:: (8 steps)
+##4-bit = code::2**4:: (16 steps)
+##8-bit = code::2**8:: (256 steps)
+##16-bit = code::2**16:: (65536 steps)
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure9.png#Fig. 9: 4-bit quantizing::
+
+subsection::Digital Dynamic Range
+list::
+##emphasis::Dynamic range::: range of volume between loudest and softest audible sounds - the greater dynamic range, the more detailed representation of sound.
+##emphasis::Signal-to-noise ratio::: difference in volume between what you want to hear (signal) and what you don’t want to hear (noise)
+##emphasis::Digital dynamic range::: volume range in digital audio file go between -infinity (silence) to zero (loudest) decibels (DB). sounds above zero produce distortion
+::
+
+subsection::Quantising Resolution
+
+table::
+##Bit Depth || Numeric Range || Noise Floor
+##8 bits || -127 to 128 || -48 dB
+##16 bits || -32,768 to 32,767 || -96 dB
+##24 bits || -8,388,608 to -8,388,607 || -144 dB
+##32 bits || +/-3.4*2**38 || -192 dB
+::
+
+subsection::A little bit of bits
+
+warning::Digital - bits!::
+
+4-bit example:
+code::
+0.asInteger.asBinaryString(4)
+1.asInteger.asBinaryString(4)
+0.asInteger.asBinaryString(4)
+-1.asInteger.asBinaryString(4)
+-2.asInteger.asBinaryString(4)
+14.asInteger.asBinaryString(4)
+2.asInteger.asBinaryString(4)
+-3.asInteger.asBinaryString(4)
+::
+16-bit example:
+code::
+(2**16-1).asInteger.asBinaryString(16)
+0.asInteger.asBinaryString(16)
+::
+Hexadecimal:
+code::
+0.asInteger.asHexString(4)
+(2**16-1).asInteger.asHexString(4)
+::
+String to hexadecimal:
+code::
+"how are you?".ascii.collect{|item| item.asHexString(2); }
+::
+String to binary:
+code::
+"how are you?".ascii.collect{|item| item.asBinaryString(2); }
+::
+Human vs bit words:
+code::
+a = "how are you?";
+b = a.ascii.collect{|item| item.asBinaryString; };
+
+a.speak; //human
+b.asString.replace("[").replace("]").replace(",").speak //computer
+::
+Bit calculator:
+16 bit:
+code::
+2**16
+::
+24 bit:
+code::
+2**24
+::
+
+Bit crushing
+code::
+b = Buffer.loadDialog; //load soundfile into buffer
+{Decimator.ar(PlayBuf.ar(2, b), 44100, 8)}.scope; //8-bit
+{Decimator.ar(PlayBuf.ar(2, b), 44100, 4)}.scope; //4-bit
+{Decimator.ar(PlayBuf.ar(2, b), 44100, 2)}.scope; //2-bit
+::
+
+Smoother, 4-bit
+code::
+{Decimator.ar(SinOsc.ar(440,0,0.5), 44100, 4)}.scope
+::
+
+Filter to smooth signal (Mouse controls smoothing)
+code::
+{SmoothDecimator.ar(Decimator.ar(SinOsc.ar(440,0,0.5), 44100, 4), 440*4,MouseX.kr(0,1))}.scope
+::
+
+Undersampling and bit-crushing:
+code::
+{Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(250,44100,1).poll, MouseY.kr(1,16).round(1).poll)}.scope;
+
+{Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(250,44100,1).poll, MouseY.kr(1,16).round(1).poll).lag(MouseY.kr(1,16).round(1).poll/MouseX.kr(250,44100,1).poll)}.scope;
+::
+
+4-bit:
+code::
+{Decimator.ar(PlayBuf.ar(2, b), 2000, 4)}.scope;
+::
+Smooth signal (with smoothing filter):
+code::
+{SmoothDecimator.ar(Decimator.ar(PlayBuf.ar(2, b), 2000, 4), 2000, smoothing: 1)}.scope;
+::
+
+
+subsection::A bit of music
+
+image::http://federicoreuben.com/computerdotplay/guides/guide1/figure10.png#Fig. 10: Mario::
+
+code::
+Ndef(\sound).play;
+
+~bitdepth = 4;
+
+~synth = {var sig; Pan2.ar(Decimator.ar(SinOsc.ar((Scale.major.degrees+60).midicps.choose,0,0.25), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
+
+{{Ndef(\sound, ~synth); [0.4,0.2].choose.yield}.loop}.fork
+
+~synth = {var sig; Pan2.ar(Decimator.ar(Saw.ar((Scale.major.degrees+60).midicps.choose,0.5), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
+
+~synth = {var sig; Pan2.ar(Decimator.ar(Blip.ar((Scale.major.degrees+60).midicps.choose,10,0.5), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
+::
+
+subsection::A bit of calculations
+File size calculator
+File Size = Sample Rate * Sample Resolution * Number of Channels * Lengh of Sound (in bits)
+code::
+~sampleRate = 44100;
+~bitDepth = 16;
+~numChan = 2;
+~duration = 180;
+
+~bits = ~sampleRate * ~bitDepth * ~numChan * ~duration
+~bytes = ~bits/8
+~kiloBytes = ~bytes / 1024;
+~megaBytes = ~kiloBytes / 1024;
+~gigaBytes = ~megaBytes / 1024;
+::

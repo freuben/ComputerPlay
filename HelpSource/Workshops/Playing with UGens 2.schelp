@@ -5,7 +5,7 @@ related:: Computer, Workshops/Playing with UGens 1
 
 section::Playing with UGens 2
 
-Fist, let's boot the server:
+First, let's boot the server:
 
 code::
 s.boot;

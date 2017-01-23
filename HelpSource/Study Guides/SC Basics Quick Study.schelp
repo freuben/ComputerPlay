@@ -1,0 +1,187 @@
+TITLE:: SC Basics Quick Study
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Playing with UGens, Workshops/Programming Concepts 1
+
+section::Turn it on
+
+subsection::Turning on the Server:
+
+code::
+s.boot;
+::
+
+note::Or simply: emphasis::cmd + b::::
+
+section::Language
+
+subsection::Notation:
+
+Receiver notation: code::Object.message::
+
+Functional notation: code::Function(argument)::
+
+strong::Examples:::
+
+note::Remember: to stop sound use emphasis::cmd+.::::
+
+code::
+//this is a comment by the way!
+
+{SinOsc.ar(400,0,0.8)}.play; //receiver notation
+//is the same as:
+play({(ar(SinOsc, 400,0,0.8))}); //functional notation
+::
+
+subsection::Brackets:
+code::
+() //to group expressions
+[] //collection
+{} //function
+::
+
+subsection::Variables:
+
+strong::Local variables:: need to be declared and cannot be called outside the piece of code you are executing
+
+code::
+(
+var number, value;
+number = 2;
+value = 3;
+number * value;
+)
+::
+
+strong::Global Variables:::
+
+Letters code::a-z:: or code::~word::
+
+code::
+a = 2;
+b = 3;
+
+a+b
+
+this.clearAll //to clear variables in the interpreter
+
+~one = 1;
+~two = 2;
+
+~one+~two
+
+currentEnvironment.clear; //to clear variables in environment
+::
+subsection::Functions:
+code::
+~function = {arg a=3,b=1; var c=2; a+b-c }
+::
+strong::Arguments:: are like local variables (you have to declare them within the function you want them to work) but can be changed ones the function is declared.
+
+strong::Local variables:: within a function are fixed - they cannot be changed ones the function is declared
+code::
+~function.value(b: 3)
+::
+To evaluate a function with the specified arguments, you have to use the code::.value:: message and then the arguments in brackets:
+code::
+~function.value(4,3);
+~function.value(1,13);
+
+~synth = {|a,b| {SinOsc.ar(a,0,b)}.play } //arguments can also be declared with "|" in between them
+~synth.value(400,0.5);
+~synth.value(800,0.2);
+::
+
+subsection::Collections:
+
+Colletcions are lists of data (numbers, letters, functions, etc):
+code::
+a = [2, 'hello', {SinOsc.ar}]
+a[0];
+a[1];
+a[2].play;
+
+b = [1,2,3,4]; //you can manipulate the data inside collections very easly
+b+4
+b.scramble;
+b.reverse;
+b[2] = 'mama mia'
+b
+::
+
+section:: Server
+subsection::UGens:
+
+Can be used for audio code::.ar:: or control code::.kr::.
+
+warning::They generate numbers very fast!::
+code::
+{SinOsc.ar(MouseX.kr(100,10000, 'exponential'),0, MouseY.kr(0.0,1.0))}.play
+::
+Here code::SinOsc:: and code::MouseX:: are UGens. code::SinOsc:: is code::.ar:: because its generating audio at sampling rate. code::MouseX:: is code::.kr:: because it's controlling the freq argument at control rate.
+
+Note::There are lot's of UGens. Know them as they are your Synthesis Building Blocks!::
+
+subsection::SynthDef and Synth:
+list::
+##Before we have been generating sound by evaluating a function (that inludes UGens) with code::.play::
+##That function produces a temporal code::Synth:: (a synthesis patch)
+##It is also possible to produce Synths that are specified by a synthesis definition (a name for your patch) and then they can be saved to file, recalled, loaded to the server, etc
+::
+Basic SynthDef format:
+code::
+SynthDef("name", {Out.ar(busNumber, UGens)});
+::
+Same Synth as above but now in a code::SynthDef:: with the name code::"SineMouse":::
+code::
+(
+SynthDef("SineMouse", {var signal;
+signal = SinOsc.ar(MouseX.kr(100,10000, 'exponential'),0,0.2);
+Out.ar(0, signal);
+}).send(s);
+)
+::
+The message .send(s) sends this SynthDef to the server.
+
+This creates an instance of the Synth:
+code::
+Synth("SineMouse");
+::
+
+Now let't try it with arguments:
+code::
+(
+SynthDef("SineArg", {arg freq=200,mul=0.5;
+var signal;
+signal = SinOsc.ar(freq,0,mul);
+Out.ar(0, signal);
+}).send(s);
+)
+::
+
+Basic Synth format:
+code::
+Synth("name", [\argument1, value1, \argument2, value2]);
+::
+
+If arguments are not specified, you will get the default arguments of the SynthDef:
+code::
+Synth("SineArg")
+::
+If you want to specify the arguments:
+code::
+Synth("SineArg", [\freq, 400, \mul, 0.1]);
+::
+More than 1 Synth at the same time:
+code::
+a = Synth("SineArg", [\freq, 400, \mul, 0.1]);
+b = Synth("SineArg", [\freq, 800, \mul, 0.1]);
+
+a.set(\freq, rrand(500,1000));
+b.set(\freq, rrand(200,2000))
+
+a.free;
+b.free;
+::
+
+

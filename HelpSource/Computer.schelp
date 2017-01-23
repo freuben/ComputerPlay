@@ -2,6 +2,26 @@ TITLE:: Computer.play
 summary:: (Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
 
+section::Latest
+Hi all, your first tutorial will take place on the 23rd and 30th of January (weeks 3 and 4):
+subsection::Computer.play Tutorial 1
+table::
+##strong::MRC/002::||strong::MONDAY, 23 JANUARY::||strong::MRC/002::||strong::Monday, 30 January::
+##09:15 ||	 ATHENE	 BROAD || 09:15	|| WILLIAM	 BARNARDO
+##09:35 || THOMAS	 BROWN-BRIDGE || 09:35 || FELCITY	 MARGERESON
+##09:55 || MATILDA	 GANNON || 09:55 || ELIZABETH	 PHIPPARD
+##10:15 || SARAH	 PENDLETON || 10:15 || EMILY	 SULLIVIN
+##10:35 || ERIN	 ROBINSON || 10:35	 || FREDERICK	 WORDSWORTH
+##11:05 || DOMINIC	 CRAMP || 11:05	|| CATHERINE	 ROBSON
+##11:25 || CHRISTOPHER	 MURPHY || 11:25 || KATHARINE	 LOVELL
+##11:45 || TOBIAS	 RANDALL-PALEY || 11:45 || ALAN	 FOWLER
+##12:05 || JAN	 TAN || 12:05 || BARRINGTON	 BROOK
+##12:25 || BENJAMIN	 STRANGE || 12:05 ||  THOMAS	 JAMES
+##12:45 || TOM	 HORNER || 12:45	|| GABRIEL	 WALKER
+##15:00 || POPPY	 RICE || ||
+::
+note::Please let me know if you can't make it to your slot and we can try to reschedule::
+
 section::Module
 
 definitionList::
@@ -25,6 +45,7 @@ list::
 ::
 ## Study Guides ||
 list::
+## link::Study Guides/SC Basics Quick Study::
 ## link::Study Guides/Digital Audio::
 ::
 ## Code Examples ||
