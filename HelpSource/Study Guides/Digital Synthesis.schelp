@@ -1,7 +1,7 @@
 TITLE:: Digital Synthesis
 summary:: Computer.play(Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
-related:: Computer, Guides/Digital Audio, Workshops/Playing with UGens
+related:: Computer, Workshops/Playing with UGens
 
 section::Digital Synthesis
 
@@ -12,10 +12,10 @@ list::
 ##Sample-based synthesis
 ##Additive synthesis
 ##Subtractive synthesis
+##Wavetable synthesis
 ##Amplitude Modulation (AM)
 ##Frequency Modulation (FM)
 ##Ring Modulation (RM)
-##Wavetable synthesis
 ##Granular synthesis
 ##Spectral Modelling
 ##Physical Modelling
@@ -30,12 +30,12 @@ subsection::Digital Playback
 
 Digital playback uses stored samples from a recording of a signal that has been digitalised through an A/D converter.
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/playback.png#Revox Studer Reel-to-Reel Tape Machine - old style playback!::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/playback.png#Revox Studer Reel-to-Reel Tape Machine - old style playback!::
 
 subsection::Buffers
 Digital playback requires strong::Buffers::.
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/buffers.png#Buffers are like containers of digital floating point values::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/buffers.png#Buffers are like containers of digital floating point values::
 
 list::
 ##A buffer is a container of data loaded into the computer memory
@@ -216,7 +216,7 @@ x.free; b.close; b.free;	// close and free
 
 subsection::Chipmunk conclusions:
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/chipmunks.png#Playback synthesis can sound like chipmunks!::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/chipmunks.png#Playback synthesis can sound like chipmunks!::
 
 list::
 ##Playing with different rates of playback can be fun
@@ -235,7 +235,7 @@ list::
 ##When we emphasis::add:: a number, we change its emphasis::axis::
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/signalaxis.png#sine wave plot::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/signalaxis.png#sine wave plot::
 
 list::
 ##We can use a signal to modulate another signal
@@ -254,7 +254,7 @@ list::
 ##Triangle Wave
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/common waves.png#Common waveforms in synthesis::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/common waves.png#Common waveforms in synthesis::
 
 They have differnet characteristics and complex waves (Square, Saw, Triangle).
 
@@ -265,7 +265,7 @@ list::
 ##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum::
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/squarewave.png#Square Wave::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/squarewave.png#Square Wave::
 
 code::
 (
@@ -294,7 +294,7 @@ list::
 ##Odd and even harmonics
 ##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum/2::
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/sawwave.png#Saw Wave::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/sawwave.png#Saw Wave::
 
 code::
 (
@@ -323,7 +323,7 @@ list::
 ##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum/harmonicNum::
 ##Polarity switches from positive to negative amplitude from harmonic to harmonic::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/trianglewave.png#Triangle Wave::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/trianglewave.png#Triangle Wave::
 
 code::
 (
@@ -359,7 +359,7 @@ list::
 ##For periodic sound, computer simply reads through a table of just one cycle of waveform in a list stored in memory (wavetable) again and again
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/fixed waveform table-lookup.png#A Wavetable!::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fixed waveform table-lookup.png#A Wavetable!::
 
 list::
 ##Algorithm for Digital Oscillator
@@ -426,7 +426,7 @@ list::
 ##We still need a way of using the envelope to modify the amplitude of the “constant sounding” oscillator
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/adsr.png#ADSR Envelope::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/adsr.png#ADSR Envelope::
 
 Note::It's imporant to understand that in the digital domain, an Envelope specifies a wavetable::
 
@@ -451,7 +451,7 @@ strong::Envelopes Generators::
 
 In order to playback envelopes in synthesis patches, we need to use an strong::envelope generator::, which reads the breakpoints we create with an Env.
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/envgen.png#A synthesis patch with an envelope generator::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/envgen.png#A synthesis patch with an envelope generator::
 
 
 In SC, we use the code::EnvGen:: UGen for this purpose.
@@ -467,6 +467,15 @@ Now use envelope to control frequency:
 
 code::
 {LFTri.ar(EnvGen.kr(c, doneAction: 2, levelScale: 200, levelBias: 300))*EnvGen.kr(c, doneAction: 2);}.play;
+//example from above with same envelope
+(
+{Osc.ar(b.bufnum, EnvGen.kr(c, doneAction: 2, levelScale: 200, levelBias: 300))*EnvGen.kr(c, doneAction: 2);}.play;
+{
+	d.do{|item, index|
+		item.wait;
+		b.sine1(Array.rand((100*a[index]).round.postln,0,1).cubed, true, true, true);
+}}.fork;
+)
 ::
 
 section::Substractive Synthesis
@@ -481,7 +490,7 @@ list::
 
 subsection::Filters
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/filters.png#Filters remove stuff!::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/filters.png#Filters remove stuff!::
 
 list::
 ##“A digital filter is a computational process or algorithm by which a digital signal or sequence of numbers (acting as input) is transformed into a second sequence of numbers termed the output digital signal” (Rabiner et al. 1972)
@@ -504,7 +513,7 @@ FreqScope.new(400, 200, 0); //frequency scope
 
 strong::Hi-pass filter::: Just passes high frequencies.
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/hpf.png#High-pass Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/hpf.png#High-pass Filter::
 
 code::
 {HPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000))}.scope
@@ -512,7 +521,7 @@ code::
 
 strong::Low pass filter::: Just passes low frequencies.
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/lpf.png#Low-pass Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/lpf.png#Low-pass Filter::
 
 code::
 {LPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000))}.scope //args: in, freq, rq
@@ -520,7 +529,7 @@ code::
 
 strong::Band pass filter::: Just Passes Band
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/bpf.png#Band-pass Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/bpf.png#Band-pass Filter::
 
 code::
 {BPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(440,17600), MouseY.kr(0.001,0.9))}.scope //args: in, freq, rq
@@ -528,7 +537,7 @@ code::
 
 strong::Band reject filter::: Rejects band
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/brf.png#Band-reject Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/brf.png#Band-reject Filter::
 
 code::
 {BRF.ar(WhiteNoise.ar(0.5)!2, 11000, MouseY.kr(0.01,1.9))}.scope
@@ -547,14 +556,14 @@ code::
 {RLPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.001,0.9))}.scope
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/rlpf.png#Resonant Low-pass Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/rlpf.png#Resonant Low-pass Filter::
 
 strong::Resonant high pass filter:::
 code::
 {RHPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.001,0.9))}.scope
 ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/rhpf.png#Resonant High-pass Filter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/rhpf.png#Resonant High-pass Filter::
 
 
 subsection::Equalisation
@@ -572,7 +581,7 @@ code::
 
 strong::Shelf Filters:::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/shelf.png#Low and High Shelf Filters::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/shelf.png#Low and High Shelf Filters::
 
 strong::Low-shelf:::
 
@@ -609,7 +618,7 @@ code::
 
 strong::Parametric:::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/parametric.png#Parametric Filter - Boost and Cut::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/parametric.png#Parametric Filter - Boost and Cut::
 
 Cut -10db:
 code::
@@ -632,7 +641,7 @@ code::
 
 strong::Multiband EQ::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/multiband.png#Multiband Filter by fabfilter::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/multiband.png#Multiband Filter by fabfilter::
 
 By combining different filters, you can produce a multiband EQ.
 
@@ -729,7 +738,7 @@ a.setn(\ringtimes, Array.rand(4, 0.2, 4) );
 
 section::Noise
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/noise.png#NOISE!!!::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/noise.png#NOISE!!!::
 
 list::
 ##Noise in signal processing may refer to two things:
@@ -750,7 +759,7 @@ list::
 ##Flat frequency spectrum
 ##Equal power in any band of a given bandwidth (power spectral density)
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/whitenoise.png#White Noise::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/whitenoise.png#White Noise::
 code::
 {WhiteNoise.ar(0.5)!2}.scope;
 ::
@@ -759,7 +768,7 @@ list::
 ##Flat frequency spectrum
 ##Equal power in any band of a given bandwidth (power spectral density)
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/pinknoise.png#Pink Noise::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/pinknoise.png#Pink Noise::
 code::
 {PinkNoise.ar(0.5)!2}.scope
 ::
@@ -770,7 +779,7 @@ list::
 ##Power density decreases 6dB per octave with increasing frequency
 ##More power in lower frequencies
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/brownnoise.png#Brown Noise::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/brownnoise.png#Brown Noise::
 code::
 {BrownNoise.ar(0.5)!2}.scope
 ::
@@ -779,15 +788,263 @@ list::
 ##White noise subjected to psychoacoustic equal loudness curve
 ##Closer to how we hear
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/greynoise.png#Grey Noise::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/greynoise.png#Grey Noise::
 code::
 {GrayNoise.ar(0.5)!2}.scope
 ::
 
+section::Additive Synthesis
+
+list::
+##Synthesis technique based on summation of elementary waveforms to create more complex waveform.
+##Fixed-waveform Additive Synthesis (more economic with CPU)
+##Summation of different oscillators (more versatile but more expensive in CPU)
+::
+
+subsection::Additive through Waveshaping
+
+Waveshaping is a technique that uses a link::https://en.wikipedia.org/wiki/Transfer_function##transfer function:: to shape a signal.
+
+Waveshaping transfer functions are designed with link::https://en.wikipedia.org/wiki/Chebyshev_polynomials##Chebyshev Polynomials:: to generate harmonics.
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/chebyshev.png#Plot of Chebyshev Polynomials::
+
+strong::Example:::
+
+Fill a buffer with cheby specs: I want the first harmonic at 0.25 amplitude, second at 0.5, third at 0.25
+code::
+b = Buffer.alloc(s, 512, 1, {arg buf; buf.chebyMsg([0.25,0.5,0.25], false)});
+
+b.plot;
+
+(
+{
+    Shaper.ar(
+        b,
+        SinOsc.ar(440, 0.5pi, MouseX.kr(0,1)), //input cosine wave
+        0.5 //scale output down because otherwise it goes between -1.05 and 0.5, distorting...
+    )
+}.scope;
+)
+
+b.free;
+::
+
+You can also make your own arbitrary shpers:
+code::
+b = Buffer.alloc(s, 1024, 1);
+b.cheby([1, 0.5, 1, 0.125]);
+
+(
+{     var    sig = Shaper.ar(b, SinOsc.ar(440, 0, 0.4));
+    sig ! 2
+}.scope;
+)
+
+b.free;
+::
+You can calculate the transfer fuction as an array and then convert it to a wavetable:
+code::
+b = Buffer.alloc(s, 1024, 1);
+
+//size must be power of two plus 1
+t = Signal.chebyFill(513,[1, 0.5, 1, 0.125]);
+
+// linear function
+t.plot
+
+t = Signal.sineFill(513,[1, 0.5, 1, 0.125]);
+
+t.plot
+
+
+// t.asWavetableNoWrap will convert it to the official Wavetable format at next power of two size
+b.sendCollection(t.asWavetableNoWrap);  // may also use loadCollection here
+
+b.plot
+
+(
+{     var    sig = Shaper.ar(b, SinOsc.ar(440, 0, 0.4));
+    sig ! 2
+}.scope;
+)
+
+b.free;
+::
+
+Get creative with your transfer functions:
+code::
+b = Buffer.alloc(s, 1024, 1);
+
+// or, for an arbitrary transfer function, create the data at 1/2 buffer size + 1
+t = Signal.fill(513, { |i| i.linlin(0.0, 512.0, -1.0, 1.0) });
+
+// linear function
+t.plot
+
+// t.asWavetable will convert it to the official Wavetable format at twice the size
+b.sendCollection(t.asWavetableNoWrap);  // may also use loadCollection here
+
+// shaper has no effect because of the linear transfer function
+(
+{     var    sig = Shaper.ar(b, SinOsc.ar(440, 0, 0.4));
+    sig ! 2
+}.scope;
+)
+
+// now for a twist
+(
+a = Signal.fill(256, { |i|
+    var t = i/255.0;
+    t + (0.1 * (max(t, 0.1) - 0.1) * sin(2pi * t * 80 + sin(2pi * 25.6 * t)))
+})
+);
+
+a.plot
+
+d = (a.copy.reverse.neg) ++(Signal[0])++ a;
+
+d.plot
+
+d.size    //must be buffer size/2 + 1, so 513 is fine
+
+b.sendCollection(d.asWavetableNoWrap);  // may also use loadCollection here
+
+b.plot // wavetable format!
+
+// test shaper
+(
+{
+    Shaper.ar(
+        b,
+        SinOsc.ar(440, 0.5, MouseX.kr(0,0.9))
+    )
+}.scope
+)
+::
+
+Note::This examples are taken from the code::Shaper:: help file::
+
+subsection::Additive through Summation
+
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/summation.png#Additive Synthesis Patch::
+list::
+##Addition of partials
+##Overtones, Harmonics
+##Inharmonic partials
+##Fixed-wave/periodic signals are limited - they can only represent a steady-state spectrum
+##Acoustic sound has a time-varying spectrum (changes millisecond by millisecond)
+##A time-varying timbre is usually more tantalising to the ear than a constant spectrum (Grey, 1975)
+::
+
+strong::Example in SC::
+
+code::
+(
+SynthDef(\addSynth, {arg freq=40, amp=0.5, lag=30; var signal;
+	signal = SinOsc.ar(freq.lag(lag),0,amp.lag(lag));
+	Out.ar([0,1],signal)
+}).send(s);
+)
+
+(
+~arr = Array.fill(12, {rrand(200,10000)}).sort;
+~synthArr = [];
+~arr.do{|item|
+	~synthArr = ~synthArr.add(Synth(\addSynth, [\freq, item, \amp, 0.5/~arr.size]));
+}
+)
+
+~arr = [~arr[0]] ++ Array.fill(~arr.size-1,{rrand(~arr[0],~arr[0]*20)});
+~synthArr.do{|item, index| item.set(\freq, ~arr[index].postln)};
+::
+
+list::
+##Additive synthesis through the summation of various oscillators: code::Sine, Saw, Pulse, LTFri, Klang, DynKlang, etc.::
+##More flexibility and control
+::
+
+
+subsection::Time-varying Additive Synthesis
+list::
+##Changing mixture of sine waves over time usually results in more interesting and complex synthetic sounds
+##Each sine oscillator uses a different envelope to control amplitude
+##Frequency can also change depending on time-varying considerations (for example for ADSR spectra might change)
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/trumpet.png#Time-varying spectrum plot of
+twelve partials of a trumpet tone::
+
+emphasis::Control Data:: for Additive Synthesis can include:
+list::
+##Driving functions for synthesis algorithms:
+##Imported/mapped from another domain
+##Generated by user constraints
+##Generated by interactive systems
+##Entered by user
+##Etc.
+::
+
+strong::Example in SC:::
+
+code::
+(
+SynthDef(\addSynth, {arg freq=40, amp=0.5, lag=0.01, atk=0.1,dec=0.2,sus=0.5,rel=1.0,gate=1, vol=0.05;
+	var signal, env;
+	signal = SinOsc.ar(freq.lag(lag),0,amp.lag(lag));
+	env = EnvGen.kr(Env.adsr(atk,dec,sus,rel), gate);
+	Out.ar([0,1],signal*env*vol);
+}).send(s);
+)
+
+(
+~size = 100; //100 change number of oscillators
+~arr = Array.fill(~size, {rrand(200,10000)}).sort;
+~envArr = [Array.rand(~size,0.1,2.6),Array.rand(~size,0.3,0.6), Array.rand(~size,0.8,1.0), Array.rand(~size,0.1,10.0)];
+~synthArr = [];
+~arr.do{|item, index|
+	~synthArr = ~synthArr.add(Synth(\addSynth, [\freq, item, \amp, (rrand(0.5,0.1)/(~arr.size)), \atk, ~envArr[0][index].postln, \dec, ~envArr[1][index], \sus, ~envArr[2][index], \rel, ~envArr[3][index], \lag, 0.1])); //change lag time
+};
+
+~rout = {inf.do{
+	~arr = [~arr[0]] ++ Array.fill(~arr.size-1,{rrand(~arr[0],~arr[0]*20)});
+	~synthArr.do{|item, index| item.set(\freq, ~arr[index], \amp, rrand(0.5,0.1))};
+	0.01.yield; //change wait time
+}}.fork;
+)
+
+
+~synthArr.do{|item, index| item.set(\gate, 0)};
+~rout.stop;
+
+~synthArr.do{|item, index| item.free};
+::
+
+strong::Additive Analysis/Resynthesis:: techniques can be used as a form of Additive Synthesis.
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/analysis_resynthesis.png#Analysis/Resynthesis Model::
 
 section::Multiple Wavetable Synthesis
 
-strong::Wavetable crossfading::
+strong::Discussion:::
+list::
+##What characterises Fixed-wavetable Synthesis?
+##What is the main problem of Fixed-wavetable Oscillators?
+##Static timbre
+##Not very interesting or dynamic result
+##Challenge in synthesis:
+##How to generate interesting time-varying timbres?
+::
+
+subsection::Wavetable crossfading
+list::
+##Simple idea really: crossfade between 2 or more fixed waveforms during event
+##Sound “mutates” from one source to another over time
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/wavetable_crossfading.png#Wavetable crossfading::
+
 code::
 (
 SynthDef(\wavecross1, {arg freq=440, attack=0.01, dec=0.4, sus=0.3, sus2=0.4, rel=2, vol=0.5;
@@ -833,7 +1090,27 @@ Synth(\wavecross1, [\freq, 880]);
 )
 ::
 
-strong::Wavestacking::
+list::
+##Wavetable crossfading is at core of compound synthesis, vector synthesis (Sequential Circuits, Korg, Yamaha), L/A (Linear Arithmetic synthesis, Roland)
+##Prophet VS (1985, Sequential Circuits) - crossfade between 4 different waveforms
+##Later synthesisers: users specify arbitrary number of waveforms during one event
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/wavetable_crossfading2.png#Complex user specified wavetable crossfading::
+
+subsection::Wavestacking
+
+list::
+##Wavetable staking or wavestacking is a variation of additive synthesis, but:
+##Instead of sine waves, wavestacking uses different more complex signals (usually sampled) “stacked” together to create new timbre
+##Each waveform has its own amplitude envelope causing spectral changes during event
+##Storing waveforms in table-lookup oscillators
+##Also combined with wavetable crossfade for more internal motion
+##Wavestacking is similar to additive with different complex signals
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/wavestacking.png#Wavestacking patch::
+
 code::
 (
 SynthDef(\wavestack1, {arg freq=440, attack=0.1, sus=0.3, rel=2, vol=0.5;
@@ -869,9 +1146,41 @@ Synth(\wavestack1, [\freq, 880]);
 )
 ::
 
-section::Modulation Synthesis
 
-subsection::Ring modulation
+section::Modulation Synthesis
+list::
+##Modulation: control of an aspect of one signal with another
+##Modulated signal is the emphasis::carrier::
+##Controlling signal is the emphasis::modulator::
+##Modulation is nonlinear process - new frequency components can appear, we call them emphasis::sidebands::
+::
+
+strong::Bipolar and unipolar signals::
+list::
+##Polarity: positive and negative polarity (+1,-1)
+##Bipolar signals have both positive and negative excursion around 0
+##Unipolar signal a constant has been added (range above 0)
+##Difference between RM and AM is that RM modulates two bipolar signals which AM modulates a bipolar with a unipolar signal
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/bipolar_unipolar.png#Biploar vs unipolar signals::
+
+subsection::Ring Modulation (RM)
+list::
+##Theoretically a form of AM.
+##Ring Modulation (RM) is a straight multiplication of two bipolar signals. RM is symmetric (carrier and modulator are the same)
+##RingMod = C x M (Ring Modulation = Carrier signal x Modulation signal)
+##If M is bellow 20Hz = tremolo effect
+##At higher frequencies:
+list::
+##Carrier disappears
+##For each sinusoidal component in the carrier, the modulator contributes two sidebands: the sum and the ##difference of C and M
+##Phases of output are also the sum and difference of phases of C and M.
+::
+##If modulation frequency is higher than carrier frequency, negative frequencies occur. Negative frequency converts into positive mirror-image (with phase change)
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/ring1.png#Ring Modulation::
 
 Create a frequency analyzer:
 code::
@@ -932,7 +1241,17 @@ Inharmonic sidebands:
 code::
 {(SinOsc.ar(100,0,0.25)+SinOsc.ar(380,0,0.25))*SinOsc.ar(775)}.scope;
 ::
-subsection::Amplitude modulation:
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/ring2.png#Sidebands in Ring Modulation::
+
+subsection::Amplitude Modulation (AM):
+list::
+##Unipolar
+##Like RM, AM generates a pair of sidebands for each sinusoidal component in the carrier and modulator
+##Sidebands are separated from the carrier by the distance corresponding to the inverse of the period of the modulator.
+##AM is the same result of RM + Carrier frequency
+::
+
 code::
 (
 {var carrier, modulator;
@@ -963,7 +1282,47 @@ code::
 ::
 
 
-subsection::Frequency modulation
+subsection::Frequency Modulation (FM)
+list::
+##FM not a technique but a series of methods
+##PM (Phase modulation) and FM are virtually identical cases of angle modulation. Only difference is that the amplitudes generated by two methods are slightly different
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fm1.png#Simple Frequency Modulation Patch::
+
+list::
+##Plug the modulator to the carrier frequency
+##Carrier Frequency C
+##Modulation Frequency M
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fm2.png#FM sidebands::
+
+list::
+##FM generates sidebands around C Freq
+##Each sideband spreads out at a distance equal to a multiple of the modulating frequency
+##The position of sidebands depends on ratio of carrier and modulation frequency
+##When ratio is a simple integer (e.g. 4:1), then FM generates harmonic spectra
+##When ratio is not a simple integer (e.g. 8:2.1), then FM generates inharmonic spectra
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fm3.png#FM sidebands::
+
+list::
+##Modulation index and bandwidth
+##Modulation index = frequency deviation / modulator frequency (I = D/M)
+##As I increases, so does sidebands and energy is “stolen” for carrier and distributed in sidebands
+##Frequencies above Nyquist frequency are reflected as well (folds over - aliases)
+##Lower sidebands (bellow 0Hz reflect back at 180 degree phase-inverted form)
+##Negative frequency components add richness to lower-frequency portion of spectrum
+##Amplitude of individual sideband components vary according to Bessel functions
+::
+
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fm4.png#3d graph of Bessel functions as
+function of modulation index::
+
+strong::FM in SC:::
+
 
 Can be done (without envelope) in the following way:
 code::
@@ -983,10 +1342,16 @@ var carrierFreq = 400, modFreq = 50, deviation = 100;
 }.scope
 )
 ::
+list::
+##link::https://en.wikipedia.org/wiki/John_Chowning##John Chowning:: (1967)
+##link::https://en.wikipedia.org/wiki/Yamaha_DX7##Yamaha DX7::
+##Cheap in CPU
+::
+image::http://federicoreuben.com/computerdotplay/guides/guide2/fm5.png#Yamaha DX7::
 
 subsection::Phase modulation
 
-is similar, but we modulate the phase instead of the frequency:
+Similar to FM, but we modulate the phase instead of the frequency:
 
 code::PMOsc.ar(carfreq, modfreq, index, modphase, mul, add)::
 list::
