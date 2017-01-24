@@ -1,293 +1,1019 @@
 TITLE:: Digital Synthesis
 summary:: Computer.play(Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
-related:: Computer, Guides/Digital Audio, Workshops/Playing with UGens 1, Workshops/Playing with UGens 2
+related:: Computer, Guides/Digital Audio, Workshops/Playing with UGens
 
-section::Digital Audio
+section::Digital Synthesis
 
-Digital vs Analogue = Continuous vs Discrete signals
+Digital Synthesis is the generation of waveforms with untis (values) usually generated digitally and then transfered through a D/A converter to produce sound. Waveforms can be generated through mathematical formulae, A/D conversion, analysis and resynthesis of recorded sound, and other non-standard techniques.
 
-subsection:: Analog-to-Digital Conversion
-
-A/D is not chopped audio!
-A/D conversion:
+subsection:: Some Synthesis Techniques
 list::
-##Analog signal (mic for example) passes through A/D convertor
-##Convertor measures signal many times per second
-##Each time it’s measured, a binary number is generated (representing voltage/amplitude of signal)
-##Stored as modulated square wave
+##Sample-based synthesis
+##Additive synthesis
+##Subtractive synthesis
+##Amplitude Modulation (AM)
+##Frequency Modulation (FM)
+##Ring Modulation (RM)
+##Wavetable synthesis
+##Granular synthesis
+##Spectral Modelling
+##Physical Modelling
+##Non-standard synthesis
 ::
 
-D/A conversion is the opposite:
+section::Sample-based synthesis
+
+Sample-based synthesis is based on recorded sounds and the manipulation of this information.
+
+subsection::Digital Playback
+
+Digital playback uses stored samples from a recording of a signal that has been digitalised through an A/D converter.
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/playback.png#Revox Studer Reel-to-Reel Tape Machine - old style playback!::
+
+subsection::Buffers
+Digital playback requires strong::Buffers::.
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/buffers.png#Buffers are like containers of digital floating point values::
+
 list::
-##Convertor translates numbers into analog signal made of voltage steps
-##An anti-imaging filter (lowpass filter, smoothing filter) smooths the steps into an analog signal
-##Nothing is lost!!
+##A buffer is a container of data loaded into the computer memory
+##Often used to hold sampled audio
+##Can be used to hold other types of data as well
+##Available as an array of floating-point numbers
+##There are different ways in which we can use buffers including playback, envelope, wavetable
 ::
 
 
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure1.png#Fig. 1: A/D to D/A chain::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure2.png#Fig. 2: Digital sampling::
-
-subsection::Audio Sampling
+subsection::Buffers in SC
 list::
-##Analog signal is a time-continuous electrical waveform
-##A/D converter turns signal into time-discrete sequence of binary numbers
-##Pulse code modulation (PCM) is the method to digitally represent analog signals
-##Audio sampling is the process were the A/D converter measures the analog waveform at regular intervals
-##Samples are like “still frames” in a film, which give impression of continuous movement
+##code::Buffers:: are arrays of 32-bit floating point values.
+##code::Buffers:: are on the server so that they can be used by synths.
+##code::Buffers:: need to be allocated, filled, and at some point freed.
+##code::Buffers:: can be allocated, loaded and freed while synthesis is running.
+##code::Buffers:: can be used for wave tables, sample buffers, delay lines, ...
 ::
 
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure3.png#Fig. 3: Waveform to sample pulses::
-
-subsection::Sampling Rate
-list::
-##Rate at which a/d converter samples a signal.
-##Higher sampling rate - higher frequency response
-##Also remember: higher sampling rate = more memory space in your hard drive
-##44.100 Hz or 44.1 khz is the CD sampling freq
-##48 khz is the ‘professional’ rate (DVD, blu-ray)
-::
-
-subsection::Sampling Theorem
-list::
-##The emphasis::sampling theorem:: or the emphasis::nyquist-shannon theorem:: states:
-##To well represent an audio signal, the sampling rate needs to be at least twice  the highest frequency contained in the sound of the signal
-##This frequency is called the emphasis::nyquist frequency::
-##Therefore, at least two samples must be taken by audio cycle so that no information is lost
-##If too few samples are taken by cycle, samples may produce wave other than original
-::
-
-subsection::Aliasing
-list::
-##Phenomenon where ‘alias’ unwanted representation of sampled signal constructed through d/a conversion
-##Sidebands produced by under-sampling signal
-##Frequencies above nyquist frequency are reproduced as lower sidebands
-##Spectral repetition (mirror image of original)
-::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure4.png#Fig. 4: Undersampling produces sidebands::
-
-strong::Examples:::
-
-A sine wave with sample and hold demonstrate principle:
+The number of buffers on a server is set at boot time.
 code::
-{Latch.ar(SinOsc.ar(440,0,0.25), Impulse.ar(MouseX.kr(440,22000)))}.scope;
+o = ServerOptions.new;
+o.numBuffers;
 ::
 
-Load soundfile in buffer:
+subsection:: Types of Digital Playback
+
+2 main types:
+numberedlist::
+##Load sound file in its entirety into a buffer and then use a sample playback oscillator. This allows substantial playback manipulation.
+list::
+##In SC this is done with the code::PlayBuf:: UGen.
+::
+##Read directly from hard drive. Not as much playback manipulation. Uses a smaller buffer, which refreshes itself.
+list::
+##In SC this is done with the code::DiskIn:: UGen.
+::
+::
+
+subsection::PlayBuf
+code::PlayBuf:: is a UGen to listen/manipulate sound files.
+
+code::PlayBuf:: - sample playback oscillator
+(numChannels, bufnum, rate, trigger, startPos, loop)
+list::
+##emphasis::rate::: 1.0 is the server's sample rate, 2.0 is one octave up, 0.5 is one octave down
+##emphasis::loop:: = 1 is true, 0 is false
+::
+
+subsection::Buffer class
+
+Buffers can also be accessed with the code::Buffer:: class
+(which may be more convenient than the messaging style)
+
+code::Buffer.read::  allocates a buffer and reads a sound file into it.
+
+code::
+b = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/11 Debra.aiff"); //change to your soundfile path
+
+{ PlayBuf.ar(2, b.bufnum, 1, loop: 1) }.scope
+::
+
+
+Mouse control of rate (transposition)
+code::
+{ PlayBuf.ar(1, b.bufnum, MouseX.kr(0.5,2), loop: 1) }.scope
+
+b.bufnum   // returns buffer number
+b.numChannels   // returns the number of channels in the buffer
+
+b.free  // return the memory and free buffer ID, IMPORTANT
+::
+
+
+code::BufRateScale::
+
+File being read into a buffer may have a different sample than SC is using
+
+
+code::BufRateScale.kr(bufnum):: returns a ratio to adjust the playback of the soundfile (for example with different sampling rates).
+code::
+b = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/04 4 bit 9d api+e+6 [126.26].wav"); //change to your soundfile path
+::
+
+to scale the playback:
+code::
+{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1) }.scope
+
+b.free
+::
+
+code::BufFrames::
+
+code::BufFrames.kr(bufnum):: returns the current number of allocated frames
+
+it can be used to specify starting halfway through the buffer or some place else
+
+code::
+b = Buffer.loadDialog; //choose sound file
+(
+var start = 1/2;
+{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum),
+	startPos: BufFrames.kr(b.bufnum) * start, loop: 1)
+}.scope
+)
+::
+
+note that loop returns to the beginning in the above example
+
+a trigger (<= 0 to > 0) causes the playback to start from startPos
+
+using a trigger without looping
+
+code::Impulse.kr:: produces a trigger with a certain frequency
+
+code::
+(
+	var start = 1/2;
+	{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum),
+		Impulse.kr(1/3),
+		startPos: BufFrames.kr(b.bufnum) * start, loop: 0)
+	}.scope
+)
+::
+Using a trigger with looping:
+
+the trigger should occur with a frequency that is
+
+(serverSampleRate / numberOfFrames) * rateScale
+
+Server's sample rate:
+code::
+s.sampleRate
+::
+
+code::
+(
+var start = 1/2;
+{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum),
+	Impulse.kr(s.sampleRate / (BufFrames.kr(b.bufnum) * start) *
+		BufRateScale.kr(b.bufnum)),
+	startPos: BufFrames.kr(b.bufnum) * start, loop: 1)
+}.scope
+)
+
+b.free
+::
+
+strong::Exercise:::
+numberedList::
+##Play with code::PlayBuf:: loading sound files (uncompressed) and changing the rate with different values.
+##Use another UGen to modulate the rate.
+##Add an envelopte to PlayBuf with different random starting points.
+::
+
+subsection::DiskIn
+
+To continuously play longer sound file from disk. One buffer must be preloaded.
+
+using code::Buffer object::
+
+(server, path, startFrame, numChannels)
+
+code::
+b = Buffer.cueSoundFile(s, "/Users/federicoreuben/Music/MastersExamples/05 180db_ [130].wav", 0, 2); //or your own path
+
+x = { DiskIn.ar(2, b.bufnum) }.play;
+
+b.close;	// close file
+
+//try another file:
+
+code::
+b.cueSoundFile("/Users/federicoreuben/Music/MastersExamples/7 Broken Train.aiff", 0, 2); //or your own path
+
+x.free; b.close; b.free;	// close and free
+::
+
+subsection::Chipmunk conclusions:
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/chipmunks.png#Playback synthesis can sound like chipmunks!::
+
+list::
+##Playing with different rates of playback can be fun
+##Modulating rate with other UGens
+##Cutting, reversing, randomising playback, gains
+##Might introduce amplitude distortion, aliasing and spectral envelope shifting
+##Not the same as pitch shifting
+##‘munkchkinisation’ - chipmunk sounds
+::
+
+section::Signals and Fixed Waveforms
+
+subsection::Basic arithmetic operations on signals
+list::
+##When we emphasis::multiply:: a signal by a number, we change its emphasis::amplitude::
+##When we emphasis::add:: a number, we change its emphasis::axis::
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/signalaxis.png#sine wave plot::
+
+list::
+##We can use a signal to modulate another signal
+##We can modulate any parameter of a given signal (frequency, amplitude, phase, etc.)
+##We can also add two signals together (additive synthesis)
+##We can also multiply two signals (ring modulation)
+::
+
+subsection::Common periodic waveforms
+
+The most common periodic fixed (waveform doesn't change in time) waveforms in classic synthesis are:
+list::
+##Sine Wave
+##Square Wave
+##Saw Wave
+##Triangle Wave
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/common waves.png#Common waveforms in synthesis::
+
+They have differnet characteristics and complex waves (Square, Saw, Triangle).
+
+strong::Square Wave::
+
+list::
+##Odd harmonics
+##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum::
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/squarewave.png#Square Wave::
+
+code::
+(
+{var sinArr, size, freq, array;
+sinArr = [];
+size = 100;
+freq = 100;
+array = Array.series(size,1,2); //odd harmonics
+array.do{|item|
+sinArr = sinArr.add(SinOsc.ar(freq * item,0,0.5*(1/item))); // 1/harmonicNum
+};
+sinArr.sum;
+}.scope;
+)
+::
+
+Note::This approach is for demonstration purposes. Use the code::UGen:: below if you just want to use a square wave::
+
+SC has a square wave code::UGen:::
+code::
+{Pulse.ar(100, 0.5, 1, 0)}.scope//args: freq, width, mul, add
+::
+
+strong::Saw Wave::
+list::
+##Odd and even harmonics
+##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum/2::
+::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/sawwave.png#Saw Wave::
+
+code::
+(
+{var sinArr, size, freq;
+sinArr = [];
+size = 100;
+freq = 100;
+(Array.series(size,1,1)).do{|item|
+sinArr = sinArr.add(SinOsc.ar(freq * item,0,0.5*(1/item/2)));
+};
+sinArr.sum;
+}.scope;
+)
+::
+
+Note::This approach is for demonstration purposes. Use the UGen below if you just want to use a saw wave::
+
+SC has a saw wave code::UGen:::
+code::
+{Saw.ar(100, 1, 0)}.scope//args: freq, mul, add
+::
+
+strong::Triangle Wave::
+list::
+##Odd harmonics
+##Amplitude of each harmonic is multiplied by emphasis::1/harmonicNum/harmonicNum::
+##Polarity switches from positive to negative amplitude from harmonic to harmonic::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/trianglewave.png#Triangle Wave::
+
+code::
+(
+{var sinArr, size, freq;
+sinArr = [];
+size = 100;
+freq = 100;
+(Array.series(size,1,2)).do{|item, index|
+if(index.even, {
+sinArr = sinArr.add(SinOsc.ar(freq * item,0,0.5*(1/item/item)));
+}, {
+sinArr = sinArr.add(SinOsc.ar(freq * item,0,(0.5*(1/item/item)).neg));
+});
+};
+sinArr.sum;
+}.scope;
+)
+::
+
+Note::This approach is for demonstration purposes. Use the code::UGen:: below if you just want to use a trinagle wave::
+
+SC has a triangle wave code::UGen:::
+code::
+{LFTri.ar(100, 0, 1, 0)}.scope//args: freq, iphase, mul, add
+::
+
+
+section::Fixed-Waveform Table-lookup Synthesis
+
+subsection::Wavetable-lookup Synthesis:
+list::
+##Digital Sound Synthesis by sending samples through digital-to-analog converter
+##For periodic sound, computer simply reads through a table of just one cycle of waveform in a list stored in memory (wavetable) again and again
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/fixed waveform table-lookup.png#A Wavetable!::
+
+list::
+##Algorithm for Digital Oscillator
+##Oscillator has to resample the wavetable in order to generate different frequencies
+::
+
+subsection::Wavetable synthesis in SC
+
+code::Osc:: is a table-lookup oscillator.
+
+code::
+b = Buffer.alloc(s, 4096, 1); //buffer with 4096 values
+b.sine1(1.0!6, true, true, true); //add 6 harmonics
+b.plot
+
+{Osc.ar(b.bufnum, [80,80.2], 0, 0.2)}.play;
+
+b.sine1(1.0/[1,2,3,4,5,6], true, true, true); //add 6 harmonics with decaying amplitudes
+
+b.sine1(Array.rand(32,0,1), true, true, true); //change wavetable with random selction of partials
+b.plot
+
+b.sine1(Array.rand(16,0,1.0).postln, true, true, true); //change wavetable with random amplitude in partials
+
+{Osc.ar(b.bufnum, MouseX.kr(100,1000), 0, 0.2)}.play;
+
+{Osc.ar(b.bufnum, [80,80.2], 0, 0.2)}.play;
+
+b.sine1(1.0/(1..10), true, true, true);
+b.plot;
+
+b.sine1(1.0/(1..100), true, true, true);
+
+b.sine1(Array.fill(50,{[0,1].choose}), true, true, true); //evaluate serveral times
+b.plot;
+
+b.sine1([1,1,1,0,0,0,1,1,1,0,0,0,0,0,0.5,0.5,0.5], true, true, true);
+b.plot;
+//and now this
+(
+{50.do{b.sine1(Array.rand(32,0,1.0), true, true, true);
+	0.25.wait;
+}}.fork;
+)
+::
+
+section::Time-varying Waveform Synthesis
+
+Changing amplitude of a signal in time is important to make it interesting!
+	For this, we need:
+list::
+##Signals to create time-varying waveforms
+##Envelopes - functions of time (generates a line through a table specifying time and amplitude points)
+##Amplitude envelopes need to be multiplied with the “sounding” signal
+##Introducing time-varying UGens in a patch both in amplitude and frequency for more interesting results
+##Table-look up oscillators have 3 different inputs: amplitude, frequency and waveform
+::
+
+subsection::Envelopes
+list::
+##An envelope is a function in time that describes a line or curve
+##Commercial synthesisers amplitude envelopes in 4 stages
+##Attack, Decay, Sustain and Release (ADSR)
+##We still need a way of using the envelope to modify the amplitude of the “constant sounding” oscillator
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/adsr.png#ADSR Envelope::
+
+Note::It's imporant to understand that in the digital domain, an Envelope specifies a wavetable::
+
+In SC we can make envelopes with the code::Env:: specification.
+code::
+Env.new([0,1,0], [1,9]).plot; //values, time
+Env.adsr.plot;
+Env.adsr(0.1,1,0.01).plot;
+::
+
+Another more complex curved envelope:
+code::
+a = Array.fill(29, {rrand(0.0,1)});
+d = Array.fill(29, {rrand(0.1,0.5)}).sort;
+a = a ++ [0];
+c = Env.new(a,d, curve:'sin');
+c.test.plot;
+::
+
+
+strong::Envelopes Generators::
+
+In order to playback envelopes in synthesis patches, we need to use an strong::envelope generator::, which reads the breakpoints we create with an Env.
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/envgen.png#A synthesis patch with an envelope generator::
+
+
+In SC, we use the code::EnvGen:: UGen for this purpose.
+code::
+a = Array.fill(29, {rrand(0.0,1)});
+d = Array.fill(29, {rrand(0.1,0.5)}).sort;
+a = a ++ [0];
+c = Env.new(a,d, curve:'sin');
+{PinkNoise.ar(1)*EnvGen.kr(c, doneAction: 2);}.play;
+::
+
+Now use envelope to control frequency:
+
+code::
+{LFTri.ar(EnvGen.kr(c, doneAction: 2, levelScale: 200, levelBias: 300))*EnvGen.kr(c, doneAction: 2);}.play;
+::
+
+section::Substractive Synthesis
+list::
+##Method of Sound Synthesis
+##Frequencies are attenuated by using digital filters
+##Usually source rich in frequency content/partials/harmonics
+##Sources may include: Complex waves (such as saw (code::Saw.ar::), square (code::Pulse.ar::), triangle (code::LFTri.ar::)), noise, pulses, etc.
+##Resonance can be used to create interesting effects like ringing
+##Subtract and add methods
+::
+
+subsection::Filters
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/filters.png#Filters remove stuff!::
+
+list::
+##“A digital filter is a computational process or algorithm by which a digital signal or sequence of numbers (acting as input) is transformed into a second sequence of numbers termed the output digital signal” (Rabiner et al. 1972)
+##Any digital device with an input and an output is a filter!
+##Commonly referred to devices that boost or attenuate regions of the frequency spectrum
+##Not only frequency domain, but also time domain (reverbs, delays, etc.)
+::
+
+subsection::Pass Filters
+
+
+code::WhiteNoise:: as source.
+code::
+
+{WhiteNoise.ar(1)!2}.scope;
+
+FreqScope.new(400, 200, 0); //frequency scope
+::
+
+
+strong::Hi-pass filter::: Just passes high frequencies.
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/hpf.png#High-pass Filter::
+
+code::
+{HPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000))}.scope
+::
+
+strong::Low pass filter::: Just passes low frequencies.
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/lpf.png#Low-pass Filter::
+
+code::
+{LPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000))}.scope //args: in, freq, rq
+::
+
+strong::Band pass filter::: Just Passes Band
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/bpf.png#Band-pass Filter::
+
+code::
+{BPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(440,17600), MouseY.kr(0.001,0.9))}.scope //args: in, freq, rq
+::
+
+strong::Band reject filter::: Rejects band
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/brf.png#Band-reject Filter::
+
+code::
+{BRF.ar(WhiteNoise.ar(0.5)!2, 11000, MouseY.kr(0.01,1.9))}.scope
+::
+
+subsection::Resonant Filters
+list::
+##Resonance provides a boost around cut-off frequency
+##Sometimes you find the reciprocal of Q (1/Q) instead of Q
+##RHPF (Resonant High Pass Filter)
+##RLPF (Resonant Low Pass Filter)
+::
+
+strong::Resonant low pass filter:::
+code::
+{RLPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.001,0.9))}.scope
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/rlpf.png#Resonant Low-pass Filter::
+
+strong::Resonant high pass filter:::
+code::
+{RHPF.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.001,0.9))}.scope
+::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/rhpf.png#Resonant High-pass Filter::
+
+
+subsection::Equalisation
+
+B EQ Filters in SC:
+
+strong::High-pass:::
+code::
+{Pan2.ar(BHiPass.ar(WhiteNoise.ar(0.5), MouseX.kr(20,22000)),0)}.scope
+::
+strong::Low-pass:::
+code::
+{Pan2.ar(BLowPass.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000)),0)}.scope
+::
+
+strong::Shelf Filters:::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/shelf.png#Low and High Shelf Filters::
+
+strong::Low-shelf:::
+
+Cut -20db:
+code::
+{Pan2.ar(BLowShelf.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), -20), 0)}.scope //arg: in, freq. reciprocal of s (slope) = 1/s
+::
+Boost 20db:
+code::
+{Pan2.ar(BLowShelf.ar(WhiteNoise.ar(0.1)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), 20), 0)}.scope //reciprocal of s (slope) = 1/s
+::
+
+strong::Hi-shelf:::
+
+Cut -10db:
+code::
+{Pan2.ar(BHiShelf.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), -10), 0)}.scope //reciprocal of s (slope) = 1/s
+::
+
+Cut -20db:
+code::
+{Pan2.ar(BHiShelf.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), -20),0)}.scope
+::
+
+Boost 10db:
+code::
+{Pan2.ar(BHiShelf.ar(WhiteNoise.ar(0.25)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), 10),0)}.scope
+::
+Boost 20db:
+code::
+{Pan2.ar(BHiShelf.ar(WhiteNoise.ar(0.1)!2, MouseX.kr(20,22000), MouseY.kr(0.5,10.0), 20), 0)}.scope
+::
+
+
+strong::Parametric:::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/parametric.png#Parametric Filter - Boost and Cut::
+
+Cut -10db:
+code::
+{Pan2.ar(BPeakEQ.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000,1).poll, MouseY.kr(0.1,10.0), -10),0)}.scope //reciprocal of q (bandwidth / cutoffFreq)
+::
+
+Cut -20db:
+code::
+{Pan2.ar(BPeakEQ.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000,1).poll, MouseY.kr(0.1,10.0), -20),0)}.scope //reciprocal of q (bandwidth / cutoffFreq)
+::
+
+Boost 10db:
+code::
+{Pan2.ar(BPeakEQ.ar(WhiteNoise.ar(0.25)!2, MouseX.kr(20,22000,1).poll, MouseY.kr(0.1,10.0), 10),0)}.scope //reciprocal of q (bandwidth / cutoffFreq)
+::
+Boost 20db:
+code::
+{Pan2.ar(BPeakEQ.ar(WhiteNoise.ar(0.1)!2, MouseX.kr(20,22000,1).poll, MouseY.kr(0.1,10.0), 20),0)}.scope //reciprocal of q (bandwidth / cutoffFreq)
+::
+
+strong::Multiband EQ::
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/multiband.png#Multiband Filter by fabfilter::
+
+By combining different filters, you can produce a multiband EQ.
+
+code::
+(
+a = {arg lag=10, hpfreq=100,hpq=0.71,lsfreq=80,lsdb=10,lss=1.1,p1freq=43,p1db=0,
+	p1q=6,p2freq=86,p2db=0,p2q=6,p3freq=129,p3db=0,p3q=6,p4freq=172,p4db=0,
+	p4q=6,hsfreq=2000,hsdb=0,hss=0.1,lpfreq=20000,lpq=0.71,byp1=0,byp2=0,
+	byp3=0,byp4=0,byp5=0,byp6=0,byp7=0,byp8=0,vol=0.5;
+	var signal;
+	signal = WhiteNoise.ar(0.25);
+	signal = BHiPass.ar(signal,hpfreq.lag(lag),(1/hpq.lag(lag)))*byp1.linlin(0,1,1,0) + (signal*byp1);
+	signal = BLowShelf.ar(signal,lsfreq.lag(lag),(1/lss.lag(lag)), lsdb.lag(lag))*byp2.linlin(0,1,1,0)
+	+ (signal*byp2);
+	signal = BPeakEQ.ar(signal,p1freq.lag(lag),(1/p1q.lag(lag)), p1db.lag(lag))*byp3.linlin(0,1,1,0)
+	+ (signal*byp3);
+	signal = BPeakEQ.ar(signal,p2freq.lag(lag),(1/p2q.lag(lag)),p2db.lag(lag))*byp4.linlin(0,1,1,0)
+	+ (signal*byp4);
+	signal = BPeakEQ.ar(signal,p3freq.lag(lag),(1/p3q.lag(lag)),p3db.lag(lag))*byp5.linlin(0,1,1,0)
+	+ (signal*byp5);
+	signal = BPeakEQ.ar(signal,p4freq.lag(lag),(1/p4q.lag(lag)),p4db.lag(lag))*byp6.linlin(0,1,1,0)
+	+ (signal*byp6);
+	signal = BHiShelf.ar(signal,hsfreq.lag(lag),(1/hss.lag(lag)), hsdb.lag(lag))*byp7.linlin(0,1,1,0)
+	+ (signal*byp7);
+	signal = BLowPass.ar(signal,lpfreq.lag(lag),(1/lpq.lag(lag)))*byp8.linlin(0,1,1,0)
+	+ (signal*byp8);
+	Pan2.ar(signal,0)*vol;
+}.scope;
+)
+
+//lag produces a ramp between values at a given duration
+a.set(\p1db,20, \p1q,10.0, \p1freq, 800);
+a.set(\p2db,20, \p2q,10.0, \p2freq, 800*2);
+a.set(\p3db,20, \p3q,10.0, \p3freq, 800*3);
+a.set(\p4db,20, \p4q,10.0, \p4freq, 800*4);
+
+a.set(\byp1, 1, \lsfreq, 82,\lsdb,10,\lss,0.2,\p1freq,220,\p1db, -10);
+
+a.set(\hpfreq, 440, \hpq, 6)
+::
+
+subsection::Resonance and ringing
+
+Resonance exhibits ringing.
+
+code::
+{Resonz.ar(WhiteNoise.ar(0.5)!2, MouseX.kr(20,22000), MouseY.kr(0.001,0.9))}.scope //resonant high
+
+{Impulse.ar(MouseX.kr(0.5,10))!2*0.5}.scope
+
+{Resonz.ar(Impulse.ar(1,0,20), MouseX.kr(440,10000), MouseY.kr(0.0001,0.01))!2*10}.scope //resonant filter ringing
+
+{Ringz.ar(Impulse.ar(1,0,1), MouseX.kr(440,10000), 0.5)!2 }.scope //same but specify ring times
+::
+code::Klank:: and code::DynKlank:: are banks of resonators in SC.
+code::
+(
+{
+Klank.ar([ // the multichannel-expansion
+	    `[[500, 1078, 1201.5, 1723], nil, [1, 1, 0.5, 0.3]], // left channel
+	    `[[700, 1071, 1053, 1723], nil, [1, 1, 1, 1]] // right channel
+    ], Impulse.ar([1.5, 1.875], 0, 0.1))
+}.play
+)
+::
+With code::DynKlank:: you can change parameters dynamically.
+code::
+(
+// change freqs and ringtimes with mouse
+{    var freqs, ringtimes;
+    freqs = [800, 1071, 1153, 1723] * MouseX.kr(0.5, 2, 1);
+    ringtimes = [1, 1, 1, 1] * MouseY.kr(0.1, 10, 1);
+    DynKlank.ar(`[freqs, nil, ringtimes ], Impulse.ar(2, 0, 0.1))
+}.play;
+)
+
+(
+// set them from outside later:
+SynthDef('help-dynKlank', {
+    var freqs, ringtimes, signal;
+    freqs = Control.names([\freqs]).kr([800, 1071, 1153, 1723]);
+    ringtimes = Control.names([\ringtimes]).kr([1, 1, 1, 1]);
+    signal = DynKlank.ar(`[freqs, nil, ringtimes ], Impulse.ar(2, 0, 0.1));
+    Out.ar(0, signal);
+}).add;
+)
+
+a = Synth('help-dynKlank');
+
+a.setn(\freqs, Array.rand(4, 500, 2000));
+a.setn(\ringtimes, Array.rand(4, 0.2, 4) );
+::
+
+
+section::Noise
+
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/noise.png#NOISE!!!::
+
+list::
+##Noise in signal processing may refer to two things:
+##Unwanted modification of signal (unwanted sounds)
+##Or (what we are interested now):
+##Aperiodic signals
+##Random signals
+##However with predictable spectral density
+##Predictably unpredictable...
+::
+
+subsection::Coloured Noise
+
+Noise with different spectral characteristics.
+
+strong::White Noise::
+list::
+##Flat frequency spectrum
+##Equal power in any band of a given bandwidth (power spectral density)
+::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/whitenoise.png#White Noise::
+code::
+{WhiteNoise.ar(0.5)!2}.scope;
+::
+strong::Pink Noise::
+list::
+##Flat frequency spectrum
+##Equal power in any band of a given bandwidth (power spectral density)
+::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/pinknoise.png#Pink Noise::
+code::
+{PinkNoise.ar(0.5)!2}.scope
+::
+strong::Brown Noise::
+list::
+##Brownian motion
+##Random walk
+##Power density decreases 6dB per octave with increasing frequency
+##More power in lower frequencies
+::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/brownnoise.png#Brown Noise::
+code::
+{BrownNoise.ar(0.5)!2}.scope
+::
+strong::Grey Noise::
+list::
+##White noise subjected to psychoacoustic equal loudness curve
+##Closer to how we hear
+::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/old materials/lectures/sc_synthesis/pictures/greynoise.png#Grey Noise::
+code::
+{GrayNoise.ar(0.5)!2}.scope
+::
+
+
+section::Multiple Wavetable Synthesis
+
+strong::Wavetable crossfading::
+code::
+(
+SynthDef(\wavecross1, {arg freq=440, attack=0.01, dec=0.4, sus=0.3, sus2=0.4, rel=2, vol=0.5;
+	var wave1, wave2, wave3, wave4;
+	var env1,env2,env3,env4, globalEnv;
+	env1 = EnvGen.kr(Env.new([0,1,0],[attack,dec]));
+	env2 = EnvGen.kr(Env.new([0,0,1,0],[attack,dec,sus]));
+	env3 = EnvGen.kr(Env.new([0,0,1,0],[attack+dec,sus,sus2]));
+	env4 = EnvGen.kr(Env.new([0,0,1,0],[attack+dec+sus,sus2,rel]));
+	globalEnv = EnvGen.kr(Env.new([0,1,0.5,0.5,0.4,0],[attack,dec,sus,sus2,rel]));
+
+	wave1 = Pulse.ar(freq)*env1;
+	wave2 = Formant.ar(freq)*env2;
+	wave3 = Saw.ar(freq)*env3;
+	wave4 = SinOsc.ar(freq)*env4;
+
+	////noise instead
+	//wave1 = WhiteNoise.ar*env1;
+	//wave2 = GrayNoise.ar*env2;
+	//wave3 = PinkNoise.ar*env3;
+	//wave4 = BrownNoise.ar*env4;
+
+	Out.ar(0, Pan2.ar((wave1 + wave2 + wave3 + wave4))*globalEnv*vol);
+}).send(s);
+)
+
+Synth(\wavecross1, [\freq, 440]);
+Synth(\wavecross1, [\freq, 880]);
+
+
+(
+{12.do{
+	Synth(\wavecross1, [\freq, (Scale.major.degrees+[60,72].choose).choose.midicps]);
+	0.8.yield;
+}}.fork;
+)
+
+(//detuned synths
+{24.do{
+	Synth(\wavecross1, [\freq, rrand(200,800), \attack, rrand(0.01,0.05), \dec, rrand(0.2,0.4), \sus,rrand(0.1,0.3), \sus2, rrand(0.1,0.3), \rel, rrand(0.4,2.1), \vol, rrand(0.1,0.5)]);
+	0.2.yield;
+}}.fork;
+)
+::
+
+strong::Wavestacking::
+code::
+(
+SynthDef(\wavestack1, {arg freq=440, attack=0.1, sus=0.3, rel=2, vol=0.5;
+	var globalEnv, harm, signal, envArr;
+	var wave1, wave2, wave3, wave4;
+	globalEnv = EnvGen.kr(Env.linen(attack,sus,rel), doneAction:2);
+	[attack,sus,rel].sum*[[0.3,0.6,0.1],[0.1,0.5,0.4],[0.01,0.3,0.69],[0.8,0.1,0.1]].do{|item| envArr = envArr.add(Env.linen(item[0], item[1], item[2]))};
+	harm = [1,2,3,4];
+	wave1 = Pulse.ar(freq*harm[3])*EnvGen.kr(envArr[0]);
+	wave2 = Formant.ar(freq*harm[1])*EnvGen.kr(envArr[1]);
+	wave3 = Saw.ar(freq*harm[2])*EnvGen.kr(envArr[2]);
+	wave4 = SinOsc.ar(freq*harm[0])*EnvGen.kr(envArr[3]);
+	signal = ((wave1 + wave2 + wave3 + wave4)/4)*globalEnv;
+	Out.ar(0, Pan2.ar(signal*vol*2));
+}).send(s);
+)
+
+Synth(\wavestack1, [\freq, 440]);
+Synth(\wavestack1, [\freq, 880]);
+
+(
+{12.do{
+	Synth(\wavestack1, [\freq, (Scale.major.degrees+[60,72].choose).choose.midicps]);
+	0.8.yield;
+}}.fork;
+)
+
+(//detuned synths
+{24.do{
+	Synth(\wavestack1, [\freq, rrand(200,800), \attack, rrand(0.01,0.05), \dec, rrand(0.2,0.4), \sus,rrand(0.1,0.3), \sus2, rrand(0.1,0.3), \rel, rrand(0.4,2.1), \vol, rrand(0.1,0.5)]);
+	0.2.yield;
+}}.fork;
+)
+::
+
+section::Modulation Synthesis
+
+subsection::Ring modulation
+
+Create a frequency analyzer:
+code::
+FreqScope.new(400, 200, 0);
+::
+Simple ring modulation:
+code::
+{SinOsc.ar(440,0,SinOsc.ar(Line.kr(1,10,20)))*0.5}.scope; //low freq ring modulation causes tremolo
+::
+This is the same (a multiplication of two bipolar signals):
+code::
+{SinOsc.ar(440,0,0.5)*SinOsc.ar(Line.kr(1,10,20))}.scope; //low freq ring modulation causes tremolo
+::
+
+With a sound file:
 code::
 b = Buffer.loadDialog;
+
+{PlayBuf.ar(1, b.bufnum)*SinOsc.ar(10)}.play //low freq causes tremolo
+
+{PlayBuf.ar(1, b.bufnum)*SinOsc.ar(440)}.play //high freq causes sidebands
+
+(
+{var carrier, modulator;
+	carrier = 1000;
+	modulator = 400;
+	SinOsc.ar(carrier,0,SinOsc.ar(modulator));
+}.scope;
+)
 ::
-Play buffer:
+Side bands result in: emphasis::sum of C and M (1000+400=1400) and difference of C and M (1000-400=600)::
+
 code::
-{PlayBuf.ar(2, b)}.scope;
+(
+{var carrier, modulator;
+	carrier = 100;
+	modulator = 400;
+	SinOsc.ar(carrier,0,SinOsc.ar(modulator));
+}.scope;
+)
 ::
-Use Sample and Hold (code::Latch::) to change of sampling rate:
+Side bands result in: emphasis::sum of C and M (100+400=500) and difference of C and M (100-400=-300) - negative frequencies change the sign of the phase of signal::
+
 code::
-{Latch.ar(PlayBuf.ar(2, b), Impulse.ar(MouseX.kr(20,22000)))}.scope;
+(
+{var carrier, modulator;
+	carrier = 100;
+	modulator = 400;
+	SinOsc.ar(carrier,0,SinOsc.ar(modulator))+SinOsc.ar(300,MouseX.kr(0,-0.5pi));
+}.scope;
+)
 ::
-Sample and hold using code::Dust:::
+Harmonic sidebands:
 code::
-{Latch.ar(PlayBuf.ar(2, b), Dust.ar(MouseX.kr(20,22000)))}.scope;
+{(SinOsc.ar(220,0,0.25)+SinOsc.ar(440,0,0.25))*SinOsc.ar(880)}.scope; C and M are within harmonic ratios
+::
+Inharmonic sidebands:
+code::
+{(SinOsc.ar(100,0,0.25)+SinOsc.ar(380,0,0.25))*SinOsc.ar(775)}.scope;
+::
+subsection::Amplitude modulation:
+code::
+(
+{var carrier, modulator;
+	carrier = 500;
+	modulator = 50;
+	SinOsc.ar(carrier,0,SinOsc.ar(modulator, add:1, mul:0.5))*0.5;
+}.scope;
+)
+::
+Side bands result in: emphasis::sum of C and M (1000+400=1400) and difference of C and M (1000-400=600) + C (1000)::
+code::
+(
+{var carrier, modulator;
+	carrier = 1000;
+	modulator = 400;
+	SinOsc.ar(carrier,0,SinOsc.ar(modulator, add:1, mul:0.5))*0.5;
+}.scope;
+)
+::
+In AM, high frequency causes sidebands but also mantains carrier frequency:
+code::
+b = Buffer.loadDialog;
+{PlayBuf.ar(1, b.bufnum)*SinOsc.ar(440, add:1, mul:0.5)}.play
+::
+In RM, high frequency causes sidebands:
+code::
+{PlayBuf.ar(1, b.bufnum)*SinOsc.ar(440)}.play
 ::
 
 
-subsection::Filtering and Aliasing
+subsection::Frequency modulation
+
+Can be done (without envelope) in the following way:
+code::
+(
+var carrierFreq = 400, modFreq = 50, deviation = 100;
+{	SinOsc.ar(carrierFreq + SinOsc.ar(modFreq, mul: deviation),
+	mul: 0.3);
+}.scope
+)
+::
+the same can be expressed:
+code::
+(
+var carrierFreq = 400, modFreq = 50, deviation = 100;
+{SinOsc.ar(SinOsc.ar(modFreq,mul: deviation, add: carrierFreq),
+	mul: 0.3);
+}.scope
+)
+::
+
+subsection::Phase modulation
+
+is similar, but we modulate the phase instead of the frequency:
+
+code::PMOsc.ar(carfreq, modfreq, index, modphase, mul, add)::
 list::
-##If analog signal is not filtered, aliasing occurs:
-list::##High frequencies above nyquist freqency appear as lower frequencies (sidebands).
-##Ultrasonic frequencies may be converted to audible tones::
-##Anti-aliasing filter:
-list::##We need to filter frequencies above the nyquist frequency to avoid aliasing.
-##Anti aliasing filter (lowpass filter) is used in original analog signal before a/D conversion::
+##emphasis::carfreq:: - carrier frequency in cycles per second.
+##emphasis::modfreq:: - modulator frequency in cycles per second.
+##emphasis::index:: is modulation index in radians
+##emphasis::modphase:: a modulation input for the modulator phase in radians
 ::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure5.png#Fig. 5: Anti-aliasing filter::
-
-strong::Examples:::
-Now let's reduce the sample rate but with smoothing. Your can still hear aliasing!
 code::
-{SmoothDecimator.ar(Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(20,22000)), MouseX.kr(20,22000), smoothing: 1)}.scope;
-::
+{ PMOsc.ar(Line.kr(600, 900, 5), 600, 3, 0, 0.1) }.play; // modulates carfreq
 
-subsection::Digital-to-Analog Conversion
+{ PMOsc.ar(300, Line.kr(600, 900, 5), 3, 0, 0.1) }.play; // modulates modfreq
 
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure6.png#Fig. 6: D/A conversion::
+{ PMOsc.ar(300, 550, Line.ar(0,20,8), 0, 0.1) }.play; // modulates index
 
-subsection::Quantising
+(
+var carrierFreq = 400, modFreq = 50, index = 3, decayTime = 5;
+{ EnvGen.kr(Env.perc(0.001,decayTime,0.2),1,doneAction: 2) *
+	PMOsc.ar(carrierFreq, modFreq, index,0);
+}.scope
+)
 
-list::
-##After sampling the modulated pule chain is quantised
-##Amplitude is mapped onto a scale of stepped binary values
-##Each sample amplitude is represented by unique binary number
-##Binary numbers are represented as power of two (only two options, 1 or 2)
-##Binary (base2), Hexadecimal (base16), decimal(BASE10)
-::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure7.png#Fig. 7: 3-bit quantizing::
-
-subsection::Binary for Beginners
-list::
-##A binary word or ‘byte’ (8-bits):
-##code::0 1 1 1 0 0 1 0:: - one number is 1 bit - or 1 'switch'.
-::
-table::
-##Binary || 0 || 1 || 1 || 1 || 0 || 0 || 1 || 0
-##Decimal weighting || 128 || 64 || 32 || 16 || 8 || 4 || 2|| 1
-##Decimal equivalent   || 0 +||64 +||32 +||16 +||0 +||0 +||2 +|| 0 = 114
-::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure8.png#Fig. 8: Binary/Hexadecimal/Decimal::
-
-subsection::Bit-depth
-
-Bit-depth dictates the number of discrete volume levels that create the dynamic range available in digital audio
-bit words and bit resolution:
-list::
-##2-bit = code::2**2:: (4 steps)
-##3-bit = code:: 2**3:: (8 steps)
-##4-bit = code::2**4:: (16 steps)
-##8-bit = code::2**8:: (256 steps)
-##16-bit = code::2**16:: (65536 steps)
-::
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure9.png#Fig. 9: 4-bit quantizing::
-
-subsection::Digital Dynamic Range
-list::
-##emphasis::Dynamic range::: range of volume between loudest and softest audible sounds - the greater dynamic range, the more detailed representation of sound.
-##emphasis::Signal-to-noise ratio::: difference in volume between what you want to hear (signal) and what you don’t want to hear (noise)
-##emphasis::Digital dynamic range::: volume range in digital audio file go between -infinity (silence) to zero (loudest) decibels (DB). sounds above zero produce distortion
-::
-
-subsection::Quantising Resolution
-
-table::
-##Bit Depth || Numeric Range || Noise Floor
-##8 bits || -127 to 128 || -48 dB
-##16 bits || -32,768 to 32,767 || -96 dB
-##24 bits || -8,388,608 to -8,388,607 || -144 dB
-##32 bits || +/-3.4*2**38 || -192 dB
-::
-
-subsection::A little bit of bits
-
-warning::Digital - bits!::
-
-4-bit example:
-code::
-0.asInteger.asBinaryString(4)
-1.asInteger.asBinaryString(4)
-0.asInteger.asBinaryString(4)
--1.asInteger.asBinaryString(4)
--2.asInteger.asBinaryString(4)
-14.asInteger.asBinaryString(4)
-2.asInteger.asBinaryString(4)
--3.asInteger.asBinaryString(4)
-::
-16-bit example:
-code::
-(2**16-1).asInteger.asBinaryString(16)
-0.asInteger.asBinaryString(16)
-::
-Hexadecimal:
-code::
-0.asInteger.asHexString(4)
-(2**16-1).asInteger.asHexString(4)
-::
-String to hexadecimal:
-code::
-"how are you?".ascii.collect{|item| item.asHexString(2); }
-::
-String to binary:
-code::
-"how are you?".ascii.collect{|item| item.asBinaryString(2); }
-::
-Human vs bit words:
-code::
-a = "how are you?";
-b = a.ascii.collect{|item| item.asBinaryString; };
-
-a.speak; //human
-b.asString.replace("[").replace("]").replace(",").speak //computer
-::
-Bit calculator:
-16 bit:
-code::
-2**16
-::
-24 bit:
-code::
-2**24
-::
-
-Bit crushing
-code::
-b = Buffer.loadDialog; //load soundfile into buffer
-{Decimator.ar(PlayBuf.ar(2, b), 44100, 8)}.scope; //8-bit
-{Decimator.ar(PlayBuf.ar(2, b), 44100, 4)}.scope; //4-bit
-{Decimator.ar(PlayBuf.ar(2, b), 44100, 2)}.scope; //2-bit
-::
-
-Smoother, 4-bit
-code::
-{Decimator.ar(SinOsc.ar(440,0,0.5), 44100, 4)}.scope
-::
-
-Filter to smooth signal (Mouse controls smoothing)
-code::
-{SmoothDecimator.ar(Decimator.ar(SinOsc.ar(440,0,0.5), 44100, 4), 440*4,MouseX.kr(0,1))}.scope
-::
-
-Undersampling and bit-crushing:
-code::
-{Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(250,44100,1).poll, MouseY.kr(1,16).round(1).poll)}.scope;
-
-{Decimator.ar(PlayBuf.ar(2, b), MouseX.kr(250,44100,1).poll, MouseY.kr(1,16).round(1).poll).lag(MouseY.kr(1,16).round(1).poll/MouseX.kr(250,44100,1).poll)}.scope;
-::
-
-4-bit:
-code::
-{Decimator.ar(PlayBuf.ar(2, b), 2000, 4)}.scope;
-::
-Smooth signal (with smoothing filter):
-code::
-{SmoothDecimator.ar(Decimator.ar(PlayBuf.ar(2, b), 2000, 4), 2000, smoothing: 1)}.scope;
-::
-
-
-subsection::A bit of music
-
-image::http://federicoreuben.com/computerdotplay/guides/guide1/figure10.png#Fig. 10: Mario::
-
-code::
-Ndef(\sound).play;
-
-~bitdepth = 4;
-
-~synth = {var sig; Pan2.ar(Decimator.ar(SinOsc.ar((Scale.major.degrees+60).midicps.choose,0,0.25), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
-
-{{Ndef(\sound, ~synth); [0.4,0.2].choose.yield}.loop}.fork
-
-~synth = {var sig; Pan2.ar(Decimator.ar(Saw.ar((Scale.major.degrees+60).midicps.choose,0.5), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
-
-~synth = {var sig; Pan2.ar(Decimator.ar(Blip.ar((Scale.major.degrees+60).midicps.choose,10,0.5), 44100, ~bitdepth), 0)*EnvGen.kr(Env.perc(0.01,0.4), doneAction:2);};
-::
-
-subsection::A bit of calculations
-File size calculator
-File Size = Sample Rate * Sample Resolution * Number of Channels * Lengh of Sound (in bits)
-code::
-~sampleRate = 44100;
-~bitDepth = 16;
-~numChan = 2;
-~duration = 180;
-
-~bits = ~sampleRate * ~bitDepth * ~numChan * ~duration
-~bytes = ~bits/8
-~kiloBytes = ~bytes / 1024;
-~megaBytes = ~kiloBytes / 1024;
-~gigaBytes = ~megaBytes / 1024;
+(
+var carrierFreq = 400, modFreq,cmRatio = 1.5, index = 3, decayTime = 5;
+modFreq = (carrierFreq * cmRatio.reciprocal).postln;
+{ EnvGen.kr(Env.perc(0.001,decayTime,0.2),1,doneAction: 2) *
+	PMOsc.ar(carrierFreq, modFreq, index,0);
+}.scope
+)
 ::

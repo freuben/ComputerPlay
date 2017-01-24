@@ -5,169 +5,6 @@ related:: Computer, Workshops/Playing with UGens 1
 
 section::Playing with UGens 2
 
-First, let's boot the server:
-
-code::
-s.boot;
-::
-
-Now let's kill it, just for fun:
-
-code::
-s.free;
-::
-
-You can us the shortcut emphasis::cmd + b:: to boot the Server, It's easier and faster.
-
-Note:: Remember, you can boot the server with emphasis::cmd + b:: ::
-
-
-section::Buffers
-list::
-##code::Buffers:: are arrays of 32-bit floating point values.
-##code::Buffers:: are on the server so that they can be used by synths.
-##code::Buffers:: need to be allocated, filled, and at some point freed.
-##code::Buffers:: can be allocated, loaded and freed while synthesis is running.
-##code::Buffers:: can be used for wave tables, sample buffers, delay lines, ...
-::
-
-The number of buffers on a server is set at boot time.
-code::
-o = ServerOptions.new;
-o.numBuffers;
-::
-
-subsection::PlayBuf
-code::PlayBuf:: is a UGen to listen/manipulate sound files.
-
-code::PlayBuf:: - sample playback oscillator
-(numChannels, bufnum, rate, trigger, startPos, loop)
-list::
-##emphasis::rate::: 1.0 is the server's sample rate, 2.0 is one octave up, 0.5 is one octave down
-##emphasis::loop:: = 1 is true, 0 is false
-::
-
-subsection::Buffer class
-
-Buffers can also be accessed with the code::Buffer:: class
-(which may be more convenient than the messaging style)
-
-code::Buffer.read::  allocates a buffer and reads a sound file into it.
-
-code::
-b = Buffer.read(s, "/Users/freuben/Music/Stelarc/insects/apis.genista.wav");
-
-{ PlayBuf.ar(1, b.bufnum, 1, loop: 1) }.scope
-::
-
-Mouse control of rate (transposition)
-code::
-{ PlayBuf.ar(1, b.bufnum, MouseX.kr(0.5,2), loop: 1) }.scope
-
-b.bufnum   // returns buffer number
-b.numChannels   // returns the number of channels in the buffer
-
-b.free  // return the memory and free buffer ID, IMPORTANT
-::
-
-
-code::BufRateScale::
-
-File being read into a buffer may have a different sample than SC is using
-
-
-code::BufRateScale.kr(bufnum):: returns a ratio to adjust the playback of the soundfile
-code::
-b = Buffer.read(s, "sounds/a11wlk01.wav");  // sample rate of this file is 11025
-::
-
-to scale the playback:
-code::
-{ PlayBuf.ar(1, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1) }.scope
-
-b.free
-::
-
-code::BufFrames::
-
-code::BufFrames.kr(bufnum):: returns the current number of allocated frames
-
-it can be used to specify starting halfway through the buffer or some place else
-
-code::
-b = Buffer.read(s, "sounds/a11wlk01-44_1.aiff");
-(
-var start = 1/2;
-{ PlayBuf.ar(1, b.bufnum, BufRateScale.kr(b.bufnum),
-	startPos: BufFrames.kr(b.bufnum) * start, loop: 1)
-}.scope
-)
-::
-
-note that loop returns to the beginning in the above example
-
-a trigger (<= 0 to > 0) causes the playback to start from startPos
-
-using a trigger without looping
-
-Impulse.kr produces a trigger with a certain frequency
-
-code::
-(
-	var start = 1/2;
-	{ PlayBuf.ar(1, b.bufnum, BufRateScale.kr(b.bufnum),
-		Impulse.kr(1/3),
-		startPos: BufFrames.kr(b.bufnum) * start, loop: 0)
-	}.scope
-)
-::
-Using a trigger with looping:
-
-the trigger should occur with a frequency that is
-
-(serverSampleRate / numberOfFrames) * rateScale
-
-Server's sample rate:
-code::
-s.sampleRate
-::
-
-code::
-(
-var start = 1/2;
-{ PlayBuf.ar(1, b.bufnum, BufRateScale.kr(b.bufnum),
-	Impulse.kr(s.sampleRate / (BufFrames.kr(b.bufnum) * start) *
-		BufRateScale.kr(b.bufnum)),
-	startPos: BufFrames.kr(b.bufnum) * start, loop: 1)
-}.scope
-)
-
-b.free
-::
-
-subsection::DiskIn
-
-To continuously play longer sound file from disk. One buffer must be preloaded.
-
-using code::Buffer object::
-
-(server, path, startFrame, numChannels)
-
-code::
-b = Buffer.cueSoundFile(s, "/Users/freuben/Music/Aleks/CONCERTRECORDING/Improvisations/StringQ_1_MONO.aif", 0, 1); //or your own path
-
-x = { DiskIn.ar(1, b.bufnum) }.play;
-
-b.close;	// close file
-::
-Again, note the like named instance method, but different arguments
-
-code::
-b.cueSoundFile("/Users/freuben/Music/Aleks/CONCERTRECORDING/Improvisations/StringQ_1_MONO.aif", 0);
-
-x.free; b.close; b.free;	// close and free
-::
-
 section::Delays
 
 Phase demonstration:
@@ -251,6 +88,16 @@ code::
 )
 ::
 
+MultiTap Delay
+
+s.boot;
+b = Buffer.alloc(s, s.sampleRate);
+(
+{
+    MultiTap.ar(`[0.1, 0.2, 0.3, 0.4], `[0.1, 0.2, 0.4, 0.8],
+        Decay.ar(Dust.ar(2), 0.1, PinkNoise.ar), bufnum: b.bufnum)
+}.play
+)
 
 section:: Additive Synthesis
 
