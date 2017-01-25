@@ -1,0 +1,601 @@
+TITLE:: Patterns, Effects and Ndefs
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Playing with UGens, Study Guides/Digital Synthesis
+
+section::Patterns
+
+strong::Patterns::, like routines, are very useful for scheduling different events in SC. They are good for specifying sequences of different actions that might happen either together or after each other. You can specify many events over time using Patterns. They are convenient for dealing with multiple timings and event repetitions. They are often used to specify musical patterns, whether they are rhythmic patterns or a sequence of pitches.
+
+Note::Patterns can be very convenient for Generative Music and Algorithmic Composition!::
+
+Patterns use strong::Streams::: a class that represents a sequence of values that are obtained with the strong::next:: message.
+
+Patterns are an easy way to make multiple streams from a single specification. It is like cloning the patterns or to switch metaphors, using a cookie cutter to produce many similar streams.
+
+Note::Streams produce one value each time they receive a strong::next:: message.::
+
+Patterns are a way of specifying what a stream should do.
+
+There are many types of Patterns, some of which, we will explore today.
+
+subsection::Pseq
+
+Pseq is a Pattern that produces a sequence of events that can be repeated a specified amount of times.
+
+code::Pseq(list, repeats)::
+
+loops through a list, repeats a number of times.
+
+code::
+(
+a = Pseq([60,64,67,69], 2).asStream;
+8.do({a.next.postln});
+)
+::
+
+Previously we have seen how we can schedule a sequence of events through a strong::Routine::. This can be simplified using a Pattern.
+
+code::
+//synthdef
+(
+		SynthDef( "perkysine", {
+		| freq, amp|
+		var osc;
+		osc = SinOsc.ar( [freq,freq+0.05.rand] ) * EnvGen.ar(
+		Env.perc, doneAction: 2) * 0.2;
+		Out.ar(0,osc*amp);
+		}).store;
+)
+//routine
+(
+	p = {
+		2.do{
+		Synth(\perkysine, [\freq,60.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,60.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,67.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,69.postln.midicps]);
+		0.2.yield;
+		}
+	}.fork;
+)
+//pattern
+Pbind(\instrument, \perkysine, \midinote, Pseq([60,60,67,69],2), \dur, 0.2, \legato, 1.0).play
+//more complex (minimalist) example
+(
+~scale = Scale.major.degrees;
+~triad = [~scale[0], ~scale[2], ~scale[4]];
+~par1 = Pbind(\instrument, \perkysine, \degree, Pseq(~scale.scramble,inf), \dur, 0.2, \legato, 0.5, \amp, 0.7);
+~par2 = Pbind(\degree, Pseq(~triad,inf), \ctranspose, -12, \dur, 0.3, \legato, 0.8);
+~par3 = Pbind(\degree, Pseq((~triad+0.2).reverse,inf), \ctranspose, -12, \dur, 0.4, \legato, 0.3);
+Ppar([~par1, ~par2, ~par3]).play;
+)
+::
+
+subsection::Pbind
+
+code::Pbind:: is a Pattern "player". It takes a variety of patterns and matches them to Events. These events produce sounds and modify different arguments and behaviour.
+
+code::Pbind:: is a class that lets you match properties of a sound event with values
+list::
+##e.g. freq or midinote to create frequencies
+##dur for duration
+##amp  for amplitude
+ ##instrument for instrument
+::
+You can find more information on the types of useful Events available link::Workshops/Patterns, Effects and Ndefs#Events and Patterns#below::.
+
+To play default values of code::Pbind:::
+code::
+a = Pbind.new.play   // if no additional arguments, new method must explicitedly be used
+a.stop
+::
+
+to change duration:
+code::
+Pbind(\dur,0.125).play
+::
+to play a chord:
+code::
+Pbind(\midinote,[60,64,67,69]).play
+::
+to play with a different instrument:
+
+SynthDef needs to receive the store message which stores and loads the synthdef but
+also adds it to the SynthDescLib so it can be used with Pbind
+code::
+	SynthDescLib.global.read   // prepares a library of SynthDesc objects
+	SynthDescLib.global.browse
+::
+your instrument should use doneAction: 2 to release the Synth
+code::
+	(
+	SynthDef(\strum,{
+	 |freq = 440|
+	 var trigger, pluck, period, string, out;
+	     trigger = HPZ1.kr(XLine.kr(1,0,0.01)).abs;
+	     pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+	     period = freq.reciprocal;
+	     string = CombL.ar(pluck,period, period, 4);
+		out = LPF.ar(string,12000);
+		out = LeakDC.ar(out);
+		DetectSilence.ar(out, doneAction: 2);
+		Out.ar(0,out)
+	}).store
+	)
+
+	Synth(\strum)
+
+	Pbind(\instrument,\strum).play
+
+	(
+	Pbind(\instrument,\strum,
+		\midinote,[60,64,67,69]
+	 ).play
+	)
+
+::
+To play notes in series, you need to use a code::Pattern::
+
+Patterns will be explained later. For now, there will just be used.
+
+Pseq iterates over a list of objects:
+(list, repeats, offset)
+
+note the additional binding for dur:
+code::
+	(
+	Pbind(\instrument,\strum,
+	      \dur, 0.5,
+		\midinote,Pseq([60,64,67,69],2)
+	 ).play
+	)
+::
+A Pattern returns a nil after the repetitions are complete. Pbind will stop playing when a Pattern
+returns a nil.
+
+To infinitely repeat a Pattern, use inf for the number of repeats
+code::
+	(
+	Pbind(\instrument,\strum,
+		\dur, 0.5,
+		\midinote,Pseq([60,64,67,69],inf)
+	 ).play
+	)
+::
+
+Offset gives a starting offset (index) into the list
+code::
+	(
+	Pbind(\instrument,\strum,
+		\dur, 0.5,
+		\midinote,Pseq([60,64,67,69],2,3)
+	 ).play
+	)
+::
+Pser
+repeats variable gives the number of values returned rather than the number of cycles
+code::
+	(
+	Pbind(\instrument,\strum,
+		\dur, 0.5,
+		\midinote,Pser([60,64,67,69],5)
+	 ).play
+	)
+::
+Prand
+returns one item at random
+repeats is the number of items returned before returning a nil
+code::
+	(
+	var num = 20;
+	Pbind(\instrument,\strum,
+		\dur,Prand([ 0.15,0.25,0.35,0.5],num),
+		\midinote,Prand((60..72),num)
+	 ).play
+	)
+::
+use frequencies instead of midinotes
+code::
+	(
+	var num = 50;
+	Pbind(\instrument,\strum,
+		\dur,Prand([ 0.15,0.25,0.35,0.5] * 0.5,num),
+		\freq,Prand((200,210..600),num)
+	 ).play
+	)
+::
+Pxrand
+returns one item at random but does not repeat twice in a row
+code::
+	(
+	var num = 50;
+	Pbind(\instrument,\strum,
+		\dur,Pxrand([ 0.15,0.25,0.35,0.5],num),
+		\freq,Pxrand((510,520..600),num)
+	 ).play
+	)
+::
+Pshuf
+loops through a list that has been scrambled
+the list is repeated without reshuffling
+code::
+	(
+	Pbind(\instrument,\strum,
+		\dur,0.3,
+		\midinote,Pshuf((60..65),5)
+	 ).play
+	)
+::
+
+section::Events and Patterns
+subsection::Useful keys for notes
+
+Using Events is largely a matter of overwriting keys. Here is a list of keys useful for defining notes with their default values, grouped by the partialEvent within which they are defined.
+
+
+list::
+
+## strong::serverEvent keys:::
+::
+The keys in serverEvent provide the values needed to identify the server to be used and where in the tree
+of nodes to place the group.
+code::
+server:		nil,		// if nil, Server.default is used
+instrument:	\default,	// this is the name of a SynthDef
+group:		1,		// nodeID of group on the server
+				// when adding before or after a node
+				// this could be the nodeID of a synth instead of a group
+addAction:	0,		// 0, 1, 2, 3 or \addToHead, \addToTail, \addBefore, \addAfter
+out:		0,		// usually an output bus number, but depends on the SynthDef
+::
+list::
+## strong::ampEvent keys:::
+::
+The ampEvent determines volume. Notice that code::~amp:: is a function that determines its value from code::~db::. The user can choose to specify the amplitude directly by overwriting code::~amp:: or to use a decibel specification by overwriting code::~db::.
+code::
+amp:		#{ ~db.dbamp },	// the amplitude
+db:		-20.0,		// the above described in decibel
+pan:		0.0,		// pan position: -1 left 1 right
+velocity:	64		// midi velocity
+trig:		0.5		// trigger value
+::
+
+
+list::
+## strong::durEvent keys:::
+::
+The durEvent has keys that determine the timing of a note. Notice that code::~sustain:: is a function that uses code::~legato:: to determine the sustain. Like code::~amp:: this can be overwritten to set the sustain directly.
+code::
+tempo:			nil,	// changes tempo of a TempoClock
+dur:			1.0,	// time until next note (inter-onset time)
+stretch:		1.0,	// inverse of tempo control, specific to the Event's stream
+legato:			0.8,	// ratio of sustain to duration
+sustain:		#{ ~dur * ~legato * ~stretch },
+lag:			0.0,	// delay (in seconds) relative to current time position of Stream
+timingOffset:		0.0,	// delay (in beats) relative to current time position of Stream
+strum:			0.0	// "breaks" a chord. May be negative, playing the chord backward
+strumEndsTogether:	false	// if true, the strummed notes end together (with gated synths)
+sendGate:		nil  // override: true == always send a gate-release message; false == never send
+::
+
+
+list::
+## strong::pitchEvent keys:::
+::
+The pitchEvent has the most complex system of functions that provide a variety of useful ways to determine pitch:
+code::
+freq (->440)		// determines the pitch directly as a frequency in Hertz
+midinote (-> 60)	// determines pitch as a fractional MIDI note (69 -> 440)
+note (-> 0)		// determines pitch as a scale degree in an ~stepsPerOctave equal tempered scale
+degree: 0		// determines pitch as a scale degree within the scale ~scale
+::
+The event also provides a set of transposition keys:
+code::
+mtranspose:	0	// modal transposition of degree within a scale
+root:		0.0	// transposes root of the scale
+gtranspose:	0.0	// gamut transposition within the ~stepsPerOctave equal tempered scale
+ctranspose:	0.0	// chromatic transposition within the 12 tone equal tempered scale
+harmonic:	1.0	// multiplies the frequency determined by ~midinote, typically to an overtone
+detune:		0.0	// directly offsets frequency by adding this value
+midiToCps		// a function taking a MIDI note number and turning it into frequency
+			// Normally this is _.midicps, but you can override it for non-ET tunings
+
+mtranspose:	0,	// modal transposition of degree
+gtranspose:	0.0	// gamut transposition of note within a ~stepsPerOctave e.t. scale
+ctranspose:	0.0	// chromatic transposition of midinote within 12 tone e.t. scale
+
+octave:		5.0	// octave offest of note
+root:		0.0	// root of the scale
+degree:		0	// degree in scale
+scale:		#[0, 2, 4, 5, 7, 9, 11]	// diatonic major scale
+stepsPerOctave:	12.0	//
+detune:		0.0,	// detune in Hertz
+harmonic:	1.0	// harmonic ratio
+octaveRatio:	2.0	// size of the octave (can be used with the Scale class)
+::
+
+
+
+Prand
+(list, repeats)
+Repeats for this pattern refers to the number of values returned, not the number of cycles.
+code::
+	(
+	a = Prand([60,64,67,69],10).asStream;
+	12.do({a.next.postln})
+	)
+
+
+	(
+	p = Prand((48 ..72), inf).asStream; // pattern repeats forever: inf
+	x = Routine ({
+		inf.do({
+			Synth(\perkysine, [\freq,p.next.midicps, \amp, 0.1]);
+			0.1.wait;
+		})
+	}).play
+	)
+
+::
+
+Pwrand
+Weighted random choice
+
+(lists, weights, repeats)
+
+weights is a list of probabilities (0-1)
+code::
+	(
+	a = Pwrand([1,2,3,4],[0.5,0.1,0.2,0.2],20).asStream;
+	20.do({a.next.postln})
+	)
+::
+It seems (empirical observation) that the probabilities do not need to add up to 1, however once the probabilities add up to one, any event with a probability above this threshold seems to be ignored. In the following example, 4 never seems to occur.
+code::
+	(
+	a = Pwrand([1,2,3,4],[0.5,0.1,0.5,0.2],20).asStream;
+	20.do({a.next.postln})
+	)
+::
+Weighted frequencies:
+code::
+(
+	p = Pwrand((60 ..72),[4,3,1,1,0.5,2,1,1,1,1.5,3,1].normalizeSum.postln, inf).asStream; 	x = Routine ({
+		inf.do({
+			Synth(\perkysine, [\freq,p.next.midicps, \amp, 0.1]);
+			0.1.wait;
+		})
+	}).play
+	)
+::
+
+normalizeSum normalizes the values so the sum of the Array is 1.
+
+Pxrand
+(lists, repeats)
+returns 1 item at random but does not repeat twice in a row.
+code::
+	(
+	a = Pxrand([60,61,62],10).asStream;
+	a.nextN(10)
+	)
+::
+The nextN message when sent to a stream will collect n values in an Array.
+code::
+	(
+	p  = Pxrand([60,61,62],20);
+
+	x = Routine ({
+		inf.do({
+			Synth(\strum, [\freq,p.next.midicps, \amp, 0.1]);
+			0.1.wait;
+		})
+	}).play
+	)
+::
+
+Pstutter
+(n, pattern)
+
+repeats each element n times
+code::
+	(
+		a = Pstutter(2, Pseq([1,2,3],inf)).asStream;
+		a.nextN(10);
+	)
+::
+n may also be a pattern so that it can vary each iteration.
+code::
+	(
+	p = Prand((48 ..72), inf).asStream;
+	d = Pstutter(Prand((1..5),inf),
+	             Prand([0.1,0.15,0.2,0.3], inf)
+	             ).asStream;
+	x = Routine ({
+		inf.do({
+			var thisdur;
+			thisdur = d.next;
+			Synth(\perkysine, [\freq,p.next.midicps, \amp, 0.1,
+				 \dur, thisdur]);
+			thisdur.wait;
+		})
+	}).play
+	)
+::
+Pseries
+(start, step-size, length)
+
+generates an arithmetic series
+code::
+	(
+	p = Pseries(48,2,13).asStream;
+	p.nextN(13)
+	)
+::
+Applied to frequency:
+code::
+(
+	p = Pseries(48,2,13).asStream;
+
+	x = Routine ({
+		13.do({
+			Synth(\perkysine, [\freq,p.next.midicps, \amp, 0.1]);
+			0.2.wait;
+		})
+	}).play
+	)
+::
+Pgeom
+generates a geometric series
+(start, multiplication-factor, length)
+code::
+	(
+	p = Pgeom(1,0.8,20).asStream;
+	p.nextN(20);
+	)
+::
+applied to duration:
+code::
+	(
+	p =  Pgeom(1,0.8,20).asStream;
+
+	x = Routine ({
+		13.do({
+			var thisdur;
+			thisdur = p.next;
+			Synth(\perkysine, [\freq,440,\dur,thisdur, \amp, 0.1]);
+			thisdur.wait;
+		})
+	}).play
+	)
+::
+
+Math with Patterns
+Either unary or binary operators can be used with Patterns (or streams)
+
+Pattern followed by 2 transpositions in one sequence
+code::
+	(
+	p  = Pseq([60,64,64,65,68,69,71]);
+	q = Pseq([p,p+7,p+5],inf).asStream;
+
+	x = Routine ({
+		inf.do({
+			Synth(\strum, [\freq,q.next.midicps, \amp, 0.1]);
+			0.1.wait;
+		})
+	}).play
+	)
+::
+Add two patterns
+This will transpose each fifth note down two octaves.
+code::
+	(
+	p = Prand((60 ..72), inf) + Pseq([0,0,0,0,-24], inf);
+	p = p.asStream;
+	x = Routine ({
+		inf.do({
+			Synth(\perkysine, [\freq,p.next.midicps, \amp, 0.1]);
+			0.2.wait;
+		})
+	}).play
+	)
+::
+
+Filtering streams (and patterns)
+
+Patterns can be filtered with Padd, Pmul, Pset, and Pstretch.
+
+Streams can also be filtered.
+
+Streams respond to the messages: collect, select, reject
+   by returning a new stream
+
+collect
+collect returns a stream that is modified by some function
+code::
+	(
+	p = Prand((60 ..72), inf).asStream;
+	q = p.collect({|item| if (item.even,{item - 24}, {item})});
+	q.nextN(10);
+     )
+::
+This example returns a stream that transposes even note numbers down two octaves:
+code::
+	(
+	p = Prand((60 ..72), inf).asStream;
+	q = p.collect({|item| if (item.even,{item - 24}, {item})});
+	x = Routine ({
+		inf.do({
+			Synth(\perkysine, [\freq,q.next.midicps, \amp, 0.1]);
+			0.2.wait;
+		})
+	}).play
+	)
+::
+select
+creates a stream that passes only items that return true from a supplied function
+code::
+	(
+	p = Prand((48 ..72), inf).asStream;
+	q = p.select({|item| item.even});
+	q.nextN(10);
+	)
+::
+selects only the even Midi note numbers:
+code::
+	(
+	p = Prand((60 ..72), inf).asStream;
+	q = p.select({|item| item.even});
+	x = Routine ({
+		inf.do({
+			Synth(\perkysine, [\freq,q.next.midicps, \amp, 0.1]);
+			0.2.wait;
+		})
+	}).play
+	)
+::
+reject
+is similar to select except that it passes only items that return false from a supplied function
+
+reject the even numbers
+code::
+(
+	p = Prand((48 ..72), inf).asStream;
+	q = p.reject({|item| item.even});
+	q.nextN(10);
+	)
+::
+
+Various other patterns exist, including
+Ppar  merge multiple event stream to play in parallel
+Ptpar staggered start times for parallel streams
+
+code::
+
+	Pbind(\freq,Pseq([440,660]), \instrument,\perkysine).play
+
+
+	(
+	// changing duration
+	Pbind(
+		\dur, Pseq([ Pgeom(0.05, 1.1, 24),
+				    Pgeom(0.5, 0.909, 24) ], inf),
+		\midinote, Pseq([60, 58], inf)
+	).play
+	)
+
+
+(
+Pbind( \instrument,\perkysine,\dur, 0.1,
+	  \midinote,  Pwrand(
+		[Pseq([60,64,67,69]),
+		 Pseq([Prand((80..90)),50,51])
+		], [0.7,0.3],inf),
+	  \amp, 0.1).play
+)
+::

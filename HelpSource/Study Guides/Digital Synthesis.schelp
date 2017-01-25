@@ -5,7 +5,7 @@ related:: Computer, Workshops/Playing with UGens
 
 section::Digital Synthesis
 
-Digital Synthesis is the generation of waveforms with untis (values) usually generated digitally and then transfered through a D/A converter to produce sound. Waveforms can be generated through mathematical formulae, A/D conversion, analysis and resynthesis of recorded sound, and other non-standard techniques.
+Digital Synthesis is the generation of waveforms with units (values) usually generated digitally and then transferred through a D/A converter to produce sound. Waveforms can be generated through mathematical formulae, A/D conversion, analysis and resynthesis of recorded sound, and other non-standard techniques.
 
 subsection:: Some Synthesis Techniques
 list::
@@ -115,9 +115,9 @@ code::BufRateScale::
 File being read into a buffer may have a different sample than SC is using
 
 
-code::BufRateScale.kr(bufnum):: returns a ratio to adjust the playback of the soundfile (for example with different sampling rates).
+code::BufRateScale.kr(bufnum):: returns a ratio to adjust the playback of the sound file (for example with different sampling rates).
 code::
-b = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/04 4 bit 9d api+e+6 [126.26].wav"); //change to your soundfile path
+b = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/04 4 bit 9d api+e+6 [126.26].wav"); //change to your sound file path
 ::
 
 to scale the playback:
@@ -188,7 +188,7 @@ strong::Exercise:::
 numberedList::
 ##Play with code::PlayBuf:: loading sound files (uncompressed) and changing the rate with different values.
 ##Use another UGen to modulate the rate.
-##Add an envelopte to PlayBuf with different random starting points.
+##Add an envelope to PlayBuf with different random starting points.
 ::
 
 code::
@@ -276,7 +276,7 @@ list::
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/common waves.png#Common waveforms in synthesis::
 
-They have differnet characteristics and complex waves (Square, Saw, Triangle).
+They have different characteristics and complex waves (Square, Saw, Triangle).
 
 strong::Square Wave::
 
@@ -363,7 +363,7 @@ sinArr.sum;
 )
 ::
 
-Note::This approach is for demonstration purposes. Use the code::UGen:: below if you just want to use a trinagle wave::
+Note::This approach is for demonstration purposes. Use the code::UGen:: below if you just want to use a triangle wave::
 
 SC has a triangle wave code::UGen:::
 code::
@@ -399,7 +399,7 @@ b.plot
 
 b.sine1(1.0/[1,2,3,4,5,6], true, true, true); //add 6 harmonics with decaying amplitudes
 
-b.sine1(Array.rand(32,0,1), true, true, true); //change wavetable with random selction of partials
+b.sine1(Array.rand(32,0,1), true, true, true); //change wavetable with random selection of partials
 b.plot
 
 b.sine1(Array.rand(16,0,1.0).postln, true, true, true); //change wavetable with random amplitude in partials
@@ -413,7 +413,7 @@ b.plot;
 
 b.sine1(1.0/(1..100), true, true, true);
 
-b.sine1(Array.fill(50,{[0,1].choose}), true, true, true); //evaluate serveral times
+b.sine1(Array.fill(50,{[0,1].choose}), true, true, true); //evaluate several times
 b.plot;
 
 b.sine1([1,1,1,0,0,0,1,1,1,0,0,0,0,0,0.5,0.5,0.5], true, true, true);
@@ -448,7 +448,7 @@ list::
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/adsr.png#ADSR Envelope::
 
-Note::It's imporant to understand that in the digital domain, an Envelope specifies a wavetable::
+Note::It's important to understand that in the digital domain, an Envelope specifies a wavetable::
 
 In SC we can make envelopes with the code::Env:: specification.
 code::
@@ -498,7 +498,7 @@ code::
 )
 ::
 
-section::Substractive Synthesis
+section::Subtractive Synthesis
 list::
 ##Method of Sound Synthesis
 ##Frequencies are attenuated by using digital filters
@@ -821,11 +821,11 @@ list::
 ##Summation of different oscillators (more versatile but more expensive in CPU)
 ::
 
-subsection::Additive through Waveshaping
+subsection::Additive through Wave shaping
 
-Waveshaping is a technique that uses a link::https://en.wikipedia.org/wiki/Transfer_function##transfer function:: to shape a signal.
+Wave shaping is a technique that uses a link::https://en.wikipedia.org/wiki/Transfer_function##transfer function:: to shape a signal.
 
-Waveshaping transfer functions are designed with link::https://en.wikipedia.org/wiki/Chebyshev_polynomials##Chebyshev Polynomials:: to generate harmonics.
+Wave shaping transfer functions are designed with link::https://en.wikipedia.org/wiki/Chebyshev_polynomials##Chebyshev Polynomials:: to generate harmonics.
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/chebyshev.png#Plot of Chebyshev Polynomials::
 
@@ -850,7 +850,7 @@ b.plot;
 b.free;
 ::
 
-You can also make your own arbitrary shpers:
+You can also make your own arbitrary shapers:
 code::
 b = Buffer.alloc(s, 1024, 1);
 b.cheby([1, 0.5, 1, 0.125]);
@@ -863,7 +863,7 @@ b.cheby([1, 0.5, 1, 0.125]);
 
 b.free;
 ::
-You can calculate the transfer fuction as an array and then convert it to a wavetable:
+You can calculate the transfer function as an array and then convert it to a wavetable:
 code::
 b = Buffer.alloc(s, 1024, 1);
 
@@ -1118,15 +1118,15 @@ list::
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/wavetable_crossfading2.png#Complex user specified wavetable crossfading::
 
-subsection::Wavestacking
+subsection::Wave stacking
 
 list::
-##Wavetable staking or wavestacking is a variation of additive synthesis, but:
-##Instead of sine waves, wavestacking uses different more complex signals (usually sampled) “stacked” together to create new timbre
+##Wavetable staking or wave stacking is a variation of additive synthesis, but:
+##Instead of sine waves, wave stacking uses different more complex signals (usually sampled) “stacked” together to create new timbre
 ##Each waveform has its own amplitude envelope causing spectral changes during event
 ##Storing waveforms in table-lookup oscillators
 ##Also combined with wavetable crossfade for more internal motion
-##Wavestacking is similar to additive with different complex signals
+##Wave stacking is similar to additive with different complex signals
 ::
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/wavestacking.png#Wavestacking patch::
@@ -1202,7 +1202,7 @@ list::
 
 image::http://federicoreuben.com/computerdotplay/guides/guide2/ring1.png#Ring Modulation::
 
-Create a frequency analyzer:
+Create a frequency analyser:
 code::
 FreqScope.new(400, 200, 0);
 ::
@@ -1291,7 +1291,7 @@ code::
 }.scope;
 )
 ::
-In AM, high frequency causes sidebands but also mantains carrier frequency:
+In AM, high frequency causes sidebands but also maintains carrier frequency:
 code::
 b = Buffer.loadDialog;
 {PlayBuf.ar(1, b.bufnum)*SinOsc.ar(440, add:1, mul:0.5)}.play
