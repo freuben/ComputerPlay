@@ -1,0 +1,1077 @@
+TITLE:: Patterns and Ndefs
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Playing with UGens, Study Guides/Digital Synthesis
+
+section::Patterns
+
+strong::Patterns::, like routines, are very useful for scheduling different events in SC. They are good for specifying sequences of different actions that might happen either together or after each other. You can specify many events over time using Patterns. They are convenient for dealing with multiple timings and event repetitions. They are often used to specify musical patterns, whether they are rhythmic patterns or a sequence of pitches.
+
+Note::Patterns can be very convenient for Generative Music and Algorithmic Composition!::
+
+Patterns use strong::Streams::: a class that represents a sequence of values that are obtained with the strong::next:: message.
+
+Patterns are an easy way to make multiple streams from a single specification. It is like cloning the patterns or to switch metaphors, using a cookie cutter to produce many similar streams.
+
+Note::Streams produce one value each time they receive a strong::next:: message.::
+
+Patterns are a way of specifying what a stream should do.
+
+There are many types of Patterns, some of which, we will explore today.
+
+subsection::Pseq
+
+code::Pseq:: is a Pattern that produces a sequence of events that can be repeated a specified amount of times.
+
+code::Pseq(list, repeats)::
+
+loops through a list, repeats a number of times.
+
+code::
+(
+a = Pseq([60,64,67,69], 2).asStream;
+8.do({a.next.postln});
+)
+::
+
+Previously we have seen how we can schedule a sequence of events through a strong::Routine::. This can be simplified using a code::Pattern::.
+
+code::
+//synthdef
+(
+	SynthDef( "perkysine", {
+	| freq, amp|
+	var osc;
+	osc = SinOsc.ar( [freq,freq+0.05.rand] ) * EnvGen.ar(
+	Env.perc, doneAction: 2) * 0.2;
+	Out.ar(0,osc*amp);
+	}).store;
+)
+//routine
+(
+	p = {
+		2.do{
+		Synth(\perkysine, [\freq,60.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,60.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,67.postln.midicps]);
+		0.2.yield;
+		Synth(\perkysine, [\freq,69.postln.midicps]);
+		0.2.yield;
+		}
+	}.fork;
+)
+//pattern
+Pbind(\instrument, \perkysine, \midinote, Pseq([60,60,67,69],2), \dur, 0.2, \legato, 1.0).play
+//more complex (minimalist) example::
+(
+~notes1 = [0,2,4,5,7,9,11];
+~notes2 = [~notes1[0], ~notes1[2], ~notes1[4]];
+~par1 = Pbind(\instrument, \perkysine, \degree, Pseq(~notes1.scramble,inf), \dur, 0.2, \legato, 0.5, \amp, 0.7);
+~par2 = Pbind(\degree, Pseq(~notes2,inf), \ctranspose, -12, \dur, 0.3, \legato, 0.8);
+~par3 = Pbind(\degree, Pseq((~notes2+0.2).reverse,inf), \ctranspose, -12, \dur, 0.4, \legato, 0.3);
+Ppar([~par1, ~par2, ~par3]).play;
+)
+::
+
+subsection::Pbind
+
+code::Pbind:: is a pattern "player". It takes a variety of patterns and matches them to Events. These events produce sounds and modify different arguments and behaviour.
+
+code::Pbind:: is a class that lets you match properties of a sound event with values
+list::
+##e.g. freq or midinote to create frequencies
+##dur for duration
+##amp  for amplitude
+ ##instrument for instrument
+::
+You can find more information on the types of useful Events available link::Workshops/Patterns, Effects and Ndefs#Events and Patterns#below::.
+
+To play default values of code::Pbind:::
+code::
+a = Pbind.new.play   // if no additional arguments, new method must explicitedly be used
+a.stop
+::
+
+to change duration:
+code::
+Pbind(\dur,0.125).play
+::
+to play a chord:
+code::
+Pbind(\midinote,[60,64,67,69]).play
+::
+to play with a different instrument:
+
+code::SynthDef:: needs to receive the store message which stores and loads the synthdef but
+also adds it to the code::SynthDescLib:: so it can be used with code::Pbind::.
+code::
+	SynthDescLib.global.read   // prepares a library of SynthDesc objects
+	SynthDescLib.global.browse
+::
+your instrument should use code::doneAction: 2:: to release the code::Synth::.
+code::
+(
+SynthDef(\strum,{
+ |freq = 440|
+ var trigger, pluck, period, string, out;
+     trigger = HPZ1.kr(XLine.kr(1,0,0.01)).abs;
+     pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+     period = freq.reciprocal;
+     string = CombL.ar(pluck,period, period, 4);
+	out = LPF.ar(string,12000);
+	out = LeakDC.ar(out);
+	DetectSilence.ar(out, doneAction: 2);
+	Out.ar(0,out)
+}).store
+)
+
+Synth(\strum)
+
+Pbind(\instrument,\strum).play
+
+(
+Pbind(\instrument,\strum,
+	\midinote,[60,64,67,69]
+ ).play
+)
+//this is SC's default synth
+Synth(\default, [\freq, 400]);
+//if you don't specify an instrument, Pbind will play default synth
+Pbind(\midinote, [60,64,67,69]).play;
+
+::
+To play notes in series, you need to use a code::Pattern::
+
+Individual types of patterns will be explained later. For now, they will just be used.
+
+code::Pseq:: iterates over a list of objects:
+
+(list, repeats, offset)
+
+note the additional binding for code::dur:::
+code::
+(
+Pbind(\instrument,\strum,
+    \dur, 0.5,
+	\midinote,Pseq([60,64,67,69],2)
+).play
+)
+::
+A code::Pattern:: returns a code::nil:: after the repetitions are complete.
+
+code::
+a = Pseq([1, 3, 400]);
+x = a.asStream;
+x.next; //evaluate this line several times
+::
+code::Pbind:: will stop playing when a code::Pattern:: returns a code::nil::.
+code::
+(
+Pbind(\instrument,\strum,
+	\dur, 0.5,
+	\midinote,Pseq([60,64,67,69])
+).play
+)
+::
+To infinitely repeat a code::Pattern::, use code::inf:: for the number of repeats
+code::
+(
+Pbind(\instrument,\strum,
+	\dur, 0.5,
+	\midinote,Pseq([60,64,67,69],inf)
+).play
+)
+::
+Offset gives a starting offset (index) into the list
+code::
+(
+Pbind(\instrument,\strum,
+	\dur, 0.5,
+	\midinote,Pseq([60,64,67,69],2,3) //list, repeats, offset
+).play
+)
+::
+code::Pser::
+
+repeats variable gives the number of values returned rather than the number of cycles
+
+
+code::
+(
+Pbind(\instrument,\strum,
+	\dur, 0.5,
+	\midinote,Pser([60,64,67,69],5)
+).play
+)
+::
+code::Prand::
+
+returns one item at random
+
+repeats is the number of items returned before returning a code::nil::
+
+code::
+(
+var num = 20;
+Pbind(\instrument,\strum,
+	\dur,Prand([ 0.15,0.25,0.35,0.5],num),
+	\midinote,Prand((60..72),num)
+).play
+)
+::
+use frequencies instead of midinotes
+code::
+(
+var num = 50;
+Pbind(\instrument,\strum,
+	\dur,Prand([ 0.15,0.25,0.35,0.5] * 0.5,num),
+	\freq,Prand((200,210..600),num)
+).play
+)
+::
+code::Pxrand::
+
+returns one item at random but does not repeat twice in a row
+
+code::
+(
+var num = 50;
+Pbind(\instrument,\strum,
+	\dur,Pxrand([ 0.15,0.25,0.35,0.5],num),
+	\freq,Pxrand((510,520..600),num)
+).play
+)
+::
+code::Pshuf::
+
+loops through a list that has been scrambled
+
+the list is repeated without reshuffling
+
+
+code::
+(
+Pbind(\instrument,\strum,
+	\dur,0.3,
+	\midinote,Pshuf((60..65),5)
+).play
+)
+::
+
+code::Prand(list, repeats)::
+
+Repeats for this pattern refers to the number of values returned, not the number of cycles.
+
+code::
+(
+a = Prand([60,64,67,69],10).asStream;
+12.do({a.next.postln})
+)
+
+(
+p = Prand((48 ..72), inf); // pattern repeats forever: inf
+Pbind(\instrument, \perkysine, \midinote, p, \dur, 0.1, \amp, 0.1).play
+)
+::
+
+code::Pwrand(lists, weights, repeats)::
+
+Weighted random choice
+
+weights is a list of probabilities (0-1)
+code::
+(
+a = Pwrand([1,2,3,4],[0.5,0.1,0.2,0.2],20).asStream;
+20.do({a.next.postln})
+)
+::
+It seems (empirical observation) that the probabilities do not need to add up to 1, however once the probabilities add up to one, any event with a probability above this threshold seems to be ignored. In the following example, 4 never seems to occur.
+code::
+(
+a = Pwrand([1,2,3,4],[0.5,0.1,0.5,0.2],20).asStream;
+20.do({a.next.postln})
+)
+::
+Weighted frequencies:
+code::
+(
+p = Pwrand((60 ..72),[4,3,1,1,0.5,2,1,1,1,1.5,3,1].normalizeSum.postln, inf).asStream;
+Pbind(\instrument, \perkysine, \midinote, p, \dur, 0.1, \amp, 0.1).play;
+)
+::
+
+code::normalizeSum:: normalizes the values so the sum of the code::Array:: is 1.
+
+code::Pxrand(lists, repeats)::
+
+returns 1 item at random but does not repeat twice in a row.
+code::
+(
+a = Pxrand([60,61,62],10).asStream;
+a.nextN(10)
+)
+::
+The code::nextN:: message when sent to a stream will collect n values in an code::Array::.
+code::
+(
+p  = Pxrand([60,61,62],20);
+Pbind(\instrument, \perkysine, \midinote, p, \dur, 0.1, \amp, 0.1).play;
+)
+::
+
+code::Pstutter(n, pattern)::
+
+repeats each element n times
+code::
+(
+a = Pstutter(2, Pseq([1,2,3],inf)).asStream;
+a.nextN(10);
+)
+::
+n may also be a pattern so that it can vary each iteration.
+code::
+(
+p = Prand((48 ..72), inf);
+d = Pstutter(Prand((1..5),inf), Prand([0.1,0.15,0.2,0.3], inf)); //amount of repetitions varys each iteration
+Pbind(\instrument, \perkysine, \midinote, p, \dur, d, \amp, 0.1).play;
+)
+::
+code::Pseries(start, step-size, length)::
+
+generates an arithmetic series
+code::
+(
+p = Pseries(48,2,13).asStream;
+p.nextN(13)
+)
+::
+Applied to frequency:
+code::
+(
+p = Pseries(48,2,13).asStream;
+Pbind(\instrument, \perkysine, \midinote, p, \dur, 0.1, \amp, 0.1).play;
+)
+::
+code::Pgeom(start, multiplication-factor, length)::
+
+generates a geometric series
+
+code::
+(
+p = Pgeom(1,0.8,20).asStream;
+p.nextN(20);
+)
+::
+applied to duration:
+code::
+(
+p =  Pgeom(1,0.8,20).asStream;
+Pbind(\instrument, \perkysine, \freq, 440, \dur, p, \amp, 0.1).play;
+)
+::
+
+subsection::Math with Patterns
+Either unary or binary operators can be used with Patterns (or streams)
+
+code::Pattern:: followed by 2 transpositions in one sequence
+code::
+(
+p  = Pseq([60,64,64,65,68,69,71]);
+q = Pseq([p,p+7,p+5],inf).asStream;
+Pbind(\instrument, \strum, \midinote, q, \dur, 0.1, \amp, 0.1).play;
+)
+::
+Add two patterns
+
+This will transpose each fifth note down two octaves.
+code::
+(
+p = Prand((60 ..72), inf) + Pseq([0,0,0,0,-24], inf);
+Pbind(\instrument, \perkysine, \midinote, p, \dur, 0.2, \amp, 0.1).play;
+)
+::
+
+subsection::Filtering streams (and patterns)
+
+Patterns can be filtered with code::Padd, Pmul, Pset,:: and code::Pstretch::.
+
+Streams can also be filtered.
+
+Streams respond to the messages: code::collect, select, reject::
+
+by returning a new stream
+
+collect
+
+collect returns a stream that is modified by some function
+
+code::
+(
+p = Prand((60 ..72), inf).asStream;
+q = p.collect({|item| if (item.even,{item - 24}, {item})});
+q.nextN(10);
+)
+::
+This example returns a stream that transposes even note numbers down two octaves:
+code::
+(
+p = Prand((60 ..72), inf).asStream;
+q = p.collect({|item| if (item.even,{item - 24}, {item})});
+Pbind(\instrument, \perkysine, \midinote, q, \dur, 0.2, \amp, 0.1).play;
+)
+::
+select
+
+creates a stream that passes only items that return true from a supplied function
+code::
+(
+p = Prand((48 ..72), inf).asStream;
+q = p.select({|item| item.even});
+q.nextN(10);
+)
+::
+selects only the even Midi note numbers:
+code::
+(
+p = Prand((60 ..72), inf).asStream;
+q = p.select({|item| item.even});
+Pbind(\instrument, \perkysine, \midinote, q, \dur, 0.2, \amp, 0.1).play;
+)
+::
+reject
+
+is similar to select except that it passes only items that return false from a supplied function
+
+reject the even numbers
+code::
+(
+p = Prand((48 ..72), inf).asStream;
+q = p.reject({|item| item.even});
+q.nextN(10);
+)
+rejects only the event Midi note numbers:
+code::
+(
+p = Prand((60 ..72), inf).asStream;
+q = p.select({|item| item.even});
+Pbind(\instrument, \perkysine, \midinote, q, \dur, 0.2, \amp, 0.1).play;
+)
+::
+
+strong::Exercise:::
+
+Try understanding the use of patterns in the examples below and start modifying them to achieve other results.
+
+code::
+Pbind(\freq,Pseq([440,660]), \instrument,\perkysine).play
+
+(
+// changing duration
+Pbind(
+	\dur, Pseq([ Pgeom(0.05, 1.1, 24),
+			    Pgeom(0.5, 0.909, 24) ], inf),
+	\midinote, Pseq([60, 58], inf)
+).play
+)
+
+(
+Pbind( \instrument,\perkysine,\dur, 0.1,
+	\midinote,  Pwrand(
+	[Pseq([60,64,67,69]),
+	 Pseq([Prand((80..90)),50,51])
+	], [0.7,0.3],inf),
+\amp, 0.1).play
+)
+::
+
+Patterns can be built of arbitrary complexity by nesting
+code::
+Pseq([Pseq([100, 200, 300], 2), 400, 500, 600], inf);
+::
+Examples of nested Patterns
+code::
+(
+Pbind(
+	\freq, Pseq([Pseq([100, 200, 300], 2), 400, 500, 600],inf)
+).play;
+)
+
+(
+Pbind(
+	\freq, Pseq([Prand([440, 442, 445, 448]), Pxrand([840, 741, 642], 2)], inf)
+// Pxrand never repeats the same value from the array twice in a row
+).play;
+)
+::
+
+section::Events and Patterns
+
+
+It's important to understand that code::Pbind:: is doing some things for you behind the scenes.
+
+Patterns use Events, which affect the behaviour and sound quality of the output. Here is an example:
+
+(
+Pbind(
+	\freq, Pseq([440, 660, 990, 880, 770], inf),     // frequency in hertz
+	\dur, Pseq([1.0, 0.5],inf),			              // duration of event in beats
+	\legato, 0.5,							              // proportion of inter onset time to play
+	\pan, Pseq([0.5, -0.5],inf),
+	\instrument, \default
+).play;
+)
+
+You can see the default properties (or keys) of Events by looking at the defaults defined in the class.
+
+code::
+[Meta_Event:makeParentEvents] //cmd + i
+::
+
+subsection::Useful keys for notes
+
+Using Events is largely a matter of overwriting keys. Here is a list of keys useful for defining notes with their default values, grouped by the partialEvent within which they are defined.
+
+list::
+
+## strong::serverEvent keys:::
+::
+The keys in serverEvent provide the values needed to identify the server to be used and where in the tree
+of nodes to place the group.
+code::
+server:		nil,		// if nil, Server.default is used
+instrument:	\default,	// this is the name of a SynthDef
+group:		1,		// nodeID of group on the server
+				// when adding before or after a node
+				// this could be the nodeID of a synth instead of a group
+addAction:	0,		// 0, 1, 2, 3 or \addToHead, \addToTail, \addBefore, \addAfter
+out:		0,		// usually an output bus number, but depends on the SynthDef
+::
+list::
+## strong::ampEvent keys:::
+::
+The ampEvent determines volume. Notice that code::~amp:: is a function that determines its value from code::~db::. The user can choose to specify the amplitude directly by overwriting code::~amp:: or to use a decibel specification by overwriting code::~db::.
+code::
+amp:		#{ ~db.dbamp },	// the amplitude
+db:		-20.0,		// the above described in decibel
+pan:		0.0,		// pan position: -1 left 1 right
+velocity:	64		// midi velocity
+trig:		0.5		// trigger value
+::
+
+
+list::
+## strong::durEvent keys:::
+::
+The durEvent has keys that determine the timing of a note. Notice that code::~sustain:: is a function that uses code::~legato:: to determine the sustain. Like code::~amp:: this can be overwritten to set the sustain directly.
+code::
+tempo:			nil,	// changes tempo of a TempoClock
+dur:			1.0,	// time until next note (inter-onset time)
+stretch:		1.0,	// inverse of tempo control, specific to the Event's stream
+legato:			0.8,	// ratio of sustain to duration
+sustain:		#{ ~dur * ~legato * ~stretch },
+lag:			0.0,	// delay (in seconds) relative to current time position of Stream
+timingOffset:		0.0,	// delay (in beats) relative to current time position of Stream
+strum:			0.0	// "breaks" a chord. May be negative, playing the chord backward
+strumEndsTogether:	false	// if true, the strummed notes end together (with gated synths)
+sendGate:		nil  // override: true == always send a gate-release message; false == never send
+::
+
+
+list::
+## strong::pitchEvent keys:::
+::
+The pitchEvent has the most complex system of functions that provide a variety of useful ways to determine pitch:
+code::
+freq (->440)		// determines the pitch directly as a frequency in Hertz
+midinote (-> 60)	// determines pitch as a fractional MIDI note (69 -> 440)
+note (-> 0)		// determines pitch as a scale degree in an ~stepsPerOctave equal tempered scale
+degree: 0		// determines pitch as a scale degree within the scale ~scale
+::
+The event also provides a set of transposition keys:
+code::
+mtranspose:	0	// modal transposition of degree within a scale
+root:		0.0	// transposes root of the scale
+gtranspose:	0.0	// gamut transposition within the ~stepsPerOctave equal tempered scale
+ctranspose:	0.0	// chromatic transposition within the 12 tone equal tempered scale
+harmonic:	1.0	// multiplies the frequency determined by ~midinote, typically to an overtone
+detune:		0.0	// directly offsets frequency by adding this value
+midiToCps		// a function taking a MIDI note number and turning it into frequency
+			// Normally this is _.midicps, but you can override it for non-ET tunings
+
+mtranspose:	0,	// modal transposition of degree
+gtranspose:	0.0	// gamut transposition of note within a ~stepsPerOctave e.t. scale
+ctranspose:	0.0	// chromatic transposition of midinote within 12 tone e.t. scale
+
+octave:		5.0	// octave offest of note
+root:		0.0	// root of the scale
+degree:		0	// degree in scale
+scale:		#[0, 2, 4, 5, 7, 9, 11]	// diatonic major scale
+stepsPerOctave:	12.0	//
+detune:		0.0,	// detune in Hertz
+harmonic:	1.0	// harmonic ratio
+octaveRatio:	2.0	// size of the octave (can be used with the Scale class)
+::
+
+section::Music with Patterns
+Now we can do more musical and complex things with Patterns, like playing several of them at the same time.
+
+code::Ppar(list, repeats)::
+
+Play simultaneous Patterns at the same time
+code::
+(
+var melodypat, basspat;
+
+melodypat = Pbind(
+		[\midinote, \dur],
+		Prand([
+			[60, 0.75],[64, 0.5],[66, 0.5],[69, 0.25],
+			[67,0.75],[64,0.5],[60,0.5],[57,0.25]
+		],inf)
+);
+
+basspat = Pbind(
+		\midinote, Pseq([48, 42], inf),
+		\dur, 1
+);
+
+Ppar([ melodypat, basspat ]).play);
+)
+::
+Now, let's add a conductor to our patterns.
+
+code::PatternConductor(patterns, event, quant)::
+code::
+(
+var melodypat, basspat;
+
+melodypat = Pbind(
+		[\midinote, \dur],
+		Prand([
+			[60, 0.75],[64, 0.5],[66, 0.5],[69, 0.25],
+			[67,0.75],[64,0.5],[60,0.5],[57,0.25]
+		],inf)
+);
+
+basspat = Pbind(
+		\midinote, Pseq([48, 42], inf),
+		\dur, 1
+);
+
+p = Ppar([ melodypat, basspat ]);
+a = PatternConductor(p);
+a.play;
+)
+
+a.tempo = 2;
+a.tempo = 0.5;
+
+a.pause;
+a.resume;
+a.stop;
+a.play;
+a.stop;
+::
+You can use Pset, to set a different parmeter of another pattern.
+code::
+Pset(name, value, pattern)
+(
+~notepat = Pseq([60,64,66,69,67,64,60,57], inf);
+~melodypat = Pbind(\midinote, ~notepat);
+~modpat = Pset(\midinote, ~notepatt-24, ~melodypat);
+Pset(\amp, 1, ~modpat).play;
+)
+::
+You can modify a Pbind with a Pbindf.
+
+code::Pbindf(pattern, pairs)
+(
+~melodypat = Pbind(\midinote, Pseq([60,64,66,69,67,64,60,57], inf));
+Pbindf(~melodypat, \dur, Pseq([0.75,0.5,0.5,0.25,0.75,0.5,0.5,0.25].scramble, inf)*0.3,
+	\instrument, \perkysine).play;
+)
+::
+Now, let's start to do some pattern live coding (changing patterns on the fly). This is a lot of fun and can be useful for your projects! For this, we need a class called code::Pdef::
+
+code::Pdef(key, pat)::
+
+Creates a pattern definition that you can change. When you change the content of Pdef, the pattern definition propagets through all streams.
+
+code::
+(
+~melodypat = Pbind(
+		[\midinote, \dur],
+		Prand([
+			[60, 0.75],[64, 0.5],[66, 0.5],[69, 0.25],
+			[67,0.75],[64,0.5],[60,0.5],[57,0.25]
+		],inf)
+);
+
+~basspat = Pbind(
+		\midinote, Pseq([48, 42], inf),
+		\dur, 1
+);
+
+p = Ppar([ ~melodypat, ~basspat ]);
+a = PatternConductor(Pdef(\mypattern, p));
+a.play;
+)
+(
+~transp = rrand(0,11).postln;
+~basspat2 = Pbindf(~basspat, \ctranspose, ~transp, \legato, 0.8);
+~melodypat2 = Pbindf(~melodypat, \ctranspose, ~transp, \legato, 0.3);
+Pdef(\mypattern, Ppar([ ~melodypat2, ~basspat2],inf)).quant(4); //quantize
+)
+a.stop;
+::
+
+subsection::Scales and Tuning
+Another exmple, a variation on the minimalist one above. This example uses the code::Scale:: and code::Tuning:: classes. This classes can save you some time counting intervals and figuring tuning ratios. Basically, SC makes the calculations for you! Each class has many different types of Scales and Tuning systems. Check the helpfil of both clases!
+
+If you want to know which Scales and Tuning are available, evaluate the code below:
+code::
+Scale.directory;
+Tuning.directory;
+::
+
+Now, let's combine the code::Scale:: and code::Tuning:: classes with patterns!
+
+code::
+Pdef(\minimal).play;
+Pdef(\minimal).quant(4);
+(
+~tuning = Tuning.just;
+~scale = (0..7);
+~triad = [~scale[0], ~scale[2], ~scale[4]];
+~par1 = Pbind(\instrument, \perkysine, \scale, Scale.major(~tuning), \degree, Pseq(~scale.scramble,inf), \dur, 0.2, \legato, 0.5, \amp, 0.7);
+~par2 = Pbind(\degree, Pseq(~triad,inf), \ctranspose, -12, \dur, 0.3, \legato, 0.8);
+~par3 = Pbind(\degree, Pseq((~triad+0.2).reverse,inf), \ctranspose, -12, \dur, 0.4, \legato, 0.3);
+Pdef(\minimal, Ppar([~par1, ~par2, ~par3]));
+)
+//once you start evaluating, then start changing values, scale and tuning types,etc.
+::
+
+subsection::Patterns and Buffers
+
+You can also use patterns with buffers! For this, you need to make your own SynthDefs and allocate the buffers you want to use:
+
+code::
+//load soundfiles
+a = Buffer.loadDialog;
+b = Buffer.loadDialog;
+
+(
+SynthDef("playGrain", {arg bufnum=0, time=0.1, rate=1, start=0;
+	var sig;
+	sig = PlayBuf.ar(2, bufnum, rate, startPos: BufFrames.kr(bufnum)*start)
+	* EnvGen.ar(Env.linen(0.01,time,0.1), doneAction:2);
+	Out.ar(0,sig);
+}).add;
+)
+
+Synth("playGrain", [\bufnum, a.bufnum, \start, 0.9]);
+
+~bufSeq = Pseq([a,a,a,b,b,b], inf);
+
+~drumPat1 = Pseq([0,\rest,\rest,0,\rest], inf);
+Pbind(\instrument, \playGrain, \bufnum, ~bufSeq, \degree, ~drumPat1, \dur, 0.5, \time, 0.2)
+
+~conduct = PatternConductor(Pdef(\pattern));
+~conduct.play;
+
+Pdef(\pattern).quant = 6;
+
+~drumPat1 = Pseq([0,0,\rest,0,\rest,\rest], inf);
+~pat1 = Pbind(\instrument, \playGrain, \bufnum, ~bufSeq, \degree, ~drumPat1, \dur, 0.4, \time, 0.1, \start, Pseq([0,0.1,0.3,0.5,0.6,0.7],inf));
+
+Pdef(\pattern, ~pat1);
+
+~drumPat2 = Pseq([\rest,0,\rest,\rest,0,0], inf);
+~pat2 = Pbind(\instrument, \playGrain, \bufnum, ~bufSeq, \degree, ~drumPat2, \dur, 0.4, \time, 0.01, \start, Pseq([0,0,0,0.7],inf), \rate, Prand([1,2,3],inf));
+
+Pdef(\pattern, Ppar([~pat1, ~pat2], inf));
+
+~drumPat3 =Pshuf([0,0,\rest,0,1,0], inf);
+~pat3 = Pbind(\instrument, \playGrain, \bufnum, ~bufSeq, \degree, ~drumPat3, \dur, 0.4, \time, 0.1, \start, Prand([0.15,0.6],inf, \rate, Pseq([20,0.3,0.8,0.4],inf)));
+
+Pdef(\pattern, Ppar([~pat1, ~pat2, ~pat3], inf));
+
+~conduct.tempo = 1.7; //change tempo
+
+Scale.directory;
+Tuning.directory;
+
+~tuning = Tuning.pythagorean;
+~scale = Scale.phrygian(~tuning);
+~notes = (0..5);
+
+~pat4 = Pbind(\scale, ~scale, \degree, Prand(~notes,inf), \ctranspose, -12, \amp, 2, \dur, Prand([2/3,1/3],inf), \legato, 0.05);
+
+Pdef(\pattern, Ppar([~pat1, ~pat2, ~pat3, ~pat4], inf));
+
+Pdef(\pattern, Ppar([~pat2,~pat4], inf));
+
+~conduct.stop;
+::
+
+section::Ndefs
+
+We just were introduced to code::Pdef::: a pattern strong::definition::. Previously we've also talked about what  code::SynthDef::: a synthesis definition. In SC, there are many types of definitions. A definition is a class that is characterised because it has a key: a way of naming 1 class with a code::Symbol::. Symbols are like strings, but they are not a collection of letters, but a single word expressed like this: code::\symbol::. Instead of having to use many variables to define a class, you can define an instance of a class with a key. Then SC remembers that instance and you can start changing it. In the case of code::Pdef::, we used the key to define a pattern behaviour that then we can access and change.
+
+Ndefs, are code::NodeProxy:: definitions. In electronic and computer music, we deal a lot with signals and the different 'routes' they might take and how we might combine them. If you are familiar with the recording process, you know that the signal path is important for what you want to achieve. If you have used a mixer, whether it is an analogue mixer or a mixer in your DAW, you are probabily familiar with the idea of Buses and Groups. You can route different channels through Buses.
+
+In SC, we have the Server, which plays the audio. We keep reference of what it playing in the servers through what is called a Node. SC keeps what's called a Node tree in the server to keep reference of everything that's playing in it. You can look at the Node tree from the server's drop down menu if you click on the server information in the left corner. SC also has a code::Bus:: class and a code::Group:: class for doing more complex routing. But we have to do a lot of bookeeping of which buses and groups we are using. Ndefs do that bookkeeping for us! And belive me, when things get a bit more complicated, that is a great thing! So an code::Ndef:: helps us with signal routing in a very intuitive way, and what's best, you can do this routing on the fly! Cool ha!
+
+Ok, here's how Ndefs work:
+
+First, we define and play a Node definition
+code::
+Ndef(\sound).play;
+::
+Then we can determine the definition's fade time
+code::
+Ndef(\sound).fadeTime = 1;
+::
+Now, let's put a synth in the Node definition:
+code::
+Ndef(\sound, { SinOsc.ar([600, 635], 0, SinOsc.kr(2).max(0) * 0.2) });
+::
+Ok, now let's put a different synth in the Node definition:
+code::
+Ndef(\sound, { SinOsc.ar([600, 635] * 3, 0, SinOsc.kr(2 * 3).max(0) * 0.2) });
+::
+Did you notice fade? Cool right!
+code::
+Ndef(\sound, { SinOsc.ar([600, 635] * 2, 0, SinOsc.kr(2 * 3).max(0) * 0.2) });
+::
+In addition to Synths, you can play patterns!
+code::
+Ndef(\sound, Pbind(\dur, 0.17, \freq, Pfunc({ rrand(300, 700) })) );
+::
+Ok, let's start combining signals:
+
+Let's start with a very basic, defauly synth:
+code::
+Ndef(\sound, \default );
+::
+Now, we're going to create a new Ndef to control the other Ndef
+code::
+Ndef(\lfo, { LFNoise1.kr(3, 400, 800) });
+::
+Let's map the frequency argument with the Ndef we just created:
+code::
+Ndef(\sound).map(\freq, Ndef(\lfo));
+::
+Change the original synth:
+code::
+Ndef(\sound, { arg freq; SinOsc.ar([600, 635] + freq, 0, SinOsc.kr(2 * 3).max(0) * 0.2) });
+::
+Change the modulating signal:
+code::
+Ndef(\lfo, { LFNoise1.kr(300, 400, 800) });
+::
+Now, let's stop mapping values the frequency argument with the Ndef we just created
+code::
+Ndef(\sound).unmap(\freq);
+::
+Let's stop it now:
+code::
+Ndef.clear; //clear all
+::
+
+That was cool, wasn't it! You were patching and changing your synthesis patch on the fly!
+
+Before we continue with Ndefs, remember Pdefs?
+
+code::
+s.boot;
+
+Pdef(\x, Pbind(\note, Pbrown(0, 6, 0.1, inf)));
+::
+
+subsection::Quantizing
+
+When quantizing to a larger number of beats, the changes become very slow if one has to wait for the next beat. Providing anoutset quant value is a way to make the change so that it appears as if it had been done at the previous grid point already. The stream is fast forwarded to the current position relative to the quant grid. Providing a number larger than zero, the next possible quant point is used as outset.
+
+For example, if quant is 32, and one has just missed the first beat when changing the pattern, one has to wait for 32 beats until the change happens. Using an outset of 1, it is assumed that you had already changed the pattern at the first beat, the stream is fast forwarded to the time it would be at now if you had done so. The new pattern is inserted at the next beat (outset=1).
+
+code::
+Pdef(\x).quant_([8, 0, 0, 1]); //[quant, phase, timingOffset, outset]
+
+Pdef(\x).play;
+
+TempoClock.default.tempo = 2.0; //a way to change global tempo
+
+TempoClock.default.tempo = 1.0;
+
+Pdef(\x, Pbind(\note, Pseq(Scale.major.degrees, inf)));
+
+Pdef(\x, Pbind(\note, Pseq(Scale.minor.degrees, inf)));
+
+// now change the definition
+Pdef(\x, Pbind(\note, Pseq([0, 3, 5, 7, 9, 11], inf)));
+
+Pdef(\x, Pbind(\freq, Pseq([1000, 1923, 245.2, 1718] / 1.2 + 0.1, inf)));
+
+Pbindf(Pdef(\x), \dur, 0.1, \ctranspose, 15).play;
+Pbindf(Pdef(\x), \dur, 0.3, \ctranspose, 2).play;
+
+Pdef(\x, Pbind(\note, Pseq([0, 3, 5, 7, 9, 11], inf)));
+::
+
+code::Pdefn(key pat)::
+
+Similar to Pdefn. Allows for just one pattern to be changed on the fly!
+code::
+Pdefn(\x, Pbrown(0, 6, 0.1, inf));
+Pbind(\note, Pdefn(\x), \dur, 0.3).play;
+Pbind(\note, Pdefn(\x), \dur, 0.1, \ctranspose, 15).play;
+// now change the definition
+Pdefn(\x, Pseq([0, 3, 5, 7, 9, 11], inf));
+Pdefn(\x, Pseq([0, 3, 3, 7], inf) + Pseq([0, [0, 3], [0, 5, 7]], inf));
+::
+
+Now, for the fun: combine Ndefs and Pdefs:
+code::
+Ndef(\sound).play;
+
+Ndef(\sound, {
+        \in1.ar([0, 0])*MouseX.kr(0,1)
+});
+
+Ndef(\a, Pdef(\a));
+
+Ndef(\sound) <<>.in1 Ndef(\a);
+
+Pdefn(\x, Pseq([60,61,62], inf));
+
+Pdef(\a, Pbind(\midinote, Pdefn(\x)));
+
+
+Ndef(\sound) <<>.in1 nil; //unmap audio
+
+Ndef(\sound) <<>.in1 Ndef(\a); //map audio again
+
+Pdef(\a).quant_([8, 0, 0, 1]);
+
+Pdefn(\x, Pseq([60,61,69], inf));
+
+Pdef(\a, Pbind(\midinote, Pdefn(\x), \dur, 0.2));
+
+Pdefn(\y, Pseq([0.1,0.2,0.3], inf));
+
+Pdef(\a, Pbind(\midinote, Pdefn(\x), \dur, Pdefn(\y)));
+
+
+Pdefn(\y, Pseq([0.1,0.2,0.3,0.1,0.1,0.1], inf));
+//ring modulate it!
+(
+Ndef(\sound, {
+     \in1.ar([0,0])*SinOsc.ar(400);
+});
+);
+
+Pdefn(\x, Pseq(Scale.dorian.degrees + 60 ++ [72], inf));
+
+Ndef(\a, {arg freq=220, amp=0.1; SinOsc.ar(freq,0,amp)});
+
+Ndef(\mouse, {MouseY.kr(160,872)});
+Ndef(\a).map(\freq, Ndef(\mouse));
+
+Ndef(\a, Pdef(\a));
+
+Ndef(\a).unmap(\freq);
+
+Pdefn(\x, Prand(Scale.major.degrees + 60 ++ [72], inf));
+
+Pdef(\b, Pbind(\midinote, Pseq((60..72), inf), \dur, Pdefn(\y)));
+
+Ndef(\a, Ppar([Pdef(\a), Pdef(\b)]));
+
+Ndef(\b, {Pan2.ar(SinOsc.ar(1000,0,1))});
+
+Ndef(\sound, {
+        \in1.ar([0, 0])*\in2.ar([0, 0])
+});
+
+Ndef(\sound) <<>.in2 Ndef(\b);
+
+Pdefn(\y, Pseq(Array.fill(16,{[0.1,0.2,0.4].choose}), inf));
+::
+
+Another example to understand how Ndefs can be combined together:
+
+code::
+Ndef(\master).play; //this will be our "master fader"
+
+Ndef(\mouse, {MouseX.kr(0,1)});
+
+Ndef(\mouse2, {MouseY.kr(0,1)});
+
+Ndef(\sine, {SinOsc.ar(500)*Ndef.kr(\mouse) });
+
+Ndef(\master, {Ndef(\sine)});
+
+
+Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*Ndef.kr(\mouse) });
+
+Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*EnvGen.kr(Env.perc(0.01,0.1), doneAction:2) });
+::
+This is a code::Tdef:::
+code::
+Tdef(\imp, {inf.do{
+Ndef(\sine).spawn;
+	0.2.yield;
+}});
+
+Tdef(\imp).play
+::
+Tdefs are task definitions - tasks (type of routine) that can de defined and changed with the key.
+code::
+Tdef(\imp, {inf.do{
+Ndef(\sine).spawn;
+	0.1.yield;
+}});
+::
+Filtering:
+code::
+Ndef(\filter, {Ndef(\sine).ar * PinkNoise.ar(3)})
+
+(
+Ndef(\filter2, {Ndef(\filter).ar * SinOsc.ar(300)});
+Ndef(\filter3, {Ndef(\filter2).ar * SinOsc.ar(1).linlin(-1,1,0,2)});
+Ndef(\filter4, {LPF.ar(Ndef(\filter3).ar, MouseX.kr(400,8000));});
+Ndef(\master, {Ndef(\filter4)});
+)
+::
+A 6 channel stereo mixer:
+code::
+Ndef(\master).ar(numChannels: 2)
+Ndef(\master).play;
+
+Ndef(\chan1, {arg pos=0; Pan2.ar(Mix(Ndef(\in1).ar), pos)});
+Ndef(\chan2, {arg pos=0; Pan2.ar(Mix(Ndef(\in2).ar), pos)});
+Ndef(\chan3, {arg pos=0; Pan2.ar(Mix(Ndef(\in3).ar), pos)});
+Ndef(\chan4, {arg pos=0; Pan2.ar(Mix(Ndef(\in4).ar), pos)});
+Ndef(\chan5, {arg pos=0; Pan2.ar(Mix(Ndef(\in5).ar), pos)});
+Ndef(\chan6, {arg pos=0; Pan2.ar(Mix(Ndef(\in6).ar), pos)});
+
+Ndef(\master, {
+	Ndef(\chan1).ar +  Ndef(\chan2).ar +
+	Ndef(\chan3).ar +  Ndef(\chan4).ar +
+	Ndef(\chan5).ar +  Ndef(\chan6).ar;
+});
+
+Ndef(\in1, {SinOsc.ar(880,0,0.1)}); //put stuff in the mixer
+Ndef(\in2, {SinOsc.ar(680,0,0.1)}); //put stuff in the mixer
+
+ServerMeter.new(s)
+::
+
+Now you get an idea of the powerful routing you can do with Ndefs, now, start having fun!!
+
+Note::
+Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.
+::
