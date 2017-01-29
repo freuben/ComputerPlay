@@ -1,0 +1,138 @@
+TITLE:: Deconstructing SC code
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Study Guides/SC Basics Quick Study, Workshops/Playing with UGens
+
+section::Example: Deconstructing code
+
+strong::Carefully explain this piece of code:::
+code::
+{Blip.ar(LFNoise2.kr(10).linexp(-1,1,200,3000),SinOsc.kr(0.1).linlin(-1,1,1,21),0.1)}.play
+::
+
+Find the periods (.) in the following code.
+
+emphasis::What are the different meaning periods may have in this code?::
+list::
+##strong::Periods:: may be used to define strong::float numbers:: (decimal numbers) as in 0.1
+##Periods are also used to identify strong::messages:: and link them to a specific strong::object::; in this case we have two messages that are linked to two objects.
+##The first period links the message code::.ar:: with the object code::Blip::, which is also a Unit Generator (code::UGen::)
+##strong::Messages:: can be identified because they usually follow a period and because they are written in lower case letters.
+##strong::Objects:: on the other hand can be identified because they are usually followed by a period and because they are written in upper case letters.
+##The message code::ar:: tells the computer that this code::UGen:: runs at strong::audio rate::, meaning that it is used to produce a sound in the server
+##The second period links the message code::.play:: with the object that is a function (it tells the computer to play that function as a code::Synth:: on the code::Server::)
+::
+
+Now find the different types brackets.
+
+emphasis::What do they mean?::
+
+The first type of brackets code::{code}::, determine a strong::function::. Between the brackets a function is expressed, it defines a piece of code that can be stored without running it. A code::Function:: is also an code::Object::, which in this case responds to the message code::.play::, which actually runs the function, here specifically playing the function as a synth on the code::Server::.
+
+The second type of brackets code::(code):: in this case determines the strong::arguments:: that respond to the message code::.ar::. When you see a message, followed by this type of brackets, it means that you are defining the arguments of this message:
+code::
+Object.message(argument1, argument2, argument3)
+::
+In this case, the arguments are determining some values for this code::UGen::. If you want to find out what these arguments are, then go to the help file of the code::Object:: (In this case code::Blip::) by pressing emphasis::cmd+d::. From the help file you will see that the arguments are first the frequency, then the number of partials and then the mul (amplitude)
+
+The arguments are strong::comma separated:: (,) – in this instance the comma is used to separate different arguments (values) that determine what the code::UGen:: plays.
+
+Usually commas are used:
+list::
+##to separate different items, in a strong::collection:: for example,
+##when defining strong::arguments:: or strong::variables::,
+##when strong::functions:: and strong::messages:: are evaluated to specify the values for the arguments.
+::
+
+section::Exercises
+
+Now it's your turn to deconstruct the next three examples. Write down in detail a description of how the code works.
+
+subsection::Example 1
+code::
+(
+SynthDef("moogy", {arg freq=440, gate=1, amp=1, pos=0;
+	var signal, env;
+	env = EnvGen.kr(Env.asr(releaseTime: 0.5), gate, doneAction: 2);
+	signal = Pan2.ar(
+	MoogFF.ar(Pulse.ar([freq/4,freq/2], [0.3,0.7]),freq*2),pos)*env;
+	Out.ar(0, signal*amp);
+}).send;
+)
+
+a = Synth("moogy", [\freq, 220, \pos, -1]);
+b = Synth("moogy", [\freq, 220, \pos, 1]);
+
+~notes = Scale.minor.degrees + 60;
+
+(
+{32.do{
+a.set(\freq, (~notes.choose+12).postln.midicps);
+b.set(\freq, ~notes.choose.postln.midicps);
+0.25.yield;
+}
+}.fork;
+)
+
+a.set(\gate, 0);
+b.set(\gate, 0);
+::
+
+subsection::Example 2
+code::
+(
+a = {arg impfreq=10, freqOff=1, lagTime=5;
+	 var freqs, amps, times, excitation, decayInput;
+	freqs = Array.rand(12, 800.0, 4000.0);
+	amps = [1.2,1.1,1.0,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+	times = Array.rand(12, 0.1, 2);
+	decayInput = ClipNoise.ar(0.01);
+	excitation = Decay.ar(Impulse.ar(impfreq.lag(lagTime)), 0.03, decayInput);
+   Pan2.ar(DynKlank.ar(`[freqs, amps, times], excitation, freqOff.lag2(lagTime)), LFPulse.ar((impfreq/2).lag(lagTime)));
+}.play
+)
+
+a.set(\freqOff, 1.05);
+a.set(\freqOff, 1);
+a.set(\impfreq, 7);
+a.set(\impfreq, 4);
+a.set(\lagTime, 1);
+a.set(\impfreq, 6);
+a.set(\lagTime, 10);
+a.set(\freqOff, 0.1);
+a.set(\impfreq, 1);
+a.set(\impfreq, 10);
+a.set(\lagTime, 0.1);
+a.set(\freqOff, rrand(0.08,0.12));
+::
+subsection::Example 3
+code::
+(
+["gray","white", "pink", "brown"].do{arg item;
+	var noise;
+	case
+	{item == "gray"} {noise = GrayNoise}
+	{item == "white"} {noise = WhiteNoise}
+	{item == "pink"} {noise = PinkNoise}
+	{item == "brown"} {noise = BrownNoise};
+	SynthDef(item, {arg atk=0.01, rel=0.01, lev=0.1, pos=0;
+	var signal, env;
+	env = EnvGen.kr(Env.perc(atk,rel, lev), doneAction: 2);
+	signal = Out.ar(0, Pan2.ar(noise.ar*env, pos));
+}).send
+}
+)
+
+(
+~colours = ["gray","white", "pink", "brown"];
+~index = [0,2,1,3,0,1,2,2,3];
+{
+	inf.do{
+	~index.do{arg item;
+Synth(~colours[item].postln, [\atk, [0.0001,0.01,0.05].choose, \rel, [0.05,0.1].choose, \pos, rrand(-1,1.0)]);
+0.1.yield;
+}
+}
+}.fork
+)
+::

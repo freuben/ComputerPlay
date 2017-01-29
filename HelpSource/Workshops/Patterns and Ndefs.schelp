@@ -40,7 +40,7 @@ code::
 //synthdef
 (
 	SynthDef( "perkysine", {
-	| freq, amp|
+	| freq=400, amp=1|
 	var osc;
 	osc = SinOsc.ar( [freq,freq+0.05.rand] ) * EnvGen.ar(
 	Env.perc, doneAction: 2) * 0.2;
@@ -451,7 +451,7 @@ p = Prand((48 ..72), inf).asStream;
 q = p.reject({|item| item.even});
 q.nextN(10);
 )
-rejects only the event Midi note numbers:
+rejects only the event Midi note numbers
 code::
 (
 p = Prand((60 ..72), inf).asStream;
@@ -619,7 +619,7 @@ Now we can do more musical and complex things with Patterns, like playing severa
 
 code::Ppar(list, repeats)::
 
-Play simultaneous Patterns at the same time
+Play several Patterns at the same time in parallel:
 code::
 (
 var melodypat, basspat;
@@ -674,9 +674,10 @@ a.stop;
 a.play;
 a.stop;
 ::
-You can use Pset, to set a different parmeter of another pattern.
+You can use code::Pset::, to set a different parmeter of another pattern.
 code::
 Pset(name, value, pattern)
+
 (
 ~notepat = Pseq([60,64,66,69,67,64,60,57], inf);
 ~melodypat = Pbind(\midinote, ~notepat);
@@ -684,13 +685,15 @@ Pset(name, value, pattern)
 Pset(\amp, 1, ~modpat).play;
 )
 ::
-You can modify a Pbind with a Pbindf.
+You can modify a code::Pbind:: with a code::Pbindf::.
 
-code::Pbindf(pattern, pairs)
+code::
+Pbindf(pattern, pairs)
+
 (
 ~melodypat = Pbind(\midinote, Pseq([60,64,66,69,67,64,60,57], inf));
-Pbindf(~melodypat, \dur, Pseq([0.75,0.5,0.5,0.25,0.75,0.5,0.5,0.25].scramble, inf)*0.3,
-	\instrument, \perkysine).play;
+
+Pbindf(~melodypat, \dur, Pseq([0.75,0.5,0.5,0.25,0.75,0.5,0.5,0.25].scramble, inf)*0.3, \instrument, \perkysine).play;
 )
 ::
 Now, let's start to do some pattern live coding (changing patterns on the fly). This is a lot of fun and can be useful for your projects! For this, we need a class called code::Pdef::
@@ -818,9 +821,9 @@ Pdef(\pattern, Ppar([~pat2,~pat4], inf));
 
 section::Ndefs
 
-We just were introduced to code::Pdef::: a pattern strong::definition::. Previously we've also talked about what  code::SynthDef::: a synthesis definition. In SC, there are many types of definitions. A definition is a class that is characterised because it has a key: a way of naming 1 class with a code::Symbol::. Symbols are like strings, but they are not a collection of letters, but a single word expressed like this: code::\symbol::. Instead of having to use many variables to define a class, you can define an instance of a class with a key. Then SC remembers that instance and you can start changing it. In the case of code::Pdef::, we used the key to define a pattern behaviour that then we can access and change.
+We just were introduced to code::Pdef::: a pattern strong::definition::. Previously we've also talked about code::SynthDef::: a synthesis definition. In SC, there are many types of strong::definitions::. A definition is a class that is characterised by having a key: a way of naming an instance of a class with a code::Symbol::. Symbols are like strings, but they are not a collection of letters, but a single word expressed like this: code::\symbol::. Instead of having to use many variables to define an instance of a class, you can define it with a key. Then SC remembers that instance and you can start changing it. In the case of code::Pdef::, we used the key to define a pattern behaviour that then we can access and change.
 
-Ndefs, are code::NodeProxy:: definitions. In electronic and computer music, we deal a lot with signals and the different 'routes' they might take and how we might combine them. If you are familiar with the recording process, you know that the signal path is important for what you want to achieve. If you have used a mixer, whether it is an analogue mixer or a mixer in your DAW, you are probabily familiar with the idea of Buses and Groups. You can route different channels through Buses.
+Ndefs, are code::NodeProxy:: definitions. In electronic and computer music, we deal a lot with signals and the different 'routes' they might take and how we might combine them. If you are familiar with the recording process, you know that the signal path is important for what you want to achieve. If you have used a mixer, whether it is an analogue mixer or a mixer in your DAW, you are probabily familiar with the idea of Buses and Groups. You can route different channels through Buses. You can join various channels together with Groups.
 
 In SC, we have the Server, which plays the audio. We keep reference of what it playing in the servers through what is called a Node. SC keeps what's called a Node tree in the server to keep reference of everything that's playing in it. You can look at the Node tree from the server's drop down menu if you click on the server information in the left corner. SC also has a code::Bus:: class and a code::Group:: class for doing more complex routing. But we have to do a lot of bookeeping of which buses and groups we are using. Ndefs do that bookkeeping for us! And belive me, when things get a bit more complicated, that is a great thing! So an code::Ndef:: helps us with signal routing in a very intuitive way, and what's best, you can do this routing on the fly! Cool ha!
 
@@ -852,15 +855,15 @@ Ndef(\sound, Pbind(\dur, 0.17, \freq, Pfunc({ rrand(300, 700) })) );
 ::
 Ok, let's start combining signals:
 
-Let's start with a very basic, defauly synth:
+Let's start with a very basic, "defaulty" synth:
 code::
 Ndef(\sound, \default );
 ::
-Now, we're going to create a new Ndef to control the other Ndef
+Now, we're going to create a new code::Ndef:: to control the other code::Ndef::
 code::
 Ndef(\lfo, { LFNoise1.kr(3, 400, 800) });
 ::
-Let's map the frequency argument with the Ndef we just created:
+Let's map the frequency argument with the code::Ndef:: we just created:
 code::
 Ndef(\sound).map(\freq, Ndef(\lfo));
 ::
@@ -883,23 +886,201 @@ Ndef.clear; //clear all
 
 That was cool, wasn't it! You were patching and changing your synthesis patch on the fly!
 
-Before we continue with Ndefs, remember Pdefs?
+subsection::Combining Ndefs
+
+Ndefs can be combined together. This allows you to do very interesting strong::signal routing::: you can use both strong::audio:: (code::.ar::) and strong::control:: (code::.kr::) signals and route them through Ndefs.
+
+strong::Control Signals with Ndefs::
+
+Let's start with an example routing control signals.
+
+Note::We always use the code::.play:: message in the last code::Ndef:: in the signal chain!! In other words, we use this message in the main code::Ndef:: where we place the other Ndefs (with the other signals we're combining).::
+code::
+Ndef(\master).play; //this will be our "master fader" or our "main" Ndef
+::
+Now, let's create two new Ndefs with a control signal (this time, we're using code::MouseX:: and code::MouseY::, to modulate other Ndefs):
+code::
+Ndef(\mouse, {MouseX.kr(0,1)});
+Ndef(\mouse2, {MouseY.kr(0,1)});
+::
+Let's now create another code::Ndef:: called code::\sine:: and change the amplitude of code::SinOsc:: with code::Ndef(\mouse)::.
+Note::Notiece that to combine signals with Ndefs, now we need to write the code::.kr:: message after the code::Ndef::!::
+code::
+Ndef(\sine, {SinOsc.ar(500)*Ndef.kr(\mouse) });
+::
+Now let's add code::Ndef(\sine):: to our code::Ndef(\master)::, now we can hear the sound.
+code::
+Ndef(\master, {Ndef(\sine)});
+::
+Now, we change the content of code::Ndef(\sine):: with another code::SinOsc::. This time, we are adding code::Ndef(\mouse2):: to modulate the frequency of the oscillator.
+code::
+Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*Ndef.kr(\mouse) });
+::
+Note::Notice the use of code::.linlin:: to scale the code::MouseY:: values in a linear scale from 0 to 1, to 500 to 600, to modulate frequency.::
+note::Notice the use of the code::.kr:: message after the code::\mouse2:: and code::\mouse:: Ndefs. We have to do this to be able to comine a control code::Ndef:: within another code::Ndef::.::
+
+Now, let's add an envelope to our code::Ndef(\sine):: synth.
+code::
+Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*EnvGen.kr(Env.perc(0.01,0.1), doneAction:2) });
+::
+We can use the code::.spawn:: message to retrigger the synth, as many times as you want!
+code::
+Ndef(\sine).spawn; //evaluate this several times!
+::
+Now, we are going to use another class definition called code::Tdef:::
+
+Tdefs are task definitions - a code::Task:: is a pauseable code::Routine:: - Tdefs can de defined and changed with a key.
 
 code::
-s.boot;
+Tdef(\imp, {inf.do{
+	Ndef(\sine).spawn;
+	0.2.yield;
+}});
 
+Tdef(\imp).play
+::
+Now we can change the code::Task:: on the fly!
+code::
+Tdef(\imp, {inf.do{
+	Ndef(\sine).spawn;
+	[0.1, 0.3].choose.yield;
+}});
+
+Tdef(\imp).stop
+::
+Let's combine various Tdefs!!
+code::
+Tdef(\dust, {20.do{
+	Ndef(\sine).spawn;
+	rrand(0.1, 0.3).yield;
+}});
+
+Tdef(\imp, {20.do{
+	Ndef(\sine).spawn;
+	0.3.yield;
+}});
+
+Tdef(\combine, {inf.do{
+	Tdef(\dust).embed;
+	Tdef(\imp).embed;
+}});
+
+Tdef(\combine).play;
+
+Tdef.all;
+Tdef.clear;
+Ndef.clear;
+::
+strong::Audio Signals with Ndefs::
+
+Now, let's combine different audio signals through Ndefs.
+
+First, start code::Ndef(\master):: - we're using this Ndef as out last node in the chain:
+code::
+Ndef(\master).play;
+::
+
+Create a synth and add it to code::Ndef(\fnoise)::
+
+code::
+(
+Ndef(\fnoise, {|freq = 440 amp = 0.1 cutoff= 100 rq=0.1 pan=0.0|
+	var source, filter, env;
+	source = WhiteNoise.ar;
+	filter = BLowPass4.ar(source,freq,rq)*0.2;
+	(filter*0.4)+(0.3*filter.distort);
+});
+)
+::
+Create a delay effect. Our source is code::Ndef(\fnoise)::
+note::Notice that we have added the code::.ar:: message to code::Ndef(\fnoise)::. We're also specifying that this code::Ndef:: is only 1 channel (mono) with the second argument of code::.ar::.::
+code::
+(
+Ndef(\delay, {var source, delay;
+	source = Ndef.ar(\fnoise,1); //Ndef.ar arguments: key, numChannels
+	delay= CombC.ar(source,0.25,0.25,2.0);
+});
+)
+::
+Let's add code::Ndef(\delay):: to the master Ndef.
+note::Noitice multichannel expanssion through code::!2:: ::
+code::
+Ndef(\master, {Ndef.ar(\delay,1)!2});
+::
+With code::ServerMeter::, we can monitor our outputs.
+code::
+ServerMeter.new(s)
+::
+Change fade time of code::Ndef(\delay):: to 1.
+code::
+Ndef(\delay).fadeTime = 1;
+::
+We're now changing the delay effect by adding an envelope triggered by an impulse. We're also modifying the delay times.
+code::
+(
+Ndef(\delay, {var source, delay;
+	source = Ndef.ar(\fnoise,1);
+	source = source*EnvGen.kr(Env.perc(0.01,0.2), Impulse.kr(2));
+	delay= CombC.ar(source,0.4,0.4,3.0);
+});
+)
+::
+A new code::Ndef:: with a distortion effect
+note::We're adding code::.ar:: to code::Ndef(\delay):: because we are getting the audio from that channel::
+code::
+(
+Ndef(\dist, {arg override=3, amp=1;
+		(Ndef.ar(\delay,1) * override).distort * 1/override * amp;
+});
+)
+::
+Now we're adding the distortion to the master code::Ndef:::
+code::
+Ndef(\master, {Ndef.ar(\dist,1)!2});
+::
+Let's change the values for the code::\override:: and code::\amp:: arguments:
+code::
+Ndef(\dist).set(\override, 10, \amp, 2);
+::
+This control code::Ndef:: is an LFO to modulate the distortion:
+code::
+Ndef(\lfo, {SinOsc.kr(0.1).linlin(-1,1,3,6)});
+::
+Map code::\override:: argument to code::Ndef(\lfo):::
+code::
+Ndef(\dist).map(\override, Ndef(\lfo))
+::
+Another lfo, this time to modulate the frequency of code:: Ndef(\fnoise)::
+code::
+Ndef(\lfo2, {LFNoise1.kr(10).linlin(-1,1,300,500)});
+::
+Map frequency values to code::Ndef(\lfo2)::
+code::
+Ndef(\fnoise).map(\freq, Ndef(\lfo2));
+::
+
+
+subsection::Pdef and Pdefn review
+Before we continue with Ndefs, lets review Pdefs one more time, just to make sure we understand what they do. We're also introducing code::Pdefn::, a similar class to code::Pdef:: but allows you to store strong::value patterns:: (code::Pdef:: is used for strong::event patterns::).
+
+code::
 Pdef(\x, Pbind(\note, Pbrown(0, 6, 0.1, inf)));
 ::
 
-subsection::Quantizing
+strong::Quantising::
 
-When quantizing to a larger number of beats, the changes become very slow if one has to wait for the next beat. Providing anoutset quant value is a way to make the change so that it appears as if it had been done at the previous grid point already. The stream is fast forwarded to the current position relative to the quant grid. Providing a number larger than zero, the next possible quant point is used as outset.
+When quantising to a larger number of beats, the changes become very slow if one has to wait for the next beat. Providing anoutset quant value is a way to make the change so that it appears as if it had been done at the previous grid point already. The stream is fast forwarded to the current position relative to the quant grid. Providing a number larger than zero, the next possible quant point is used as outset.
 
 For example, if quant is 32, and one has just missed the first beat when changing the pattern, one has to wait for 32 beats until the change happens. Using an outset of 1, it is assumed that you had already changed the pattern at the first beat, the stream is fast forwarded to the time it would be at now if you had done so. The new pattern is inserted at the next beat (outset=1).
 
 code::
 Pdef(\x).quant_([8, 0, 0, 1]); //[quant, phase, timingOffset, outset]
+::
 
+strong::Play with Pdef::
+
+Now let's start the code::Pdef:: and put a Pbind.
+code::
 Pdef(\x).play;
 
 TempoClock.default.tempo = 2.0; //a way to change global tempo
@@ -909,12 +1090,15 @@ TempoClock.default.tempo = 1.0;
 Pdef(\x, Pbind(\note, Pseq(Scale.major.degrees, inf)));
 
 Pdef(\x, Pbind(\note, Pseq(Scale.minor.degrees, inf)));
-
-// now change the definition
+::
+Now change the definition
+code::
 Pdef(\x, Pbind(\note, Pseq([0, 3, 5, 7, 9, 11], inf)));
 
 Pdef(\x, Pbind(\freq, Pseq([1000, 1923, 245.2, 1718] / 1.2 + 0.1, inf)));
-
+::
+Remember code::Pbindf::?
+code::
 Pbindf(Pdef(\x), \dur, 0.1, \ctranspose, 15).play;
 Pbindf(Pdef(\x), \dur, 0.3, \ctranspose, 2).play;
 
@@ -923,7 +1107,7 @@ Pdef(\x, Pbind(\note, Pseq([0, 3, 5, 7, 9, 11], inf)));
 
 code::Pdefn(key pat)::
 
-Similar to Pdefn. Allows for just one pattern to be changed on the fly!
+Similar to Pdefn. Allows for a value pattern to be changed on the fly!
 code::
 Pdefn(\x, Pbrown(0, 6, 0.1, inf));
 Pbind(\note, Pdefn(\x), \dur, 0.3).play;
@@ -933,109 +1117,140 @@ Pdefn(\x, Pseq([0, 3, 5, 7, 9, 11], inf));
 Pdefn(\x, Pseq([0, 3, 3, 7], inf) + Pseq([0, [0, 3], [0, 5, 7]], inf));
 ::
 
-Now, for the fun: combine Ndefs and Pdefs:
+subsection::Combining Ndefs and Pdefs
+Now: let's combine Ndefs and Pdefs!
+
+First, play the code::Ndef:: to start 'player'.
+
+By default when you start an code::Ndef:: it is assigned a stereo output
+
+Now we can start putting things into it
+
 code::
 Ndef(\sound).play;
-
-Ndef(\sound, {
-        \in1.ar([0, 0])*MouseX.kr(0,1)
-});
-
+::
+Let's give this code::Ndef:: a code::fadeTime:: of 1 second:
+code::
+Ndef(\sound).fadeTime = 1;
+::
+We're adding the code::Ndef(\a)::, which is emty and modulating the amplitude with the mouse
+code::
+Ndef(\sound, {Ndef(\a).ar*MouseX.kr(0,1)});
+::
+Now let's put code::Pdef(\a):: into code::Ndef(\a)::
+code::
 Ndef(\a, Pdef(\a));
-
-Ndef(\sound) <<>.in1 Ndef(\a);
-
-Pdefn(\x, Pseq([60,61,62], inf));
-
+::
+Specify the pattern, we're putting code::Pdefn(\a):: to change midinotes
+code::
 Pdef(\a, Pbind(\midinote, Pdefn(\x)));
-
-
-Ndef(\sound) <<>.in1 nil; //unmap audio
-
-Ndef(\sound) <<>.in1 Ndef(\a); //map audio again
-
-Pdef(\a).quant_([8, 0, 0, 1]);
-
+::
+Now we're specifying what code::Pdefn(\x):: is (a sequence of three midinotes)
+code::
+Pdefn(\x, Pseq([60,61,62], inf));
+::
+Now nothing in code::Ndef(\sound)::
+code::
+Ndef(\sound, 0);
+::
+Let's put something back again
+code::
+Ndef(\sound, {Ndef(\a).ar*MouseX.kr(0,1)});
+::
+Quantise code::Pdef(\a)::
+code::
+Pdef(\a).quant_([8, 0, 0, 1]); //quantaise:  [quant, phase, timingOffset, outset]
+::
+Change midi note sequence
+code::
 Pdefn(\x, Pseq([60,61,69], inf));
-
+::
+Now set duration to 0.2
+code::
 Pdef(\a, Pbind(\midinote, Pdefn(\x), \dur, 0.2));
-
+::
+Now new pattern of floats
+code::
 Pdefn(\y, Pseq([0.1,0.2,0.3], inf));
-
+::
+Map previous pattern of floats to duration
+code::
 Pdef(\a, Pbind(\midinote, Pdefn(\x), \dur, Pdefn(\y)));
-
-
+::
+Change duration pattern
+code::
 Pdefn(\y, Pseq([0.1,0.2,0.3,0.1,0.1,0.1], inf));
-//ring modulate it!
-(
-Ndef(\sound, {
-     \in1.ar([0,0])*SinOsc.ar(400);
-});
-);
-
-Pdefn(\x, Pseq(Scale.dorian.degrees + 60 ++ [72], inf));
-
-Ndef(\a, {arg freq=220, amp=0.1; SinOsc.ar(freq,0,amp)});
-
+::
+Ring modulate code::Ndef(\a):: containing code::Pdef(\a)::
+code::
+Ndef(\sound, {Ndef(\a).ar*SinOsc.ar(400);});
+::
+Change pitch set:
+code::
+Pdefn(\x, Pseq([ 60,62,63,65,67,69,70,72], inf));
+::
+Take code::Ndef(\a):: and code::Mix:: it to 1 channel, then pan it modulating it with a code::SinOsc::
+code::
+Ndef(\sound, {Pan2.ar(Mix(Ndef(\a).ar), SinOsc.kr(0.1).linlin(-1,1,0,1));});
+::
+Change the content of code::Ndef(\a)::
+code::
+Ndef(\a, {arg freq=220, amp=0.1; SinOsc.ar(freq,0,amp)!2});
+::
+New code::Ndef(\mouse):: to modulate frequency
+code::
 Ndef(\mouse, {MouseY.kr(160,872)});
+::
+Map freq argument to code::Ndef(\mouse)::
+code::
 Ndef(\a).map(\freq, Ndef(\mouse));
-
-Ndef(\a, Pdef(\a));
-
+::
+Unmap frequency
+code::
 Ndef(\a).unmap(\freq);
-
-Pdefn(\x, Prand(Scale.major.degrees + 60 ++ [72], inf));
-
+::
+Play code::Pdef(\a):: pattern on code::Ndef(\a)::
+code::
+Ndef(\a, Pdef(\a));
+::
+code::Prand:: major scale
+code::
+Pdefn(\x, Prand([60,62,64,65,67,69,71,72], inf));
+::
+New code::Pdef(\b):: with chromatic scale with code::Pdefn(\y):: controlling duration
+code::
 Pdef(\b, Pbind(\midinote, Pseq((60..72), inf), \dur, Pdefn(\y)));
-
+::
+Ppar to play both code::Pdef(\a):: and new code::Pdef(\b):: at the same time
+code::
 Ndef(\a, Ppar([Pdef(\a), Pdef(\b)]));
-
-Ndef(\b, {Pan2.ar(SinOsc.ar(1000,0,1))});
-
-Ndef(\sound, {
-        \in1.ar([0, 0])*\in2.ar([0, 0])
-});
-
-Ndef(\sound) <<>.in2 Ndef(\b);
-
-Pdefn(\y, Pseq(Array.fill(16,{[0.1,0.2,0.4].choose}), inf));
 ::
-
-Another example to understand how Ndefs can be combined together:
-
+New code::Ndef(\b):: for ring modulation
 code::
-Ndef(\master).play; //this will be our "master fader"
-
-Ndef(\mouse, {MouseX.kr(0,1)});
-
-Ndef(\mouse2, {MouseY.kr(0,1)});
-
-Ndef(\sine, {SinOsc.ar(500)*Ndef.kr(\mouse) });
-
-Ndef(\master, {Ndef(\sine)});
-
-
-Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*Ndef.kr(\mouse) });
-
-Ndef(\sine, {SinOsc.ar(Ndef.kr(\mouse2).linlin(0,1,500,600))*EnvGen.kr(Env.perc(0.01,0.1), doneAction:2) });
+Ndef(\b, {SinOsc.ar(1000,0,1)});
 ::
-This is a code::Tdef:::
+Ringmodulate patterns
 code::
-Tdef(\imp, {inf.do{
-Ndef(\sine).spawn;
-	0.2.yield;
-}});
-
-Tdef(\imp).play
+Ndef(\sound, {Ndef(\a).ar*Ndef(\b).ar});
 ::
-Tdefs are task definitions - tasks (type of routine) that can de defined and changed with the key.
+Change duration of code::Pdef(\b):: with code::Pdefn(\y)::
 code::
-Tdef(\imp, {inf.do{
-Ndef(\sine).spawn;
-	0.1.yield;
-}});
+Pdefn(\y, Pseq(Array.fill(16,{[0.1,0.2,0.4].choose}).postln, inf));
 ::
-Filtering:
+Drop code::Pdef(\a)::
+code::
+Ndef(\a, Pdef(\b));
+::
+Drop contents of code::Ndef(\sound)::
+code::
+Ndef(\sound, 0)
+::
+
+subsection::Effects and mixing with Ndefs
+
+Ndefs provide a versitle and powerful way of using effects and mixing audio. You can filter and mix signals and change these configurations on the fly! As an analogy: imagine being able to recable/repatch you gear on the fly at the same time having the ability to modify your gear (effects, synths, etc.), all of this while you are playing the sounds! You can do this with Ndefs and this is powerful stuff (and of course it can be very useful for performance!).
+
+strong::Filtering:::
 code::
 Ndef(\filter, {Ndef(\sine).ar * PinkNoise.ar(3)})
 
@@ -1046,6 +1261,8 @@ Ndef(\filter4, {LPF.ar(Ndef(\filter3).ar, MouseX.kr(400,8000));});
 Ndef(\master, {Ndef(\filter4)});
 )
 ::
+strong::Mixing with Ndefs::
+
 A 6 channel stereo mixer:
 code::
 Ndef(\master).ar(numChannels: 2)
@@ -1064,13 +1281,113 @@ Ndef(\master, {
 	Ndef(\chan5).ar +  Ndef(\chan6).ar;
 });
 
-Ndef(\in1, {SinOsc.ar(880,0,0.1)}); //put stuff in the mixer
-Ndef(\in2, {SinOsc.ar(680,0,0.1)}); //put stuff in the mixer
+//put stuff in the mixer:
+Ndef(\in1, {SinOsc.ar(60.midicps,0,0.1)});
+Ndef(\in2, {SinOsc.ar(63.midicps,0,0.1)});
+Ndef(\in3, {SinOsc.ar(66.midicps,0,0.1)});
+Ndef(\in4, {SinOsc.ar(69.midicps,0,0.1)});
+Ndef(\in5, {SinOsc.ar(72.midicps,0,0.1)});
+Ndef(\in6, {SinOsc.ar(75.midicps,0,0.1)});
 
 ServerMeter.new(s)
 ::
+Now a more economic way of writing the same as above with a smart use of collections:
+code::
 
-Now you get an idea of the powerful routing you can do with Ndefs, now, start having fun!!
+(
+//set your basic mixer
+Ndef(\master).play;
+~numChans = 6; //select how many channels you want in your mixer
+~fadeTime = 1; //set fadeTime
+//create array of channel Ndefs
+~chans = [];
+(1..~numChans).do{|item| ~chans = ~chans.add(Ndef((\chan++item).asSymbol)); };
+//create array of input Ndefs
+~ins = [];
+(1..~numChans).do{|item| ~ins = ~ins.add(Ndef((\in++item).asSymbol)); };
+//create individual channel strip
+~chans.do{|item, index| var channel, input;
+	item.source = {arg pos=0, vol=0; Pan2.ar(Mix(~ins[index].ar), pos) * vol.dbamp.round(0.0001) };
+};
+~chanMix = [];
+~chans.do{|item| ~chanMix = ~chanMix.add(item); };
+Ndef(\master, {~chanMix.sum;});
+~chans.do{|item| item.fadeTime = ~fadeTime}; //set fadeTime for channels
+~ins.do{|item| item.fadeTime = ~fadeTime}; //set fadeTime for ins
+Ndef(\master).fadeTime = ~fadeTime; //set fadeTime for master
+Ndef(\master)[100] = \filter -> {arg in, vol; in * vol.dbamp.round(0.0001)}; //master vol at index of 100
+)
+
+~chans; //array of channel Ndefs
+~ins; //array of input Ndefs
+
+(
+Array.series(~numChans, 48, 3).do{|item, index|
+	~ins[index].source = {SinOsc.ar(item.midicps,0,0.2/~numChans)};
+};
+)
+
+~chans.do{|item| item.lag(\pos, 5)}; //change lag for pos arg
+
+(
+~chans.do{|item, index|
+	item.set(\pos, rrand(-1,1.0));
+};
+)
+
+(
+~chans.do{|item, index|
+	item.set(\pos, index.linlin(0,~numChans-1,-1,1));
+};
+)
+
+~buf = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/2 Nicotine & Gravy.aiff");
+
+(
+~playFunc = {arg bufnum=0, start=0, amp=1;
+	PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum), startPos: BufFrames.kr(bufnum)*start, loop: 1)*amp;
+};
+)
+
+~ins.do{|item, index| item.source = {~playFunc.value(~buf, index.linlin(0,5,0,1), 1/~numChans) } };
+
+~ins.do{|item| item.source =  {Impulse.ar(rrand(1,5.0))/~numChans} };
+
+~ins[0].source = {~playFunc.value(~buf.bufnum, 0, 0.2) };
+~ins[1].source = {~playFunc.value(~buf.bufnum, 0.5, 0.2) };
+~ins[2].source =  Pdef(\pat, Pbind(\midinote, Prand((40,42..100), inf), \dur, 0.2));
+
+
+~chans.do{|item| item.xset(\vol, [-90, 0, -20, -40].choose)}; //evaluate several times
+~chans.do{|item| item.xset(\vol, -90)}; //all vols down
+~chans.do{|item| item.xset(\vol, 0)}; //all vols up
+
+//master fader
+Ndef(\master).xset(\vol, -90);
+Ndef(\master).xset(\vol, -10);
+
+//inserts in master
+Ndef(\master)[1] = \filter -> {|in| LPF.ar(in, MouseX.kr(20,20000, 1))};
+Ndef(\master)[2] = \filter -> {|in| HPF.ar(in, MouseY.kr(20,20000, 1))};
+//remove inserts
+Ndef(\master).removeAt(1,~fadeTime);
+Ndef(\master).removeAt(2,~fadeTime);
+
+~ins.do{|item| item.source = 0};
+
+Ndef.all //all active Ndefs
+Ndef.clear; //get rid of all Ndefs
+
+::
+
+Now you get an idea of the power of Ndefs, now, start having fun!!
+
+strong::Excercises::
+numberedlist::
+##Write a simple code::SynthDef:: and add it to the code::Server::.
+##Create a code::Pdef:: containing a code::Pbind:: and use your code::SynthDef:: as code::\instrument::.
+##Use code::Ndef:: to play your code::Pdef:: and to filter it through another code::Ndef:: - try applying a simple filter, like a delay line (code::DelayL::) or a code::LPF::.
+::
 
 Note::
 Various examples, ideas, etc. have been taken or derived from the SC documentation, Paul Berg, David Cottle, Nick Collins, and probably lots of other people in the SuperCollider community.
