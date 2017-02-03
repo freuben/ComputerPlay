@@ -1,0 +1,1262 @@
+TITLE:: Programming Concepts 2
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Programming Concepts 1, Seminars/Composing with Computers 1
+
+section:: Scaling and mapping
+
+subsection::Scaling values
+
+strong::mapping::: lineal and exponential
+
+scaling values:
+list::
+##code::linlin(inMin, inMax, outMin, outMax):: - lineal to lineal
+##code::linexp(inMin, inMax, outMin, outMax):: - lineal to exponential
+##code::explin(inMin, inMax, outMin, outMax):: - exponential to lineal
+##code::expexp(inMin, inMax, outMin, outMax):: - exponential to exponential
+::
+
+code::
+0.5.linlin(0,1,0,100)
+::
+
+Note::Exponential mapping shouldn’t use zeros!::
+code::
+0.5.linexp(0,1,0,100)   // posts nan (not a number)
+0.5.linexp(0.000001,1,0.000001,100)
+::
+
+subsection::ControlSpec
+
+A class for mapping values
+A ControlSpec is used by GUI sliders and knobs to specify the range and curve of the controls.
+ControlSpec may be used in many ways to map from linear 0..1 range to your desired range and back.
+code::
+ControlSpec(minval, maxval, warp, step, default, units)
+::
+
+strong::warp:::  'linear', 'exponential'
+
+strong::methods:::
+
+list::
+##constrain (value)
+list::
+##clips and rounds the value to within the spec
+::
+##map (value)
+list::
+##maps a value from [0..1] to spec range
+::
+##unmap (value)
+list::
+##maps a value from the spec range to [0..1]
+::
+::
+A code::ControlSpec:: with a range code::0..127::, lineal mapping, in steps of 1:
+code::
+c = [0,127,\linear,1].asSpec
+
+c.map(0.1) //maps from 0-1 to 0-127
+
+c.unmap(100); //maps from 0-127 to 0-1
+::
+
+There are some ready-made ControlSpecs!
+code::
+ControlSpec.specs.asCompileString
+::
+
+An expample of a predetermined code::ControlSpec:::
+code::
+
+\midi -> ControlSpec(0, 127, default: 64)
+
+c = \midi.asSpec
+c.map(0.1)
+::
+
+A useful ControlSpec is to map from amp to db
+code::
+c = [-inf, 6, \db, 0, -inf, " dB"].asSpec;
+c.map(0);
+c.map(1);
+::
+
+section::Control Structures
+
+Control Structures in programming are parts of code that determine the emphasis::flow:: or direction the program might take. There are initial conditions and parameters in a control structure  - based on these preconditions the computer determines what should happen. This process leads to particular results based on the preconditions.
+
+subsection::if
+
+The most common Control Structure is the emphasis::if-then:: statement.
+
+An emphasis::if:: statement determines what to do based on an expression that must return a code::Boolean:: value: code::true:: or code::false::.
+
+This is how we write an emphasis::if:: statement in SC:
+list::
+##if (boolean, {true function}, {false function});
+::
+
+code::
+if (4.notNil, {"yes"}, {"no"});
+if (nil.notNil, {"yes"}, {"no"});
+::
+Another example:
+code::
+	a = 1; //equal to 1
+
+	if (a == 1, {a = 2}, {a = "false"}); //note the difference between "=" to assign a value to a variable (equal to) and "==" which means "if a is equal to 1 then…" (boolean)
+
+	if (a == 1, {a = 2}, {a = "false"}); //evaluate again
+::
+You can nest different Boolean expressions for more complex statements using code::.and:: and code::.or:::
+code::
+a = 1; //a equal to 1
+b = 7; //b equal to 7
+if( (b > a).and(b.odd), {"true".postln; b = 6}, {"false".postln});
+
+a = 1; //a equal to 1
+b = 7; //b equal to 7
+if( (b == 7).or(b > 5), {"true".postln; b = 4}, {"false".postln});
+::
+
+subsection::do
+
+emphasis::Do:: is used to iterate over a Collection. Positive Integers also respond to do by iterating from zero up to their value. Collections iterate, calling the function for each object they contain. Other kinds of Objects respond to do by passing themselves to the function one time. The function is called with two arguments, the item, and an iteration counter.
+
+Syntax
+code::
+do ( collection, function )
+::
+--or--
+code::
+collection.do(function)
+::
+Example
+code::
+[ 1, 2, "abc", \boom ].do({ arg item, i; [i, item].postln; });
+
+5.do({ arg item; item.postln }); // iterates from zero to four
+
+"you".do({ arg item; item.postln }); // a String is a collection of characters
+
+'they'.do({ arg item; item.postln }); // a Symbol is a singular item
+
+(8..20).do({ arg item; item.postln }); // iterates from eight to twenty
+
+(8..20).do({ arg item, index; [item, index].postln }); // the second argument returns the index
+
+(8,10..20).do({ arg item; item.postln }); // iterates from eight to twenty, with stepsize two
+::
+
+subsection::case
+
+Function implements a emphasis::case:: method which allows for conditional evaluation with multiple cases. Since the receiver represents the first case this can be simply written as pairs of test functions and corresponding functions to be evaluated if true. Case is inlined and is therefore just as efficient as nested if statements.
+
+Example:
+code::
+(
+var i, x, z;
+z = [0, 1, 1.1, 1.3, 1.5, 2];
+i = z.choose.postln;
+x = case
+    { i == 1 }   { \no }
+    { i == 1.1 } { \wrong }
+    { i == 1.3 } { \wrong }
+    { i == 1.5 } { \wrong }
+    { i == 2 }   { \wrong }
+    { i == 0 }   { \true };
+x.postln;
+)
+::
+
+subsection::while
+
+The emphasis::while:: message implements conditional execution of a loop. If the testFunc answers true when evaluated, then the bodyFunc is evaluated and the process is repeated. Once the testFunc returns false, the loop terminates.
+
+Syntax
+code::
+while ( testFunc, bodyFunc );
+::
+--or--
+code::
+testFunc.while( bodyFunc );
+::
+Example
+code::
+(
+i = 0;
+while ( { i < 5 }, { i = i + 1; "boing".postln });
+)
+::
+emphasis::while:: expressions are also optimised by the compiler if they do not contain variable declarations in the testFunc and the bodyFunc.
+
+subsection::for
+
+The emphasis::for:: message implements iteration over an integer series from a starting value to an end value stepping by one each time. A function is evaluated each iteration and is passed the iterated numeric value as an argument.
+
+Syntax
+code::
+for ( startValue, endValue, function )
+::
+--or--
+code::
+startValue.for ( endValue, function )
+::
+Example
+code::
+for (3, 7, { arg i; i.postln }); // prints values 3 through 7
+::
+
+
+Note::There are several more control structures, for more information see link::Reference/Control-Structures:: helpfile::
+
+
+section::Creating and Manipulating Collections
+
+We have already talked about collections but now we will look at them in a bit more depth. Collections are really important in programming as they are used for data creation and manipulation. We store information in Collections that then we can access and change.
+
+First, let's look at a few ways in which we can create collections using the Array class:
+
+subsection::Creating Collections
+
+code::Array:: is a class that  can be used to facilitate the creation of collections. The class responds to several methods that return a new Collection through a particular function.
+
+Here are some examples of useful methods to create Arrays:
+
+strong::fill(size, function)::
+
+Creates a Collection of the given size, the elements of which are determined by evaluation the given function. The function is passed the index as an argument.
+
+code::
+Array.fill(20, rrand(1,10)); //returns the same random number 20 times
+Array.fill(20, {rrand(1,10)}); //we need to remember the function so that each number is different in the array!
+
+Array.fill(4, { arg i; i * 2 }); //the index here is multiplied by 2
+Array.fill(14, { arg i; i.rand }); //index is used to determine how many rand numbers we're using
+
+Array.fill(14, { Array.fill(4, {rrand(0,9)}) }); //we can have a collection with items that are other collections
+::
+
+strong::geom(size, start, grow)::
+
+Fill an ArrayedCollection with a geometric series.
+
+code::
+Array.geom(5, 1, 3).postln;
+::
+
+strong::series(size, start, step)::
+
+Fill an ArrayedCollection with an arithmetic series.
+
+code::
+Array.series(5, 10, 2).postln;
+::
+
+strong::iota( ... sizes)::
+
+Fills an ArrayedCollection with a counter.
+code::
+Array.iota(2, 3);
+Array.iota(2, 2);
+::
+
+strong::fib(size, a, b)::
+
+Fill a SequenceableCollection with a fibonacci series. strong::a:: is the starting step value and strong::b:: is the starting value.
+code::
+Array.fib(5);
+Array.fib(5, 2, 32); // start from 32 with step 2.
+::
+
+strong::rand(size, minVal, maxVal)::
+
+Fill a SequenceableCollection with random values in the range strong::minVal:: to strong::maxVal::.
+
+code::
+Array.rand(8, 1, 100);
+::
+
+strong::interpolation(size, start: 0, end: 1)::
+
+Fill a SequenceableCollection with the interpolated values between the strong::start:: and strong::end:: values.
+
+code::
+Array.interpolation(5, 3.2, 20.5);
+::
+
+subsection::Data Analysis and Manipulation with Collections
+
+We can find out various things about a collection and we can also change a collection's content as we wish.
+
+Now, let's look at some methods that are useful for analysing and manipulating the contents of collections.
+
+
+strong::size::
+
+Returns size of a Collection.
+
+code::
+[1, 2, 3, 4, \boo, "foo", \ha].size;
+::
+
+strong::first::
+
+Return the first element of the collection.
+
+code::
+[3, 4, 5].first;
+::
+
+strong::last::
+
+Return the last element of the collection.
+
+code::
+[3, 4, 5].last;
+::
+
+strong::isEmpty::
+
+Returns code::Boolean:: answering if the Collection contains no objects.
+
+code::
+[].isEmpty;
+[1,2,3,4].isEmpty
+::
+
+strong::add::
+
+Adds an object to the list.
+
+code::
+[1,2].add(3)
+::
+
+strong::++::
+
+Concatenates (joins) two or more lists.
+
+code::
+[1,2] ++ [3,4,5] ++ [\foo, "boo"]
+::
+
+strong::remove::
+
+Remove an object from the list.
+
+code::
+(
+var a;
+a = [1, 2, 3, 4];
+a.remove(3);
+a;
+)
+::
+
+strong::removeAll(list)::
+
+Removes the contents of a given collection from the list.
+
+code::
+[1, 2, 3, 4].removeAll([2, 3]);
+::
+
+strong::atAll::
+
+Return a collection of all the items from a list of indexes.
+
+code::
+y = (12..30);
+y.atAll([0, 2]);
+::
+
+strong::includes(item)::
+
+Returns code::Boolean:: stating whether an item is within a list.
+
+code::
+[1, 2, 3, 4].includes(3);
+[1, 2, 3, 4].includes(5);
+::
+
+strong::collect(function)::
+
+Answer a new collection which consists of the results of function evaluated for each item in the collection. The function is passed two arguments, the item and an integer index.
+
+code::
+[1, 2, 3, 4].collect({ arg item; if(item.even, {item + 10 }, {item}); });
+::
+
+strong::select(function)::
+
+Answer a new collection which consists of all items for which function answers code::true::. The function is passed two arguments, the item and an integer index.
+
+code::
+[1, 2, 3, 4].select({ arg item, i; item.even });
+::
+
+strong::reject(function)::
+
+Answer a new collection which consists of all items  for which function answers code::false::. The function is passed two arguments, the item and an integer index.
+
+code::
+[1, 2, 3, 4].reject({ arg item, i; item.even });
+::
+
+strong::occurrencesOf::
+
+Answer the number of occurrence of an item in a list.
+
+code::
+[1, 2, 3, 3, 4, 3, 4, 3].occurrencesOf(3);
+::
+
+strong::sum::
+
+Answers the sum of the list.
+code::
+[1, 2, 3, 4].sum;
+::
+
+strong::maxItem::
+
+Returns maximum item in a list.
+
+code::
+a = Array.rand(10,2.0,14);
+a.maxItem;
+::
+
+strong::minItem::
+
+Returns minimum item in a list.
+
+code::
+a = Array.rand(10,2.0,14);
+a.minItem;
+::
+
+strong::indexOfEqual::
+
+Return the index of something in the collection that equals the item, or code::nil:: if not found.
+code::
+[3, 4, "foo", "bar"].indexOfEqual("foo");
+::
+
+strong::indicesOfEqual::
+
+Return an array of indices of things in the collection that equal the item, or code::nil:: if not found.
+code::
+y = [7, 8, 7, 6, 5, 6, 7, 6, 7, 8, 9];
+y.indicesOfEqual(7);
+y.indicesOfEqual(5);
+::
+
+strong::copyRange::
+
+Return a new Collection which is a copy of the indexed slots of the receiver from start to end.
+code::
+(
+var y, z;
+z = [1, 2, 3, 4, 5];
+y = z.copyRange(1, 3);
+z.postln;
+y.postln;
+)
+::
+
+strong::flat::
+
+Returns a collection from which all nesting has been flattened.
+code::
+[[1, 2, 3], [[4, 5], [[6]]]].flat;
+::
+
+strong::flop::
+
+Invert rows and columns in a two dimensional Collection (turn inside out).
+code::
+[[1, 2, 3], [4, 5, 6]].flop;
+[[1, 2, 3], [4, 5, 6], [7, 8]].flop; // shorter array wraps
+[].flop; // result is always 2-d.
+::
+
+strong::choose::
+
+Choose an element from the collection at random.
+code::
+[1, 2, 3, 4].choose;
+::
+
+strong::wchoose(weights)::
+
+Choose an element from the collection at random using a list of probabilities or weights. The weights must sum to 1.0.
+code::
+[1, 2, 3, 4].wchoose([0.1, 0.2, 0.3, 0.4]);
+::
+
+strong::sort(function)::
+
+Sort the contents of the collection using the comparison function argument. The function should take two elements as arguments and return true if the first argument should be sorted before the second argument. If the function is nil, the following default function is used. { arg a, b; a < b }
+code::
+[6, 2, 1, 7, 5].sort;
+[6, 2, 1, 7, 5].sort({ arg a, b; a > b }); // reverse sort
+::
+
+strong::integrate::
+
+Returns a collection with the incremental sums of all elements.
+code::
+[3, 4, 1, 1].integrate;
+::
+
+strong::differentiate::
+
+Returns a collection with the pairwise difference between all elements.
+code::
+[3, 4, 1, 1].differentiate;
+::
+
+Note::For handling strong::multidimensional:: arrays, there are specific methods which are covered in the helpfile link::Guides/J-concepts-in-SC::. ::
+
+section::Working with MIDIOut
+
+MIDI support in SuperCollider is fairly thorough and all MIDI devices accessible to your OS are accessible to SC.
+
+There are several classes the are used to directly work with MIDI: code::MIDIClient, MIDIFunc, MIDIdef, MIDIOut, MIDIEndPoint:: and code::MIDIIn::.
+
+For the moment, we are going to only look at how to send MIDI messages out. We will look at how to receive MIDI messages in the next class.
+
+But first, we need to turn MIDI on in SC. We always need to do this through the following piece of code:
+code::
+MIDIIn.connectAll; //starts MIDI
+::
+When you evaluated that piece of code, you probably noticed that in the post window a list was printed of your MIDI devices - MIDI Sources and Destinations.
+We can ask SC what they are again with the code::MIDIClient:: class:
+code::
+MIDIClient.sources;
+MIDIClient.destinations;
+::
+This retuns a list of several code::MIDIEndPoint:: classes. code::MIDIEndPoint:: tells us the device and port names of the  MIDI devices that are connected to your computer.
+
+Now we are interested only in our MIDI destinations as we are sending MIDI messages out.
+code::
+MIDIClient.destinations;
+::
+
+We send MIDI messages out with the code::MIDIOut:: class.
+
+First, we need to initiate the class and tell the computer to which MIDI device we want to send messages to. We can do this either by specifying the index of code::MIDIClient.destinations:: containing the device we would like to use.
+code::
+~midiOut = MIDIOut(0); //index of MIDIClient with device
+::
+But more safely, we can initiate the class by specifying the device and port names:
+code::
+~midiOut = MIDIOut.newByName("IAC Driver", "Bus 1");
+::
+Here I'm using emphasis::IAC Driver::, a 'virtual' MIDI device for Macs that allows you to send MIDI messages from one application to another. You can turn it on with the strong::Audio MIDI Setup:: application (Utilities folder).
+
+Note::Windows users will have to find an alternative to IAC Driver::
+
+You can use any (hardware) MIDI device for this: synthesisers, drum machines, samplers, etc., provided that it is connected to your computer and its recognised by your OS.
+
+There is a default latency for code::MIDIOut:: messages:
+code::
+~midiOut.latency; //default is 0.2
+~midiOut.latency = 0.05; //you can change the latency if you want more accuracy
+::
+Before we start sending MIDI messages, make sure you have either another application (DAW, Sibelius, other sequencer, app) or hardware (synths, sampler, instrument, drum machine, etc.).
+
+Now, we can send MIDI messages out:
+code::
+~midiOut.noteOn(1,60,120); //starts note
+~midiOut.noteOff(1,60,0); //ends note
+::
+Let's make a function that contains a routine (code::.fork::) to be able to determine the duration between a noteOn and noteOff message.
+code::
+(
+~note = {arg note=60, velo=120, dur=0.4;
+{
+~midiOut.noteOn(1,note, velo);
+		dur.yield;
+~midiOut.noteOff(1,note,0);
+	}.fork;
+};
+)
+::
+Play random notes:
+code::
+~note.value(rrand(40,100), rrand(40,120), rrand(0.1,0.4))
+::
+Now another routine to play lots of notes:
+code::
+(
+~randNotes = {
+inf.do{
+~note.value(rrand(40,120));
+	rrand(0.01,0.1).yield;
+};
+}.fork;
+)
+::
+Stop it
+code::
+~randNotes.stop;
+
+~midiOut.allNotesOff(1); //sends midi noteOff to all values in chan 1
+::
+
+You can send any kind of MIDI message. The most common MIDI messages are code::noteOn::, code::noteOff:: and code::control::. Here are some of the messages that code::MIDIOut:: responds to, including the MIDI messages we just mentioned:
+code::
+noteOn (chan, note, veloc)
+noteOff(chan, note, veloc)
+control(chan, ctlNum, val)
+polyTouch(chan, note, val)
+program(chan, num)
+touch(chan, val)
+bend(chan, val)
+allNotesOff(chan)
+::
+
+If you are interested in all of MIDI's message capabilities, check this out:
+code::
+Computer.url("https://www.midi.org/specifications/item/table-1-summary-of-midi-message");
+::
+
+So, we can send MIDI messages out to other devices!
+
+warning::This might blow your mind: With SC it is also possible to use code::Patterns:: to send MIDIOut messages!! What?? Cool right?::
+
+So, this is my pattern:
+code::
+(
+a = Pdef(\x, Pbind(\degree, Pseq((0..7), inf), \scale, Scale.major, \amp, 0.8, \dur, 0.3, \legato, 0.5));
+e = (a <> (type: \midi, midiout: ~midiOut));
+1.do{e.next.postln(Event.new).play;}
+)
+::
+Let's now change our code::Pdef:: on the fly:
+code::
+Pdef(\x, Pbind(\degree, Pseq((0..7).scramble, inf), \scale, Scale.minor, \amp, 0.8, \dur, 0.1, \legato, 0.2));
+::
+Two new Pdefs combined into a Ppar:
+code::
+(
+Pdef(\y, Pbind(\degree, Prand((0..7).scramble, inf), \scale, Scale.dorian, \ctranspose, -12, \amp, 0.8, \dur, 0.1, \legato, 0.2));
+Pdef(\z, Pbind(\degree, Pseq((0..7).scramble, inf), \scale, Scale.minor, \amp, 0.8, \dur, 0.1, \legato, 0.2));
+Pdef(\x, Ppar([Pdef(\y),Pdef(\z)],inf));
+)
+::
+
+note::If you want to have more MIDI fun with patterns, check this link::Code Examples/MIDI Fun:: ::
+
+section::Extensions and Quarks
+
+As well as rich libraries of classes and UGens which come with SuperCollider, there are many third party extensions (examples, classes and UGens) which you can download from various places.
+
+subsection::sc3-plugins
+
+strong::sc3-plugins:: is a library of Synthesis Plugins and Extensions developed by several people in the sc community.
+You can download them here:
+code::
+Computer.url("https://github.com/supercollider/sc3-plugins/releases");
+::
+
+subsection::Third party websites
+
+Off the sc-users mailing list (archive via Google if you search with sc-users in the search line, or via word of mouth)
+
+For example, Nick Collins has some nice extensions in his website.
+code::
+Computer.url("https://composerprogrammer.com/code.html");
+::
+
+You can also find things in GitHub:
+code::
+Computer.url("https://github.com");
+::
+subsection::Installation
+
+The easiest way to install such packages is to put all help files, .sc class files and plugin files into the Extensions directory.
+
+To find your Extensions directory, evaluate this code:
+code::
+Platform.userExtensionDir
+::
+
+You should place the files in that directory. If the directory, doesn't exist, then create one that matches the path you got from the above code. After placing the files, then recompile your library: emphasis::cmd + shift + l::. Now your extensions should be installed!
+
+Most extensions should come with a readme file with instructions.
+
+subsection::Quarks
+code::Quarks:: are packages of SuperCollider code containing classes, extension methods, documentation and server UGen plugins. The code::Quarks:: class manages downloading these packages and installing or uninstalling them.
+
+Check the helpfile for link::Classes/Quarks::.
+
+The most convenient way of managing Quarks is from a GUI:
+code::
+Quarks.gui; //opens a window to manage Quarks
+::
+There are some very useful Quarks like the wslib.
+
+For example wslib contains a class called code::SimpleMIDIFile::, that allows you to read & write MIDI files.
+
+section::SimpleMIDIFile
+
+It is possible to read and write MIDI Files in SuperCollider. SC has very good MIDI File support through SimpleMIDIFile, a class that comes in the wslib code::Quark::.
+
+First we need to install a Quark that contains the class that handles MIDIFiles in SuperCollider. The Quark is called wslib.
+code::
+Quarks.gui //install wslib
+::
+Once you install the Quark, remember to recompile the library with emphasis::cmd +shift + l::.
+
+code::SimpleMIDIFile:: is a MIDI file implementation capable of reading and writing all types of
+MIDI data (except sysex messages).
+
+subsection::Creating a MIDI File
+
+Example of how to create a MIDI File:
+code::
+(
+m = SimpleMIDIFile( "~/Desktop/midifiletest.mid" ); // create empty file
+
+m.init1( 3, 120, "4/4" );	// init for type 1 (multitrack); 3 tracks, 120bpm, 4/4 measures
+
+m.timeMode = \seconds;  // change from default to something useful
+
+((0,(1/8)..5)).do({ |starttime| // add random notes
+	m.addNote( 36 + 50.rand, 32 + 96.rand, starttime, [0.1,0.05].choose, 127,
+		track: 1 );
+	//addNote args: noteNumber, velo, startTime, dur, upVelo, channel, track, sort=true
+	});
+
+((0,(1/4)..5)).do({ |starttime| // add random notes to next track
+	m.addNote( 36 + 50.rand, 64 + 64.rand, starttime, [0.1,0.025].choose, 127,
+		channel: 1,  // note: = midi channel 2
+		track: 2 )
+	});
+)
+
+m.midiEvents.dopostln; // all midi events
+m.metaEvents.dopostln; // notice the incorrect 'endOfTrack' events for track 1 & 2;
+
+m.adjustEndOfTrack;
+m.metaEvents.dopostln; // try again
+
+m.tempoMap; // get the tempo map ( [[ startTime, bpm ], [ etc.. ]] )
+m.timeSignatures; // get the time signatures ( ( [[ startTime, a/b ], [ etc.. ]] )
+
+m.p.play; // convert to Pattern and play
+
+m.write; // now play the file in Quicktime, or open with another app
+
+m.plot;  // uses ScaledUserView
+::
+
+subsection::Reading and Manipulating MIDI Files through Patterns
+
+code::SimpleMIDIFile:: also supports Patterns!! You can use the p method to convert a SimpleMIDIFile into a playable pattern (a code::Ppar:: to be exact).
+
+Download a Bach Midi File:
+code::
+"curl http://www.jsbach.net/midi/bwv988/988-aria.mid -o ~/Desktop/aria.mid".unixCmd;
+::
+If you are on windows, go to the url and download the file an put it on your Desktop.
+
+Now, let's read the file:
+code::
+m = SimpleMIDIFile.read( "~/Desktop/aria.mid" );
+::
+Play it! (emphasis::cmd-.:: to stop)
+code::
+m.p.play; // takes a few seconds to start because this midifile starts with a rest
+::
+
+Play it with another instrument:
+code::
+(
+SynthDef( "organ", { |freq = 440, sustain = 1, amp = 0.1, out|
+		var sig;
+		sig = LFPar.ar( freq * [1,2,3,5], 0, amp/[2,4,5,7] );
+		Out.ar( out, Env([0,1,1,0], [0.025,sustain,0.025]).kr(2) * sig.dup )
+}).add;
+);
+
+
+x = m.p( \organ ).play;
+x.stop;
+::
+Now, let's add more SynthDefs and try to do a bit of Wendy Carlos:
+code::
+(
+SynthDef( "triangle", { |freq = 440, sustain = 1, amp = 0.1, out|
+		var sig;
+		sig = LFTri.ar( freq * [1,2,3,5], 0, amp/[2,4,5,7] );
+		Out.ar( out, Env([0,1,1,0], [0.025,sustain,0.025]).kr(2) * sig.dup )
+}).add;
+
+SynthDef( "pulse", { |freq = 440, sustain = 1, amp = 0.1, out|
+		var sig;
+		sig = LFPulse.ar(freq * [1,2,3,5], 0, 0.5, amp/[2,4,5,7] );
+		Out.ar( out, Env([0,1,1,0], [0.025,sustain,0.025]).kr(2) * sig.dup )
+}).add;
+
+SynthDef( "saw", { |freq = 440, sustain = 1, amp = 0.1, out|
+		var sig;
+		sig = LFSaw.ar( freq * [1,2,3,5], 0, amp/[2,4,5,7] );
+		Out.ar( out, Env([0,1,1,0], [0.025,sustain,0.025]).kr(2) * sig.dup )
+}).add;
+);
+
+~pseqs = m.generatePatternSeqs
+
+(
+~soprano = Pbind(\instrument, \organ, [\midinote, \dur], Pseq(~pseqs[1]););
+~alto = Pbind(\instrument, \triangle, [\midinote, \dur], Pseq(~pseqs[2]););
+~tenor = Pbind(\instrument, \saw, [\midinote, \dur], Pseq(~pseqs[3]););
+~bass = Pbind(\instrument, \pulse, [\midinote, \dur], Pseq(~pseqs[4]););
+)
+
+~play = Ppar([~soprano, ~alto, ~tenor, ~bass]).play
+
+~play.stop
+::
+
+Now let's use Ndef to add some effects!
+
+code::
+Ndef(\reverb).play;
+
+Ndef(\reverb, {Ndef(\carlos).ar})
+
+Ndef(\carlos, Pdef(\bach));
+
+Pdef(\bach,  Ppar([~soprano, ~alto, ~tenor, ~bass]));
+
+(
+Ndef(\reverb, {var sig;
+	sig = Ndef.ar(\carlos);
+	FreeVerb2.ar(sig[0], sig[1], 0.6, 0.9);
+});
+)
+
+Ndef(\reverb, 0); //nothing
+
+(
+Ndef(\reverb, {var sig;
+	sig = Ndef.ar(\carlos);
+	FreeVerb2.ar(sig[0], sig[1], MouseX.kr(0,1), MouseY.kr(0,1));
+});
+)
+::
+Let's start having fun with Patterns and the MIDI File content:
+
+Use Pxrand to randomise the order of the file.
+code::
+(
+~soprano = Pbind(\instrument, \organ, [\midinote, \dur], Pxrand(~pseqs[1], inf););
+~alto = Pbind(\instrument, \organ, [\midinote, \dur], Pxrand(~pseqs[2], inf););
+~tenor = Pbind(\instrument, \organ, [\midinote, \dur], Pxrand(~pseqs[3], inf););
+~bass = Pbind(\instrument, \organ, [\midinote, \dur], Pxrand(~pseqs[4], inf););
+Pdef(\bach,  Ppar([~soprano, ~alto, ~tenor]));
+)
+::
+Play it backwards
+code::
+(
+~soprano = Pbind(\instrument, \organ, [\midinote, \dur], Pseq(~pseqs[1].reverse););
+~alto = Pbind(\instrument, \organ, [\midinote, \dur], Pseq(~pseqs[2].reverse););
+~tenor = Pbind(\instrument, \organ, [\midinote, \dur], Pseq(~pseqs[3].reverse););
+~bass = Pbind(\instrument, \organ, [\midinote, \dur], Pseq(~pseqs[4].reverse););
+Pdef(\bach,  Ppar([~soprano, ~alto, ~tenor]));
+)
+::
+Inversion and retrograde:
+code::
+(
+~g = "g5".notemidi;
+~inv1 = ((~g+12)-~pseqs[1].flop[0] + (~g+12));
+~inv2 = (~g-~pseqs[2].flop[0] + ~g);
+~inv3 = ((~g-12)-~pseqs[3].flop[0] + (~g-12));
+~inv4 = ((~g-12)-~pseqs[4].flop[0] + (~g-12));
+~soprano = Pbind(\instrument, \organ, \midinote, Pseq(~inv1.reverse, inf), \dur, Pseq(~pseqs[1].flop[1], inf));
+~alto = Pbind(\instrument, \organ, \midinote, Pseq(~inv2.reverse, inf), \dur, Pseq(~pseqs[2].flop[1], inf););
+~tenor = Pbind(\instrument, \organ, \midinote, Pseq(~inv3.reverse, inf), \dur, Pseq(~pseqs[3].flop[1], inf));
+~bass = Pbind(\instrument, \organ, \midinote, Pseq(~inv4.reverse, inf), \dur, Pseq(~pseqs[4].flop[1], inf));
+p = Pdef(\bach,  Ppar([~soprano, ~alto, ~tenor]));
+)
+::
+Now, let's write a new MIDI File with the version we just created:
+code::
+(
+n = SimpleMIDIFile( "~/Desktop/hcabReverse.mid" );
+n.init1( 2, m.tempo, m.timeSignatures[0][1] );
+n.fromPattern( p );
+)
+
+n.write; // when writing to file note numbers are rounded (MIDI file format doesn't allow floats)
+::
+
+We can also create out own Patterns in SC and then write them as MIDI files.
+
+We use the fromPattern method to turn patterns into midi files:
+code::
+(
+p = Pbind(
+	\dur, Prand( [0.25,0.5,1], inf ),
+	\freq, Pwhite( 440, 880 ),
+	\db, Pwhite( -40,-10 ),
+	\legato, Pwhite( 0.25, 4 ) );
+
+m = SimpleMIDIFile( "~/Desktop/testPat.mid" );
+m.init1( 2, 120, "4/4" );
+m.fromPattern( p );
+)
+
+m.plot;
+
+m.p.play; // note numbers are not rounded
+p.play; // compare
+
+m.write; // when writing to file note numbers are rounded (MIDI file format doesn't allow floats)
+::
+
+subsection::Instance variables
+
+all variables stated here have getters and setters. However in some cases the setters
+
+are actually separate methods which may change or convert other variables as well.
+
+strong::pathName::
+
+file path of the midi file. defaults to "~/scwork/midi.mid"
+
+strong::midiEvents::
+
+an array containing all MIDI events as arrays. Format:
+
+strong::[ trackNumber, absTime, type, channel, val1, val2 ]::
+
+emphasis::trackNumber::
+
+the number of the track in which this event sits. For format type 0 files this is always 0,
+
+for type 1 files track 0 is reserved for meta events, so midiEvent tracks start counting at 1
+
+emphasis::absTime::
+
+the absolute start-time of the event. If timeMode == \ticks the absTime is in ticks (tempo dependant),
+
+if timeMode == \seconds it is in seconds (not depending on tempo). In the original midi file format all
+
+times are relative to the previous event on a track, but for convenience SimpleMIDIFile converts them
+
+to absolute times when reading in.
+
+emphasis::type::
+
+usually a Symbol which can be:
+code::
+\noteOff
+\noteOn
+\polyTouch
+\cc
+\program
+\afterTouch
+\pitchBend
+::
+
+emphasis::channel::
+
+midi channel on which the event plays. Starts at 0 (= midi channel 1)
+
+emphasis::val1, val2::
+
+values for the event. These are usually 0-127. The contents of these vary per event type:
+
+table::
+##emphasis::type:: || emphasis::val1:: || emphasis::val2::
+##noteOn || note number || velocity
+##noteOff || note number || velocity
+##polyTouch || note number || amount
+##cc || control number || amount
+##program || program number || (no val2)
+##afterTouch || amount || (no val2)
+##pitchBend || depends on pitchBendMode ||
+::
+
+
+strong::	metaEvents::
+
+an array containing all META events as arrays. Format:
+
+strong::	[ trackNumber, absTime, type, [values] / value / string ]::
+
+The absTime represents the absolute time at which the event takes place. In the Standard MIDI file
+format time values are always relative to the previous event. For convenience reasons the
+code::SimpleMIDIFile:: class converts these to absolute times when reading a file.
+
+The format of last item in the array above depends on the type of the event:
+
+types of which the last item is a string
+code::
+\text
+\copyright
+\trackName
+\instName
+\lyrics
+\marker
+\cuePoint
+::
+types of which the last item is a value
+code::
+\sequenceNumber
+\tempo -> tempo in beats per minute
+::
+types of which the last item is an array of values
+code::
+\timeSignature
+\keySignature
+\sequencerSpecific
+\midiChannelPrefix
+::
+types of which the last item something else
+code::
+\smpteOffset -> a SMPTE
+\endOfTrack -> nil
+::
+there can be unknown types of meta events. They have status byte number instead of
+a  symbol in the 'type' slot of the array
+
+
+strong::tempo::
+
+a global tempo indicator in bpm. If there's one or more tempo events in the metaEvents,
+tempo will always indicate the tempo of the first one found. The tempo mapping functionality
+uses the tempo events instead of this value. Setting the tempo with tempo_ doesn't add or change
+any tempo event ( a MIDI file can but doesn't need to contain a tempo event ). To get the tempo
+again from the metaEvents if their there use getTempo.
+
+strong::	timeMode::
+
+can be 'ticks' or 'seconds'. Defaults to 'ticks'. This affects all time information
+contained in the midiEvents and metaEvents. Whenever the timeMode is switched
+all time data will be converted.
+
+emphasis::ticks::
+
+ticks are the standard MIDI file format for time data. The duration of one tick
+depends on the division and tempo at that specific point.
+
+emphasis::seconds::
+
+seconds are absolute seconds, not influenced by tempo or division
+
+strong::division::
+
+number of 'ticks' per quarter note. This should usually be 1024. Change it only when
+you experience problems with specific sequencer software (there seem to be some which
+use different divisions)
+
+strong::format::
+
+can be 0, 1 or 2 (single, multi or pattern oriented)
+
+emphasis::0::
+
+	format 0 files typically have all data in the first track (0)
+
+emphasis::1::
+
+	format 1 files typically have al global metaData ins the first track (0)
+	and all midi data in the following tracks (1..). A trackName metaEvent
+	in track 0 is usually interpreted as the song name
+
+emphasis::2::
+
+	format 2 is not very common. Works the same as format 1, but is meant for
+	separate patterns in one file, contained in sequences (tracks)
+
+Empty SimpleMIDIFiles need to be inited as format 0 or 1 first, using the init0 and init1 methods
+
+strong::tracks::
+
+number of tracks used. Can be fetched from midiEvents using the adjustTracks method
+
+strong::pitchBendMode::
+
+can be code::'int8'::, code::'int16':: or code::'float'::. The default is code::'int8'::. When the pitchBendMode is changed all existing
+values are converted.
+
+emphasis::int8::
+
+	pitchbend stored as array of 2 int8 values (0-127), as stored in the midifile
+
+emphasis::int16::
+
+	pitchbend stored as single int16 value (0-16383)
+
+emphasis::float::
+
+	pitchbend stored as floating point values (-1.0 - 1.0)
+
+
+subsection::Methods
+code::
+   creation
+   *new ( pathname )
+
+   initiation
+      init0 ( inTempo, timeSignature )
+   init1 ( inTracks, inTempo, timeSignature ) // minimum tracks: 2; first is metaData
+
+   read / write
+   *read ( pathname )
+   read
+
+   write ( newFileName )
+
+   pattern support
+   p ( inst, amp )
+   fromPattern ( pattern, maxEvents = 200, maxAmp = 0.2, startTime = 0 )
+   generatePatternSeqs // returns sequenceable [note, dur] data in an array
+
+   correction
+   adjustTracks // adjust number of tracks according to midi data
+   adjustEndOfTrack ( track, wait )
+   correctTempoEvents ( removeDuplicates, removeDoubles )
+   sortMIDIEvents // sort events on time and track
+   sortMetaEvents
+   getTempo
+
+   conversion / processing
+   convertNoteOns ( noteOffVelo )
+   convertNoteOffs
+
+   shiftTime ( deltaTime )
+
+   selection
+   midiTrackEvents ( trackNumber )
+   midiChannelEvents ( channel, track )
+   midiTrackTypeEvents ( track, type, channel )
+   midiTypeEvents ( args )
+
+   noteEvents ( channel, track )
+   noteOnEvents ( channel, track )
+   realNoteOnEvents ( channel, track )
+   noteOffEvents ( channel, track )
+   firstNoteOnTrack ( track )
+
+   pitchBendEvents ( channel, track )
+   afterTouchEvents ( channel, track )
+   controllerEvents ( cc, channel, track )
+   ccEvents ( cc, channel, track )
+   modulationEvents ( channel, track )
+   breathEvents ( channel, track )
+   volumeEvents ( channel, track )
+   panEvents ( channel, track )
+   expressionEvents ( channel, track )
+   damperEvents ( channel, track )
+
+   metaTrackEvents ( trackNumber )
+   timeSignatureEvents
+   keySignatureEvents
+   smpteOffsetEvents
+   tempoEvents
+   endOfTrack ( track )
+
+   converted selection to different array formats or Classes
+
+   noteSustainEvents( channel, track )
+   	// noteSustainEvents returns events in this form:
+   	// [track, absTime, \noteOn, channel, note, velo, dur, upVelo]
+
+   midiDeltaEvents ( track, type, channel )
+   midiDeltaCCEvents ( track, cc, channel )
+
+   timeSignatures
+   keySignatures
+   trackNames
+   instNames
+
+   midiTracks
+   metaTracks
+
+   asDicts (  )
+   asNoteDicts ( channel, track )
+
+   envFromType ( track, type, channel )
+   envFromCC ( track, cc, channel )
+
+   extraction of single values
+   trackName ( track )
+   instName ( track )
+   length
+   smpteOffset
+
+   timing methods (converted selection, extraction)
+   tempi
+   tempoMap
+   tempoEnv
+
+   beatAtTime ( time )
+   timeAtBeat ( beat )
+
+   tempoAtTime ( time )
+
+   timeSignatureAsArray
+
+   measureAtBeat ( beat, measureFormat )
+   measureAtTime ( time, measureFormat )
+   beatAtMeasure ( measure, measureFormat )
+   timeAtMeasure ( measure, measureFormat )
+
+   addition of events
+   addMIDIEvent ( event, sort )
+   addAllMIDIEvents ( events, sort )
+   addMIDIEventToTrack ( event, track, sort )
+   addAllMIDIEventsToTrack ( events, track, sort )
+   addMIDITypeEvent ( type, channel, args, absTime, track, sort )
+   addAllMIDITypeEvents ( type, channel, args, absTime, track, sort )
+   addNote ( noteNumber, velo, startTime, dur, upVelo, channel, track, sort )
+   addCC ( cc, val, startTime, channel, track )
+
+   addMetaEvent ( event, sort )
+   addTrack ( name )
+   addTimeSignature ( div, denom, time, sort, removeOld )
+   addTimeSignatureString ( string, time, sort, removeOld )
+   addTempo ( tempo, time, sort, removeOld )
+
+   setTrackName ( name, track )
+   setInstName ( name, track )
+   setTempo ( newTempo )
+
+   removal
+   removeMetaEvents ( type, time, track )
+   removeTimeSignature ( time, doIt )
+   removeTempo ( time, doIt )
+
+   analysis
+   analyzeTypes
+   analyzeMetaTypes
+   analyzeChannels ( type )
+   analyzeChannel ( channel, track )
+   analyzeUsedChannels ( track )
+   analyzeUsedTracks
+   analyzeUsedEvents
+   analyzeTracks ( type )
+   analyzeCC
+   analyzeCCTracks
+
+   usedChannels ( track )
+   usedTracks ( channel )
+
+   countMIDIEvents ( type, track, channel )
+
+   info
+::

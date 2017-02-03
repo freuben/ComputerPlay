@@ -1,0 +1,223 @@
+TITLE:: MIDI Fun
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Programming Concepts 2, Seminars/Composing with Computers 1
+
+section::Example 1
+
+First turn on your MIDI device. If you are using a virtual device, make sure your midi sampler is on (either in logic, reaktor, etc.) and make sure your IAC Driver is on. If you are using hardware, make sure it's on.
+
+code::
+MIDIIn.connectAll //start midi
+
+MIDIClient.destinations; //check MIDI destinations
+
+m = MIDIOut(0); //make sure it's the right MIDI destination
+m.latency = 0.02;
+
+(
+a = Pdef(\x, Pbind(\midinote, 60, \amp, 0.8, \dur, 0.3));
+e = (a <> (type: \midi, midiout: m));
+1.do{e.next.postln(Event.new).play;}
+)
+
+Pdef(\x).quant_([4,0,0,1]); //quantise (counts 4 before change)
+
+Pdef(\x, Pbind(\midinote, Pseq([60,61],inf), \amp, 0.8, \dur, 0.3));
+
+Pdef(\x, Pbind(\midinote, Pseq([65,62,64], inf), \amp, 0.8, \dur, 0.3));
+
+
+b = Array.fill(8, {rrand(60,100)}); //array of 10 random numbers
+c = Array.fill(8, {[0.1,0.05,0.15,0.2].choose}); //durations
+
+Pdef(\x, Pbind(\midinote, Pseq(b, inf), \amp, 0.8, \dur, Pseq(c,inf)));
+
+b = [60,\rest,67,63,\rest];
+c = [0.1,0.3,0.1];
+
+Pdef(\x, Pbind(\midinote, Pseq(b, inf), \amp, 0.8, \dur, Pseq(c,inf)));
+
+Pdef(\x, Pbind(\midinote, Pfunc({rrand(60,100)}), \amp, 0.8, \dur, Pseq(c,inf)));
+
+Pdef(\x, Pbind(\midinote, Pseq(b, inf), \amp, 0.8, \dur, Pfunc({rrand(0.1,0.3)})));
+
+Pdef(\x, Pbind(\midinote, Pseq(b, inf), \amp, 0.8, \dur, p { loop {rrand(0.05,0.1).postln.yield; rrand(0.5,1.0).postln.yield;} }));
+
+b = [60,\rest,60,60,60,\rest,\rest,\rest];
+c = Array.fill(21, 0.1);
+
+Pdef(\x, Pbind(\midinote, Pseq(b, inf), \amp, 0.8, \dur, 0.1));
+
+TempoClock.default.tempo = 1.0;
+TempoClock.default.tempo = 0.75;
+TempoClock.default.tempo = 1.0;
+
+(
+b = [
+[40,\rest,\rest,\rest,\rest,\rest,\rest,\rest],
+[60,\rest,\rest,60,\rest,\rest,\rest,\rest],
+[100,100,100,100,100,\rest]
+];
+d = b.collect({|item| Pbind(\midinote, Pseq(item,inf), \amp, 0.8, \dur, 0.1); });
+Pdef(\x, Ppar(d););
+)
+
+(
+b = [
+Array.fill(16, {[36,\rest].wchoose([0.2,0.8]) }), //kick
+Array.fill(16, {[38,\rest].wchoose([0.1,0.9]) }), //snare
+Array.fill(16, {[42,\rest].wchoose([0.9,0.1]) }), //hi-hat
+];
+d = b.collect({|item| Pbind(\midinote, Pseq(item,inf), \amp, 0.8, \dur, 0.1); });
+Pdef(\x, Ppar(d););
+)
+
+
+(
+b = [
+Array.fill(16, {[36,\rest].wchoose([0.1,0.9]) }),
+Array.fill(16, {[rrand(66,100),\rest].wchoose([0.4,0.6]) }),
+Array.fill(16, {[[90,92,94,97].choose,\rest].wchoose([0.8,0.2]) }),
+Array.fill(16*4, {[(51,52..100).choose,\rest].wchoose([0.05,0.95]) }),
+];
+d = b.collect({|item| Pbind(\midinote, Prand(item,inf), \amp, Pfunc({rrand(0.6,0.8)}), \dur, 0.1); });
+Pdef(\x, Ppar(d););
+)
+
+{100.do{|it| TempoClock.default.tempo = (it).linlin(0,100,1,0.5).postln; 0.1.yield}}.fork;
+
+
+{200.do{|it| TempoClock.default.tempo = (it).linlin(0,200,0.5,1.5).postln; 0.2.yield}}.fork;
+
+TempoClock.default.tempo = 0.3;
+
+(
+b = [
+Array.fill(17, {[36,\rest].wchoose([0.1,0.9]) }),
+Array.fill(17, {[rrand(66,42),\rest].wchoose([0.4,0.6]) }),
+Array.fill(17, {[[90,92,94,97].choose,\rest].wchoose([0.8,0.2]) }),
+Array.fill(70, {[(51,52..70).choose,\rest].wchoose([0.05,0.95]) }),
+];
+d = b.collect({|item| Pbind(\midinote, Prand(item,inf), \amp, Pfunc({rrand(0.6,0.8)}), \dur, 0.1, \legato, 10, \chan, Pfunc({[0,1].choose})); });
+Pdef(\x, Ppar(d););
+)
+::
+
+section::Example 2
+
+This is code for 4 voice midi live coding fun!
+
+It's also for you to start experimenting with collections (lists!)
+
+code::
+MIDIIn.connectAll; //initiate midi communication
+
+m = MIDIOut(0); //midi out messages
+m.latency = 0.02; //set midi latency to 0.02
+
+(
+a = Pdef(\x, Pbind(\midinote, 60, \amp, 0.8, \dur, 0.3));
+e = (a <> (type: \midi, midiout: m));
+1.do{e.next.postln(Event.new).play;};
+Pdef(\x).quant_([4,0,0,1]); //quantize (counts 4 before change)
+)
+//that starts to repeat a note...
+
+//then evaluate this
+(
+~transp = 0; //transpose everything
+~dur = 1.0; //change global duration
+~chan = [0,0,0,0]; //each voice has a different midi channel
+~notes1 = [60,62,64]; //stupid random melody
+~notes2 =  [\rest]; //for the moment only play rests
+~notes3 = [\rest];//for the moment only play rests
+~notes4 = [\rest]; //for the moment only play rests
+~duration1 = [0.2]; //duration for voice 1
+~duration2 = [0.2]; //duration for voice 2
+~duration3 = [0.2]; //duration for voice 3
+~duration4 = [0.2]; //duration for voice 4
+~amp = [0.6]; //global amplitude
+~amp1 = 1; //amplitude for voice 1
+~amp2 = 1; //amplitude for voice 2
+~amp3 = 1; //amplitude for voice 3
+~amp4 = 1; //amplitude for voice 4
+//this is a routine to update patterns ones info is changed
+//this is good to live code!
+~task = {inf.do{
+b = [
+[~notes1+[~transp,~transp.neg].choose, ~duration1*~dur, ~amp1*~amp, ~chan[0]],
+[~notes2+[~transp,~transp.neg].choose, ~duration2*~dur, ~amp2*~amp, ~chan[1]],
+[~notes3+[~transp,~transp.neg].choose, ~duration3*~dur, ~amp3*~amp, ~chan[2]],
+[~notes4+[~transp,~transp.neg].choose, ~duration4*~dur, ~amp4*~amp, ~chan[3]],
+];
+if((b == ~oldB).not, {
+	~oldB = b;
+d = b.collect({|item| Pbind(\midinote, Pseq(item[0], inf), \amp, Pseq(item[2], inf),
+\dur, Pseq(item[1], inf), \legato, 1.0, \chan, item[3]); });
+
+Pdef(\x, Ppar(d););
+});
+0.1.yield;
+}}.fork
+)
+
+//then start changing values!!
+~notes1 = [60,62,64,67]-12;
+~notes2 = [60,62,64,67]+12;
+~notes3 = [60,62,64,67].scramble - 24;
+~notes4 = [60,62,64,67].scramble + 24;
+
+//start generating melodies
+//select one of these scales and then evaluate global variables bellow
+//(notes1, notes2, notes3, etc) see how it changes with different scales?
+~scale = Scale.dorian.degrees + 60;
+~scale = Scale.phrygian.degrees + 60;
+~scale = Scale.minorPentatonic.degrees + 60;
+~scale = Scale.majorPentatonic.degrees + 60;
+
+~notes1 = ~scale.scramble + 12;
+~notes2 = ~scale.scramble - 24;
+(
+~notes3 = [Array.fill(4, {~scale.choose}), \rest, \rest,
+Array.fill(2, {~scale.choose+7}), \rest]; //you can also do chords
+)
+(
+~notes4 = (Array.fill(16, {~scale.choose}) ++ Array.fill(4,\rest)).scramble
+- 24;
+)
+
+~transp = -7; //transpose everything
+~dur = 0.9; //change global duration
+~dur = 1.0; //change global duration
+
+~chan = [0,1,0,2]; //each voice has a different midi channel
+~chan = [2,1,2,2]; //change midi channels
+
+~chan = [2,0,1,2]; //change midi channels
+
+~chan = 5!4;
+
+//play more with collections
+(
+~notes1 = [[60,64,67,72].scramble,[\rest,61,59,60].scramble,
+[73,72,67,72].scramble,[\rest,60,72,60].scramble].flat+12; //stupid random melody
+)
+~notes2 =  Array.fill(16, {[60,62,64,65,67,69,71,72].choose}); //random major
+//notes
+(
+~notes3 = [[67,\rest,69,71],[72,\rest,\rest,73],[60,67,\rest,69],
+[71,72,\rest,\rest]].flat.scramble -24;//bass
+)
+~notes4 = Array.fill(16, {rrand(60,72)}); //random chromatic notes
+
+~duration1 = [0.2,0.1]*1;
+~duration2 = [0.2]*1;
+~duration3 = [0.2]*1.5;
+~duration4 = [0.2]*1;
+~amp = Array.fill(10, {rrand(0.3,0.8)});
+~amp1 = 0.8;
+~amp2 = 0.4;
+~amp3 = 0.7;
+~amp4 = 0.9;
+::

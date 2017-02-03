@@ -5,7 +5,7 @@ related:: Computer, Study Guides/SC Basics Quick Study, Workshops/Playing with U
 
 section::Example: Deconstructing code
 
-strong::Carefully explain this piece of code:::
+strong::Let's carefully explain this piece of code:::
 code::
 {Blip.ar(LFNoise2.kr(10).linexp(-1,1,200,3000),SinOsc.kr(0.1).linlin(-1,1,1,21),0.1)}.play
 ::

@@ -1,0 +1,409 @@
+TITLE::Composing with Computers 1
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Seminars/Introduction to ComputerDotPlay
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.001.png#Johann Wolfgang von Goethe - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.002.png#In Handbook of Research on Creativity, 2013::
+code::
+(
+{var n;
+n=10;
+Resonz.ar(
+Mix.arFill(n,{
+var freq, numcps;
+freq= rrand(50,560.3);
+numcps= rrand(2,20);
+Pan2.ar(Gendy1.ar(6.rand,6.rand,1.0.rand,1.0.rand,freq ,freq, 1.0.rand, 1.0.rand, numcps, SinOsc.kr(exprand(0.02,0.2), 0, numcps/2, numcps/2), 0.5/(n.sqrt)), 1.0.rand2)
+})
+,MouseX.kr(100,2000), MouseY.kr(0.01,1.0))
+;
+}.play
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.003.png#Brian Eno: 77 Million Paintings::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.004.png#Brian Eno: 77 Million Paintings::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.005.png#Brian Eno: 77 Million Paintings::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.006.png#Brian Eno: 77 Million Paintings::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.007.png#In Brian Eno, Visual Music, C. Scoates, 2013::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.008.png#Generative Systems and Gardening::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.009.png#In The Cambridge Companion to Electronic Music, 2007::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.010.png::
+code::
+Computer.url("https://youtu.be/hdzc-vsfRew");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.011.png#Koan Pro and Generative Music 1 - intermorphic.com, iomoio.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.012.png::
+code::
+Computer.url("https://youtu.be/ccjhAGJxL-w?list=PL6mJS-_ZqwRQ3F4_nhAHl_V_SmVXL0sHA");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.013.png#intermorphic.com/sseyo/koan/generativemusic1/::
+code::
+(
+{var a, c, d, s, z, y;
+d = 6;
+c = 5;
+a = 4;
+	s = Mix.ar(Array.fill(d, { Resonz.ar(Dust.ar(2/d, 50), 200 + 3000.0.rand, 0.003)}) );
+	z = DelayN.ar(s, 0.048);
+	y = Mix.ar(CombL.ar(z, 0.1, LFNoise1.kr(Array.fill(c,{0.1.rand}), 0.04, 0.05), 15));
+	a.do({ y = AllpassN.ar(y, 0.050, [0.050.rand,0.050.rand], 1) });
+	s+(0.2*y)
+}.play
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.014.png#Wind Chimes - ghar360.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.015.png#intermorphic.com/sseyo/koan/generativemusic1/::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.016.png#intermorphic.com/sseyo/koan/generativemusic1/::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.017.png#Gramophone - emiarchivetrust.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.018.png#intermorphic.com/sseyo/koan/generativemusic1/::
+code::
+//Generative remix by Nick Collins (evaluate each section of code):
+b = Buffer.loadDialog(s); //you need to change the path to a soundfile in your computer
+
+(
+~barlength= 1.5876;
+~spb= (~barlength/5);
+~bps= (~spb).reciprocal;
+
+~length= b.numFrames/44100.0;
+
+~bars= (~length/~barlength).round.asInteger;
+
+~framesperbar= ~barlength*44100.0;
+
+SynthDef(\stepplaybuf2,{arg bufnum=0,outbus=0,rate=1,startPos=0,dur=0.1,atk=0.005, rel=0.05, curve=0;
+var playbuf, env;
+playbuf= PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum)*rate,1,startPos,1);
+env= EnvGen.ar(Env.linen(atk,(dur-atk-rel),rel, 1.0, curve),doneAction:2);
+Out.ar(outbus,playbuf*env);
+}).send(s);
+
+SynthDef(\step15bass,{arg outbus=0,dur=0.2, index=2, modfreq=15;
+var playbuf;
+playbuf= LFTri.ar(SinOsc.ar(modfreq,0,modfreq*Line.kr(index,0,dur),(Line.kr(44+12,32,dur)).midicps),0, EnvGen.ar(Env([0,1,1,0],[0.001,dur*0.5,dur*0.5]),doneAction:2));
+
+Out.ar(outbus,Pan2.ar(playbuf,0));
+}).send(s);
+
+SynthDef(\step15fx1,{arg panrate1=15, panrate2=0.15, delay=0.01, decay=1.5876;
+var input;
+input= In.ar(0,2);
+input= Pan2.ar(input[0],SinOsc.ar(panrate1,0))+ Pan2.ar(input[1], SinOsc.ar(panrate2,0));
+Out.ar(0,EnvGen.ar(Env([0,0.5,0.5,0],[~barlength, 2*~barlength, ~barlength]),doneAction:2)*CombN.ar(input,~spb,delay, decay));
+}).send(s);
+
+SynthDef(\step15fx2,{arg amp=0.5;
+var input;
+input= In.ar(0,2);
+Out.ar(0,EnvGen.ar(Env([0,1,1,0]*amp,[0.001,~barlength,0.01]),doneAction:2)*Limiter.ar(LPF.ar(Rand(5,10)*input,500)));
+}).send(s);
+
+SynthDef(\step15fx3,{arg amp=0.1, wsize=0.05, ratio=1, pdisp=0.0, tdisp=0;
+var input;
+input= In.ar(0,2);
+ReplaceOut.ar(0,EnvGen.ar(Env([0,1,1,0]*amp,[0.001,~barlength,0.01]),doneAction:2)*PitchShift.ar(input, wsize, ratio, pdisp, tdisp));
+}).send(s);
+
+SynthDef(\step15limiter,{
+var input;
+input=In.ar(0,2);
+ReplaceOut.ar(0,Limiter.ar(FreeVerb.ar(input,0.2), 0.99,0.01));
+}).send(s);
+)
+
+(
+var group1, fxgroup;
+var patterns, pattnow;
+var barsdone=0;
+var count=[0,0,0];
+var combfx;
+group1= Group.new;
+fxgroup= Group.after(group1);
+Synth.tail(fxgroup, \step15limiter);
+patterns=[
+[[1,5.0]],
+[[2,2.5]],
+[[1,3.0],[1,2.0]],
+[[1,3.0],[1,2.0]],
+[[1,3.0],[4,0.5]],
+[[1,4.0],[4,0.25]],
+[[1,4.0],[3,0.3334]],
+[1,1.0].dup(5),
+[[1,1.5],[1,1.5],[2,1]],
+[[1,1.5],[1,1.5],[2,1]],
+[[1,1.5],[1,1.5],[2,1]],
+[[2,1],[3,1.5],[2,1]],
+[[2,1],[3,1.5],[2,1]],
+{var roll; roll= rrand(1,3)*5; [[1,3],[roll,1.0/roll]]},
+[3,0.33334].dup(5),
+{var rolls; rolls= Array.rand(5,3,15); rolls.collect{|val| [val,1.0/val]}}
+];
+t= {
+~bars.do { var pos, bassnow, longbass;
+if((0.05.coin),{
+s.sendBundle(s.latency, ["/s_new", \step15fx1, -1, 0, fxgroup.nodeID, \panrate1, 15, \panrate2, 0.15, \delay, [0.0096314826759936, 0.019262965351987,~spb*0.25, ~spb*0.5, ~spb].choose, \decay, [~spb, 1.5876].choose, \amp, [0.1,0.3,0.5,1.0].choose]);
+});
+if((0.1.coin),{
+s.sendBundle(s.latency, ["/s_new", \step15fx2, -1, 0, fxgroup.nodeID, \amp, [0.1,0.3,0.5,1.0].choose]);
+});
+if((0.05.coin),{
+s.sendBundle(s.latency, ["/s_new", \step15fx3, -1, 0, fxgroup.nodeID, \amp, [0.3,0.5,1.0].choose, \wsize, [0.01,0.05,0.1].choose, \ratio,[1,2,8,0.25,exprand(0.25,8)].choose, \pdisp, [0.0,rrand(0.0,2.0)].choose, \tdisp, [0.0,rrand(0.0,0.1)].choose]);
+});
+([1,2,3].wchoose([0.95,0.03,0.02])).do {|k|
+{
+pattnow= patterns.choose.value;
+pattnow.postln;
+bassnow=0.3.coin;
+longbass=0.3.coin;
+pos=0.0;
+	if((0.15.coin) && (barsdone>10),{count[k]=rrand(1,3)});
+	if(count[k]>0,{pattnow=[[1,5.0]]; count[k]=count[k]-1;});
+	pattnow.do{|cuts|
+	var offset, dur, cutlength;
+	var barpos;
+	cuts.postln;
+	barpos= rrand(max(0,barsdone-10),(barsdone+10).min(~bars-1));
+	if(0.4.coin,{barpos= barsdone;});
+	if(0.05.coin && (barpos>50),{barpos= rrand(0,~bars-1);});
+	if(count[k]>0,{if(0.9.coin,{barpos= barsdone;}); });
+	offset= ((barpos)*~framesperbar) + (if(0.7.coin,0,{(pos*~spb*44100.0)}));
+	dur= cuts[1];
+	cutlength= if(0.9.coin,1,{if(0.8.coin,2,0.25)})*dur*~spb;
+	cuts[0].do{
+	s.sendBundle(s.latency, ["/s_new", \stepplaybuf2, -1, 0, group1.nodeID, \out, 0, \bufnum, b.bufnum, \rate, 1, \startPos,offset,\dur, cutlength]);
+	if(bassnow, {
+	s.sendBundle(s.latency, ["/s_new", \step15bass, -1, 0, group1.nodeID, \out, 0, \dur, if(longbass,cutlength,0.2)]);
+	});
+	pos=pos+dur;
+	cutlength.wait;
+	};
+	}
+}.fork;
+};
+barsdone= barsdone+1;
+~barlength.wait;
+}
+}.fork
+)
+
+t.stop;
+b.free;
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.019.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.020.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.021.png#Grout and Palisca, 1996, A History of Western Music. 5th ed.::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.022.png#In The Cambridge Companion to Electronic Music, 2007::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.023.png::
+code::
+Computer.url("https://youtu.be/Gq5B3M4jRtQ");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.024.png#Grout and Palisca, 1996, A History of Western Music. 5th ed.::
+strong::Josquin Desprez:: (c.1450-1521) - emphasis::De profundis::
+code::
+Computer.url("https://youtu.be/An6r1KDD_S0");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.025.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.026.png::
+code::
+Computer.url("https://youtu.be/uH0SX8Knseo"); //Duffay
+Computer.url("https://youtu.be/KHNMgDIk1QI"); //L’homme armé
+Computer.url("https://youtu.be/68N791msDt0"); //Missa l’Homme Armé
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.027.png::
+code::
+Computer.url("http://oregonbachfestival.com/digital-bach-project/cuepoints/goldberg-variations");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.028.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.029.png::
+code::
+(
+~intervals = (0..12);
+~playIntervals = [Array.fill(~intervals.size, 0), ~intervals, Array.fill(~intervals.size, \rest)].flop.flat;
+Pbind(\degree, Pseq(~playIntervals), \dur, 0.3).play;
+)
+
+(
+~intervals = 12-~intervals; //inversion
+~playInversions = [Array.fill(~intervals.size, 0), ~intervals, Array.fill(~intervals.size, \rest)].flop.flat;
+Pbind(\degree, Pseq(~playInversions), \dur, 0.3).play;
+)
+
+(
+~intervals = (0..12).scramble; //scramble notes
+~playIntervals = [Array.fill(~intervals.size, 0), ~intervals, Array.fill(~intervals.size, \rest)].flop.flat;
+Pbind(\degree, Pseq(~playIntervals), \dur, 0.3).play;
+)
+
+(
+~inversions = 12-~intervals; //inversion
+~playIntervals = [Array.fill(~inversions.size, 0), ~inversions, Array.fill(~inversions.size, \rest)].flop.flat;
+Pbind(\degree, Pseq(~playIntervals), \dur, 0.3).play;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.030.png::
+code::
+//major scale
+~major = Scale.major.degrees ++ [12];
+~intervals = ~major.differentiate.replace(0); //intervalic relationship
+
+Pbind(\midinote, Pseq(~major+60), \dur, 0.2).play;
+
+//major scale transposed chromatically
+(
+~arr = [];
+13.do{|item|
+	~arr = ~arr.add(Array.fill(8,item))
+};
+Pbind(\degree, Pseq((0..7), inf), \scale, Scale.major, \dur, 0.1, \ctranspose, Pseq(~arr.flat, 1)).play;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.031.png::
+code::
+//minor scales
+~minor = Scale.minor.degrees ++ [12]
+~intervals = ~minor.differentiate.replace(0);
+
+Pbind(\midinote, Pseq(~minor+60), \dur, 0.2).play;
+
+(
+~harmMinor = Scale.harmonicMinor;
+~harmMinor.degrees.postln;
+Pbind(\degree, Pseq((0..7), 1), \scale,  ~harmMinor, \dur, 0.2).play;
+)
+
+(
+~melodMinor = Scale.melodicMinor.degrees ++ [12] ++ Scale.melodicMinorDesc.degrees.reverse;
+Pbind(\midinote, Pseq(~melodMinor+60), \dur, 0.2).play;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.032.png::
+code::
+(
+~modes = [Scale.ionian, Scale.dorian, Scale.phrygian, Scale.lydian,
+	Scale.mixolydian, Scale.aeolian, Scale.locrian];
+)
+
+(
+~modes.do{|item| var degrees;
+	item.name.postln;
+	degrees = (item.degrees ++ [12]).postln;
+	degrees.differentiate.replace(0).postln;
+}
+)
+
+(
+~playModes = [];
+~modes.do{|item, index|
+	~playModes = ~playModes.add(Array.fill(8,item));
+};
+Pbind(\degree, Pseq(((0..7)!~modes.size).flat, 1), \scale, Pseq(~playModes.flat, 1), \dur, 0.2).play;
+)
+
+(
+~modeTransp = [];
+~modes[0].degrees.do{|item| ~modeTransp = ~modeTransp.add(Array.fill(8,item))};
+Pbind(\degree, Pseq(((0..7)!~modes.size).flat, 1), \scale, Pseq(~playModes.flat, 1),
+	\ctranspose, Pseq(~modeTransp.flat, 1),\dur, 0.2).play;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.033.png::
+code::
+(
+~circle = Array.series(12,0,7)%12;
+~circleTriad = [];
+~circle.do{|item| ~circleTriad = ~circleTriad.add(item!2)};
+Pbind(\degree, [0,2,4], \ctranspose, Pseq(~circleTriad.flat, 1), \scale, Scale.major, \dur, 0.5).play;
+)
+
+//little impro
+(
+~circle = Array.series(12,0,7)%12;
+~circleMel = [];
+~circleTriad = [];
+~circle.do{|item| ~circleMel = ~circleMel.add(item!8)};
+~circle.do{|item| ~circleTriad = ~circleTriad.add(item!2)};
+~pat1 = Pbind(\degree, Pseq((0..7).scramble, inf), \scale, Scale.major,
+	\ctranspose, Pseq(~circleMel.flat+12, 1), \dur, 0.125);
+~pat2 = Pbind(\degree, Pseq([[0,2,4], [-4,0,2], [-7,-5,-3], [-5,-3,0]], inf),
+	\ctranspose, Pseq(~circleTriad.flat, 1), \scale, Scale.major, \dur, 0.5);
+Ppar([~pat1, ~pat2], 1).play;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.034.png::
+code::
+(
+//triads
+~major = [0,4,7];
+~minor = [0,3,7];
+~aug = [0,4,8];
+~dim = [0,3,6];
+~circle = Array.series(8,0,7)%12;
+~circleTriad = [];
+~circle.do{|item| ~circleTriad = ~circleTriad.add(item!4)};
+Pbind(\midinote, Pseq([~major, ~minor, ~aug, ~dim]+48, inf),
+	\ctranspose, Pseq(~circleTriad.flat, 1), \dur, 0.5).play
+)
+
+(
+//seventh chords
+~c7 = [0,4,7,10];
+~cmaj7 = [0,4,7,11];
+~cmin7 = [0,3,7,10];
+~cdim = [0,3,6,9];
+~chalfdim = [0,3,6,10];
+~circle = Array.series(8,0,7)%12;
+~circleTriad = [];
+~circle.do{|item| ~circleTriad = ~circleTriad.add(item!5)};
+Pbind(\midinote, Pseq([~c7, ~cmaj7, ~cmin7, ~cdim, ~chalfdim]+48, inf),
+	\ctranspose, Pseq(~circleTriad.flat, 1), \dur, 0.4).play
+)
+
+//chord inversions
+(
+// ~root = ~major;
+// ~root = ~minor;
+// ~root = ~c7;
+~root = ~cmaj7;
+~inversions = [];
+~inversions = ~inversions.add(~root);
+
+(1..(~root.size-1)).reverse.do{|it|
+	~array = [];
+	~root.rotate(it).do{|item, index|
+		if(index >= it, {
+			~array = ~array.add(item+12);
+		}, {
+			~array = ~array.add(item);
+		});
+	};
+	~inversions = ~inversions.add(~array.postln);
+};
+~inversions
+)
+
+(
+~circle = Array.series(12,0,7)%12;
+~circleTriad = [];
+~circle.do{|item| ~circleTriad = ~circleTriad.add(item!~inversions.size)};
+Pbind(\midinote, Pseq(~inversions.postln+48,inf), \ctranspose, Pseq(~circleTriad.flat, 1), \dur, 0.2).play
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.035.png::
+code::
+Computer.url("http://sunsite.univie.ac.at/Mozart/dice/");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.036.png#David Cope - alchetron.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.037.png::
+code::
+Computer.url("http://youtu.be/yFImmDsNGdE?t=45s"); //Tech Closeup TV
+Computer.url("http://youtu.be/t6WeiyvAiYQ"); //Chopin style
+Computer.url("http://youtu.be/R-_9zSSQK3o"); //Joplin style
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.038.png#Generative Music 1 at the Science Museum - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar2/seminar2.039.png::
+code::
+Computer.url("https://youtu.be/7qEu0kuoKEQ");
+::

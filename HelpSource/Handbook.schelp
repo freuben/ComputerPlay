@@ -124,7 +124,7 @@ Computer.url("http://subjectguides.york.ac.uk/c.php?g=484041&p=3547049");
 
 strong::Software::: In this module, you will learn how to work with the SuperCollider programming language. SuperCollider is free and you can download the latest version here:
 code::
-Computer.url("http://subjectguides.york.ac.uk/c.php?g=484041&p=3547049");
+Computer.url("http://supercollider.github.io/download");
 ::
 You should also download and install the Synthesis Plugins and Extensions:
 code::
