@@ -90,7 +90,7 @@ You can find more information on the types of useful Events available link::Work
 
 To play default values of code::Pbind:::
 code::
-a = Pbind.new.play   // if no additional arguments, new method must explicitedly be used
+a = Pbind.new.play   // if no additional arguments, new method must explicitly be used
 a.stop
 ::
 
@@ -334,7 +334,7 @@ n may also be a pattern so that it can vary each iteration.
 code::
 (
 p = Prand((48 ..72), inf);
-d = Pstutter(Prand((1..5),inf), Prand([0.1,0.15,0.2,0.3], inf)); //amount of repetitions varys each iteration
+d = Pstutter(Prand((1..5),inf), Prand([0.1,0.15,0.2,0.3], inf)); //amount of repetitions varies each iteration
 Pbind(\instrument, \perkysine, \midinote, p, \dur, d, \amp, 0.1).play;
 )
 ::
@@ -512,7 +512,7 @@ section::Events and Patterns
 It's important to understand that code::Pbind:: is doing some things for you behind the scenes.
 
 Patterns use Events, which affect the behaviour and sound quality of the output. Here is an example:
-
+code::
 (
 Pbind(
 	\freq, Pseq([440, 660, 990, 880, 770], inf),     // frequency in hertz
@@ -522,7 +522,7 @@ Pbind(
 	\instrument, \default
 ).play;
 )
-
+::
 You can see the default properties (or keys) of Events by looking at the defaults defined in the class.
 
 code::
@@ -604,7 +604,7 @@ mtranspose:	0,	// modal transposition of degree
 gtranspose:	0.0	// gamut transposition of note within a ~stepsPerOctave e.t. scale
 ctranspose:	0.0	// chromatic transposition of midinote within 12 tone e.t. scale
 
-octave:		5.0	// octave offest of note
+octave:		5.0	// octave offset of note
 root:		0.0	// root of the scale
 degree:		0	// degree in scale
 scale:		#[0, 2, 4, 5, 7, 9, 11]	// diatonic major scale
@@ -674,7 +674,7 @@ a.stop;
 a.play;
 a.stop;
 ::
-You can use code::Pset::, to set a different parmeter of another pattern.
+You can use code::Pset::, to set a different parameter of another pattern.
 code::
 Pset(name, value, pattern)
 
@@ -700,7 +700,7 @@ Now, let's start to do some pattern live coding (changing patterns on the fly). 
 
 code::Pdef(key, pat)::
 
-Creates a pattern definition that you can change. When you change the content of Pdef, the pattern definition propagets through all streams.
+Creates a pattern definition that you can change. When you change the content of Pdef, the pattern definition propagates through all streams.
 
 code::
 (
@@ -731,7 +731,7 @@ a.stop;
 ::
 
 subsection::Scales and Tuning
-Another exmple, a variation on the minimalist one above. This example uses the code::Scale:: and code::Tuning:: classes. This classes can save you some time counting intervals and figuring tuning ratios. Basically, SC makes the calculations for you! Each class has many different types of Scales and Tuning systems. Check the helpfil of both clases!
+Another example, a variation on the minimalist one above. This example uses the code::Scale:: and code::Tuning:: classes. These classes can save you some time counting intervals and figuring tuning ratios. Basically, SC makes the calculations for you! Each class has many different types of Scales and Tuning systems. Check the helpfile of both classes!
 
 If you want to know which Scales and Tuning are available, evaluate the code below:
 code::
@@ -825,7 +825,7 @@ We just were introduced to code::Pdef::: a pattern strong::definition::. Previou
 
 Ndefs, are code::NodeProxy:: definitions. In electronic and computer music, we deal a lot with signals and the different 'routes' they might take and how we might combine them. If you are familiar with the recording process, you know that the signal path is important for what you want to achieve. If you have used a mixer, whether it is an analogue mixer or a mixer in your DAW, you are probabily familiar with the idea of Buses and Groups. You can route different channels through Buses. You can join various channels together with Groups.
 
-In SC, we have the Server, which plays the audio. We keep reference of what it playing in the servers through what is called a Node. SC keeps what's called a Node tree in the server to keep reference of everything that's playing in it. You can look at the Node tree from the server's drop down menu if you click on the server information in the left corner. SC also has a code::Bus:: class and a code::Group:: class for doing more complex routing. But we have to do a lot of bookeeping of which buses and groups we are using. Ndefs do that bookkeeping for us! And belive me, when things get a bit more complicated, that is a great thing! So an code::Ndef:: helps us with signal routing in a very intuitive way, and what's best, you can do this routing on the fly! Cool ha!
+In SC, we have the Server, which plays the audio. We keep reference of what it playing in the servers through what is called a Node. SC keeps what's called a Node tree in the server to keep reference of everything that's playing in it. You can look at the Node tree from the server's drop down menu if you click on the server information in the left corner. SC also has a code::Bus:: class and a code::Group:: class for doing more complex routing. But we have to do a lot of bookkeeping of which buses and groups we are using. Ndefs do that bookkeeping for us! And believe me, when things get a bit more complicated, that is a great thing! So an code::Ndef:: helps us with signal routing in a very intuitive way, and what's best, you can do this routing on the fly! Cool ha!
 
 Ok, here's how Ndefs work:
 
@@ -1003,7 +1003,7 @@ Ndef(\delay, {var source, delay;
 )
 ::
 Let's add code::Ndef(\delay):: to the master Ndef.
-note::Noitice multichannel expanssion through code::!2:: ::
+note::Noitice multichannel expansion through code::!2:: ::
 code::
 Ndef(\master, {Ndef.ar(\delay,1)!2});
 ::
@@ -1069,7 +1069,7 @@ Pdef(\x, Pbind(\note, Pbrown(0, 6, 0.1, inf)));
 
 strong::Quantising::
 
-When quantising to a larger number of beats, the changes become very slow if one has to wait for the next beat. Providing anoutset quant value is a way to make the change so that it appears as if it had been done at the previous grid point already. The stream is fast forwarded to the current position relative to the quant grid. Providing a number larger than zero, the next possible quant point is used as outset.
+When quantising to a larger number of beats, the changes become very slow if one has to wait for the next beat. Providing an outset quant value is a way to make the change so that it appears as if it had been done at the previous grid point already. The stream is fast forwarded to the current position relative to the quant grid. Providing a number larger than zero, the next possible quant point is used as outset.
 
 For example, if quant is 32, and one has just missed the first beat when changing the pattern, one has to wait for 32 beats until the change happens. Using an outset of 1, it is assumed that you had already changed the pattern at the first beat, the stream is fast forwarded to the time it would be at now if you had done so. The new pattern is inserted at the next beat (outset=1).
 
@@ -1133,7 +1133,7 @@ Let's give this code::Ndef:: a code::fadeTime:: of 1 second:
 code::
 Ndef(\sound).fadeTime = 1;
 ::
-We're adding the code::Ndef(\a)::, which is emty and modulating the amplitude with the mouse
+We're adding the code::Ndef(\a)::, which is empty and modulating the amplitude with the mouse
 code::
 Ndef(\sound, {Ndef(\a).ar*MouseX.kr(0,1)});
 ::
@@ -1248,7 +1248,7 @@ Ndef(\sound, 0)
 
 subsection::Effects and mixing with Ndefs
 
-Ndefs provide a versitle and powerful way of using effects and mixing audio. You can filter and mix signals and change these configurations on the fly! As an analogy: imagine being able to recable/repatch you gear on the fly at the same time having the ability to modify your gear (effects, synths, etc.), all of this while you are playing the sounds! You can do this with Ndefs and this is powerful stuff (and of course it can be very useful for performance!).
+Ndefs provide a versatile and powerful way of using effects and mixing audio. You can filter and mix signals and change these configurations on the fly! As an analogy: imagine being able to recable/repatch you gear on the fly at the same time having the ability to modify your gear (effects, synths, etc.), all of this while you are playing the sounds! You can do this with Ndefs and this is powerful stuff (and of course it can be very useful for performance!).
 
 strong::Filtering:::
 code::

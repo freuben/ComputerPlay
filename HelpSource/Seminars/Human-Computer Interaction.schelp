@@ -1,0 +1,107 @@
+TITLE::Human-Computer Interaction
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Wrokshop/Interfacing
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.001.png#Laetitia Sonami - bbc.co.uk::
+code::
+Computer.url("https://youtu.be/C8GqbS2w_Lg");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.002.png#Artist Interview: Laetitia Sonami - somarts.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.003.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.004.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.005.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.006.png#Raymond Scott at Studio - localsuicide.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.007.png#Raymond Scott’s Electronium - preservationsound.com::
+code::
+Computer.url("https://youtu.be/1SHJ6CcML80"); //Cindy Electronium
+Computer.url("http://youtu.be/MDIIfAMGLhM"); //Twilight in Turkey
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.008.png#Gordon Mumma at studio & schematics for MESA - brainwashed.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.009.png#Gordon Mumma (1972) Performing AMBIVEX.::
+code::
+Computer.url("https://youtu.be/4e-OzKSmZX0"); //Cybersonic Cantilevers (1973)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.010.png#RCA Mark II Synthesiser, Milton Babbitt, Peter Mauzey, Vladimir Ussachevsky - gearogs.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.011.png #Max Mathews, GROOVE system (1969) - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.012.png#Laurie Spiegel - nytimes.com::
+code::
+Computer.url("http://youtu.be/OhpjHB4076g"); // Old Wave (1974) GROOVE system
+Computer.url("http://youtu.be/AgdIRM5iMNE"); //Patchwork
+Computer.url("http://youtu.be/5_TObcetCc0"); //Improvisation
+Computer.url("http://youtu.be/TzOJtZYsGSA?t=2m40s"); //Laurie Spiegel interview
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.013.png#Music Mouse - youtube.com::
+code::
+Computer.url("http://youtu.be/D-mmEvGOopk?t=30s"); //Music Mouse
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.014.png#In Introduction to Computer Muisc - Nick Collins (2010)::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.015.png#In Machine Musicianship (2001)::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.016.png#In Living Electronic Music (2007)::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.017.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.018.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.019.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.020.png#Arduino - cloudfront.net::
+code::
+Computer.url("https://www.arduino.cc/");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.021.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.022.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.023.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.024.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.025.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.026.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.027.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.028.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.029.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.030.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.031.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.032.png::
+code::
+Computer.url("http://youtu.be/epT16fbf4RM");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.033.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.034.png::
+code::
+Computer.url("https://www.mstrcyork.org/");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.035.png#mstrc Audience Response System::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.036.png#Max Matthews with Radio Baton - computerhistory.org::
+code::
+Computer.url("http://youtu.be/3ZOzUVD4oLg?t=5m43s");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.037.png#Nicolas Collins: Trombone-Propelled Electronics - artschoolshithead.files.wordpress.com::
+code::
+Computer.url("http://youtu.be/89jbl0ZuaH4?t=4m55s");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.038.png#Michel Waisvisz (STEIM) - The Hands - carlavanthijnfotografie.nl::
+code::
+Computer.url("http://vimeo.com/1204467");
+Computer.url("http://vimeo.com/1219919");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.039.png#Laetitia Sonami: Lady’s Gloves - sonami.net::
+code::
+Computer.url("http://youtu.be/ngygk20M1pI");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.040.png#Imogen Heap: The Gloves - rachelfreire.com::
+code::
+Computer.url("http://youtu.be/dcLFVhRHXUM?t=4m28s");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.041.png#Atau Tanaka - bbc.co.uk::
+code::
+//sensor band:
+Computer.url("http://youtu.be/o-ZcsAHVn6A?t=2m48s");
+Computer.url("http://youtu.be/XLSoPmY6jGM?t=5m20s");
+//biometric sensors::
+Computer.url("http://youtu.be/FB_yE_Y3_8k?t=3m50s");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.042.png#Tod Machover: Hyperinstruments - uvmbored.com::
+code::
+Computer.url("http://youtu.be/Zj2QoLhfwew?t=1m00s");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.043.png#Reactable: Music Technology Group, Universitat Pompeu Fabra - http://youtu.be/0h-RhyopUmc::
+code::
+Computer.url("http://youtu.be/0h-RhyopUmc");
+::
