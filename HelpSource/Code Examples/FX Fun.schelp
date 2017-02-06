@@ -1,0 +1,494 @@
+TITLE:: FX Fun
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Patterns and Ndefs, Workshops/Interfacing, Seminars/Human-Computer Interaction
+
+section::Library of FXs for you!
+
+First, run this piece of code to load the Library of FXs:
+
+code::
+(
+~fxs =
+[
+	[\pch, {arg pitchRatio=1.0, pitchDispertion=0.0, timeDispersion=0.0001,
+		lag=5.0, winSize=0.02;
+		PitchShift.ar(\in, winSize, pitchRatio.lag(lag), pitchDispertion, timeDispersion)
+	}, "pitch shifter 1", [{|val| val.linlin(0.0,1,-12,12).round(0.4).midiratio},
+		{|val| val.linexp(0.0,1,0.01,2.01)-0.01}, {|val| val.linexp(0.0,1,0.01,2.01)-0.01},
+		{|val|val.linlin(0.0,1,0.01,15)}, {|val| val.linlin(0.0,1,0.01,3)}]],
+	[\pch2, {arg centerpitch=440,bus=1, pitchDispertion=0.0, timeDispersion=0.0,
+		lag=0.1, winSize=0.1;
+		var freq, hasFreq;
+		# freq, hasFreq = Pitch.kr(AudioIn.ar(bus.round(1)), ampThreshold: 0.0, median: 7);
+		PitchShift.ar(\in, winSize, (freq/centerpitch).lag(lag), pitchDispertion, timeDispersion);
+	}, "pitch shifter 2", [{|val| val.linexp(0.0,1,4000,10)}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| val.linexp(0.0,1,0.01,2.01)-0.01}, {|val| val.linexp(0.0,1,0.01,2.01)-0.01},
+		{|val| val.linlin(0.0,1,0.01,15)}, {|val| val.linlin(0.0,1,0.01,3)}]],
+	[\pch3, {arg centerpitch=440, bus=1, adjvol=4, pitchDispertion=0.0,
+		timeDispersion=0.0001, lag=0.1, winSize=0.02;
+		var freq, hasFreq, input, amp;
+		input = AudioIn.ar(bus.round(1));
+		amp = Amplitude.kr(input, 0.05, 0.05);
+		# freq, hasFreq = Pitch.kr(input, ampThreshold: 0.0, median: 7);
+		PitchShift.ar(\in, winSize, (freq/centerpitch).lag(lag), pitchDispertion, timeDispersion)
+		*(amp*adjvol);
+	}, "pitch shifter 3", [{|val| val.linexp(0.0,1,10,4000)}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| val.linexp(0.0,1,0.01,2.01)-0.01}, {|val| val.linexp(0.0,1,0.01,2.01)-0.01},
+		{|val| val.linlin(0.0,1,0.01,15)}, {|val| val.linlin(0.0,1,0.01,3)}]],
+	//counterpoint
+	[\ctp1, {arg rate=1, pitchDispersion=0.0, timeDispersion=0.0001, lag=0.01,
+		windowSize=0.02;
+		var freq, hasFreq, latch1, latch2, latch3, input, maxDelay=12;
+		input = \in;
+		#freq, hasFreq = Pitch.kr(input);
+		latch1 = Latch.ar(freq, Impulse.kr(rate));
+		latch2 = DelayL.kr(Latch.ar(freq, Impulse.kr(rate)), maxDelay, 1/rate);
+		latch3 = (latch1.cpsmidi - (latch1.cpsmidi - latch2.cpsmidi)).midicps.min(20000).max(20);
+		PitchShift.ar(input, windowSize, (latch1/latch3)[0].lag(lag), pitchDispersion, timeDispersion;)
+		+ (input/2);
+	}, "counterpoint pitch shifter 1", [{|val| val.linlin(0.0,1,(1/12),10)},
+		{|val| val.linexp(0.0,1,0.01,2.01)-0.01}, {|val| val.linexp(0.0,1,0.01,2.01)-0.01},
+		{|val|val.linlin(0.0,1,0.01,15)}, {|val| val.linlin(0.0,1,0.01,3)}]],
+	[\ctp2, {arg rate=1, pitchDispersion=0.0, timeDispersion=0.0001, lag=0.01,
+		windowSize=0.02;
+		var freq, hasFreq, latch1, latch2, latch3, input, maxDelay=12;
+		input = \in;
+		#freq, hasFreq = Pitch.kr(input);
+		latch1 = Latch.ar(freq, Impulse.kr(rate));
+		latch2 = DelayL.kr(Latch.ar(freq, Impulse.kr(rate)), maxDelay, 1/rate);
+		latch3 = (latch1.cpsmidi - (latch1.cpsmidi - latch2.cpsmidi)).midicps.min(20000).max(20);
+		PitchShift.ar(input, windowSize, (latch1/latch3)[0].lag(lag), pitchDispersion, timeDispersion;);
+	}, "counterpoint pitch shifter 2", [{|val| val.linlin(0.0,1,(1/12),10)},
+		{|val| val.linexp(0.0,1,0.01,2.01)-0.01}, {|val| val.linexp(0.0,1,0.01,2.01)-0.01},
+		{|val|val.linlin(0.0,1,0.01,15)},{|val| val.linlin(0.0,1,0.01,3)}]],
+	//comb filter controlled with noise
+	[\cbg, {arg decayTime=0.5, freq=10, lag=5.0; CombL.ar(\in * (LFNoise0.ar(freq.lag(lag)) > 0),
+		0.2, 0.2, decayTime);
+	}, "comb filter controlled with noise", [{|val| val.linlin(0.0,1,0.0,10)},
+		{|val| val.linexp(0.0,1,1.0,1000)}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	//low pass filter
+	[\lpf, {arg freq=20000, lag=0.1; LPF.ar(\in, freq.lag(lag));}, "low pass filter with lag",
+		[{|val| val.linexp(0.0,1,10,20000)}, {|val| val.linlin(0.0,1,0,30)}]],
+	//high pass filter
+	[\hpf, {arg freq=10, lag=0.1; HPF.ar(\in, freq.lag(lag));}, "high pass filter with lag",
+		[{|val| val.linexp(0.0,1,10,20000)}, {|val| val.linlin(0.0,1,0,30)}]],
+	//8 chan EQ
+	[\eq8, {arg freq1=30, freq2=80, freq3=200, freq4=500, freq5=1200, freq6=3500,
+		freq7=10000, freq8=17000, gain1=1, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0,
+		gain7=0, gain8=0, q1=0.71, q2=1.10, q3=0.98, q4=0.71, q5=0.71, q6=0.71, q7=0.71,
+		q8=0.71, on1=0, on2=1, on3=1, on4=1, on5=1, on6=1, on7=1, on8=0, lag=0.5,
+		master=0, lagPass=0.1;
+		var signal, input;
+		input = \in;
+		signal = (on1.linlin(0,1,1,0).lag(lagPass)*input) + (on1.lag(lagPass)*
+			((gain1.linlin(0,1,1,0.0).lag(lagPass)*BHiPass.ar(input,freq1.lag(lag),1/q1.lag(lag)))+ (gain1.lag(lagPass)*BHiPass4.ar(input,freq1.lag(lag),1/q1.lag(lag)));));
+		signal = (on2.linlin(0,1,1,0).lag(lagPass)*signal) + (on2.lag(lagPass)
+			*BLowShelf.ar(signal,freq2.lag(lag),1/(q2/2).lag(lag),gain2.lag(lag)));
+		signal = (on3.linlin(0,1,1,0).lag(lagPass)*signal) + (on3.lag(lagPass)
+			*BPeakEQ.ar(signal,freq3.lag(lag),1/(q3).lag(lag),gain3.lag(lag)));
+		signal = (on4.linlin(0,1,1,0).lag(lagPass)*signal) + (on4.lag(lagPass)
+			*BPeakEQ.ar(signal,freq4.lag(lag),1/(q4).lag(lag),gain4.lag(lag)));
+		signal = (on5.linlin(0,1,1,0).lag(lagPass)*signal) + (on5.lag(lagPass)
+			*BPeakEQ.ar(signal,freq5.lag(lag),1/(q5).lag(lag),gain5.lag(lag)));
+		signal = (on6.linlin(0,1,1,0).lag(lagPass)*signal) + (on6.lag(lagPass)
+			*BPeakEQ.ar(signal,freq6.lag(lag),1/(q6).lag(lag),gain6.lag(lag)));
+		signal = (on7.linlin(0,1,1,0).lag(lagPass)*signal) + (on7.lag(lagPass)
+			*BHiShelf.ar(signal,freq7.lag(lag),1/(q7/2).lag(lag),gain7.lag(lag)));
+		signal = (on8.linlin(0,1,1,0).lag(lagPass)*signal) + (on8.lag(lagPass)*
+			((gain8.linlin(0,1,1,0.0).lag(lagPass)*BLowPass.ar(input,freq8.lag(lag),1/q8.lag(lag)))+
+				(gain8.lag(lagPass)*BLowPass4.ar(input,freq8.lag(lag),1/q8.lag(lag)));));
+		signal * master.dbamp;
+	}, "8 channel equalizer"],
+	//digital distortions
+	[\ds1, {arg drive=1, adjVol=1, lag=0.1; var lagdr; lagdr = drive.lag(lag);((\in*lagdr).distort
+		* (lagdr.sqrt/lagdr))*adjVol}, "distort: basic digital distrotion", [{|val| val.linlin(0.0,1,1,200)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	[\ds2, {arg drive=1, adjVol=1, lag=0.1; var lagdr; lagdr = drive.lag(lag);((\in*lagdr).softclip
+		* (lagdr.sqrt/lagdr))*adjVol}, "softclip: basic digital distrotion", [{|val| val.linlin(0.0,1,1,200)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	[\ds3, {arg drive=1, adjVol=1, lag=0.1; var lagdr; lagdr = drive.lag(lag);((\in*lagdr).clip2(1)
+		* (lagdr.sqrt/lagdr))*adjVol}, "clip2: basic digital distrotion", [{|val| val.linlin(0.0,1,1,200)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	[\ds4, {arg drive=1, adjVol=1, lag=0.1; var lagdr; lagdr = drive.lag(lag);((\in*lagdr).fold2(1)
+		* (lagdr.sqrt/lagdr))*adjVol}, "fold2: basic digital distrotion", [{|val| val.linlin(0.0,1,1,200)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	[\ds5, {arg drive=1, adjVol=1, lag=0.1; var lagdr; lagdr = drive.lag(lag);((\in*lagdr).wrap2(1)
+		* (lagdr.sqrt/lagdr))*adjVol}, "wrap2: basic digital distrotion", [{|val| val.linlin(0.0,1,1,200)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0.01,15)}]],
+	//reverb
+	[\rvb, {arg mix=0, room=0, damp=0.0, lag=0.0, adjVol=1; FreeVerb.ar(\in, mix.lag(lag),
+		room.lag(lag), damp.lag(lag))*adjVol
+	}, "Blackrain's FreeVerb", [{|val| val},{|val| val}, {|val| val}, {|val| val.linlin(0.0,1,0.01,15)},
+		{|val| val.linlin(0.0,1,0.2,2.0).round(0.01)-0.01}]],
+	[\gvb, {arg roomsize = 10, revtime = 3, damping = 0.5, inputbw =  0.5, spread = 15,
+		drylevel = 1, earlyreflevel = 0.7, taillevel = 0.5, maxroomsize = 300, mul = 1, add = 0;
+		GVerb.ar(\in, roomsize, revtime, damping, inputbw, spread, drylevel, earlyreflevel,
+			taillevel, maxroomsize, mul, add);
+	}, "gverb"],
+	//amplitude
+	[\amp, {arg bus=1, adjVol=1, lag=0.1;
+		(\in*Amplitude.kr(AudioIn.ar(bus.round(1))).lag(lag))*adjVol
+	}, "Amplitude Env Follower", [{|val| val.linlin(0,1,1,8).round(1)},
+		{|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}, {|val| val.linlin(0.0,1,0,10)} ]],
+	//delay line with decay - linear interpolation - 12 secs max delay
+	[\dl1, {arg delayTime=0, decayTime=1;CombL.ar(\in,12,delayTime,decayTime);
+	}, "delay with decay (linear)", [{|val| val.linlin(0.0,1,0,12.0)}, {|val| val.linlin(0,1,0,24.0)}]],
+	[\dl2, {arg mul=1, freq=0.25, lag=0.1, decayTime=0, lag2=1;
+		CombL.ar(\in,12,LFNoise1.kr(freq.lag(lag), 1*(mul.lag(lag2)/2),
+			0+(mul.lag(lag2)/2)).lag(lag),decayTime);
+	}, "delay with decay (linear)", [{|val| val.linlin(0.0,1,0,12.0)}, {|val| val.linexp(0.0,1,0.25,20.0)},
+		{|val| val.linlin(0.0,1,0.01,15)}, {|val| val.linlin(0,1,0,24.0)}]],
+	//simple convolution 1
+	[\cv1, {arg mix=0, bus=1, frameSize=1024, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = AudioIn.ar(bus.round(1));(Convolution.ar(input,signal,frameSize,adjVol*0.15)*mix)
+		+(input*mix.linlin(0,1,1,0))}, "Simple Convolution 1", [{|val| val}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| [2, 4, 8, 16, 32 ,64, 128, 256,512,1024, 2048, 4096, 8192][val.linlin(0,1,0,12).round]},
+		{|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}]],
+	[\cv2, {arg mix=0, bus=1, frameSize=1024, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = AudioIn.ar(bus.round(1));(Convolution.ar(signal,input,frameSize,adjVol*0.15)*mix)
+		+(input*mix.linlin(0,1,1,0))}, "Simple Convolution 2", [{|val| val}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| [2, 4, 8, 16, 32 ,64, 128, 256,512,1024, 2048, 4096, 8192][val.linlin(0,1,0,12).round]},
+		{|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}]],
+	[\lcv1, {arg mix=0, buffer=1, rate=1, frameSize=1024, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = PlayBuf.ar(1,buffer.round(1), rate, loop:1);
+		(Convolution.ar(signal,input,frameSize,adjVol*0.15)*mix)+(input*mix.linlin(0,1,1,0));
+	}, "Loop Convolution 1 - takes a buffer as in", [{|val| val}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| val.linlin(0,1,0.25,4)}, {|val| [2, 4, 8, 16, 32 ,64, 128, 256,512,1024, 2048, 4096, 8192]
+			[val.linlin(0,1,0,12).round]}, {|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}]],
+	[\lcv2, {arg mix=0, buffer=1, rate=1, frameSize=1024, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = PlayBuf.ar(1,buffer.round(1), rate, loop:1);
+		(Convolution.ar(input,signal,frameSize,adjVol*0.15)*mix)+(input*mix.linlin(0,1,1,0))},
+	"Loop Convolution 2 - takes a buffer as in", [{|val| val}, {|val| val.linlin(0,1,1,8).round(1)},
+		{|val| val.linlin(0,1,0.25,4)}, {|val| [2, 4, 8, 16, 32 ,64, 128, 256,512,1024, 2048, 4096, 8192]
+			[val.linlin(0,1,0,12).round]}, {|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}]],
+	//multiply magnitudes of 2 spectrums
+	[\mmp, {arg mix=0, bus=1, adjVol=1, frameSize=2048;
+		var inA, chainA, chainB, chain, input;
+		input = \in;
+		inA = AudioIn.ar(bus.round(1));
+		chainA = FFT(LocalBuf(frameSize), input);
+		chainB = FFT(LocalBuf(frameSize), inA);
+		chain = PV_MagMul(chainA, chainB);
+		adjVol * ((IFFT(chain)*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "MagMul multiplies the magnitudes from two spectra",
+	[{|val| val}, {|val| val.linlin(0,1,1,8).round(1)}]],
+	//FFT freeze
+	[\frz, {arg freeze=0, adjVol=1, frameSize=2048;
+		var chain;
+		chain = FFT(LocalBuf(frameSize), \in);
+		chain = PV_MagFreeze(chain, freeze);
+		adjVol * IFFT(chain);}, "fft spectrum freeze",
+	[{|val| val.round(1)}, {|val| val.linlin(0,1,1,4)}]],
+	//FFT magnitude thresh
+	[\mga, {arg thresh=0, adjVol=1, frameSize=2048;
+		var chain;
+		chain = FFT(LocalBuf(frameSize), \in);
+		chain = PV_MagAbove(chain, thresh);
+		adjVol * IFFT(chain);}, "fft magnitude above threshold",
+	[{|val| val.linexp(0.0,1,0.01,50.01)-0.01}, {|val| val.linlin(0,1,1,4)}]
+	],
+	[\srt, {arg mix=0, adjVol=1;
+		var chain, origmagsphases, magsphases, input;
+		input = \in;
+		chain = FFT(LocalBuf(1024), input);
+		origmagsphases = UnpackFFT(chain, 1024, 0, 250).clump(2).flop;
+		magsphases = [origmagsphases[0][30..] ++ origmagsphases[0][..30],
+			origmagsphases[1][30..] ++ origmagsphases[1][..30]];
+		magsphases = magsphases.size.switch(
+			1, {magsphases ++ origmagsphases[1]},
+			2, {magsphases},
+			{[magsphases, origmagsphases[1]]}
+		);
+		magsphases = magsphases.flop.flatten;
+		chain = PackFFT(chain, 1024, magsphases, 0, 250, 0);
+		adjVol * ((IFFT(chain)*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "spectrum rotate", [{|val| val}, {|val| val.linlin(0,1,1,4)}]],
+	[\sdf, {arg mix=0, adjVol=1;
+		var chain, origmagsphases, magsphases, input;
+		input = \in;
+		chain = FFT(LocalBuf(1024), input);
+		origmagsphases = UnpackFFT(chain, 1024, 0, 250).clump(2).flop;
+		magsphases = [origmagsphases[0].differentiate, origmagsphases[1].differentiate];
+		magsphases = magsphases.size.switch(
+			1, {magsphases ++ origmagsphases[1]},
+			2, {magsphases},
+			{[magsphases, origmagsphases[1]]}
+		);
+		magsphases = magsphases.flop.flatten;
+		chain = PackFFT(chain, 1024, magsphases, 0, 250, 0);
+		adjVol * ((IFFT(chain)*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "spectrum differentiate", [{|val| val}, {|val| val.linlin(0,1,1,4)}]],
+	[\srv, {arg mix=0, adjVol=1;
+		var chain, origmagsphases, magsphases, input;
+		input = \in;
+		chain = FFT(LocalBuf(1024), input);
+		origmagsphases = UnpackFFT(chain, 1024, 0, 250).clump(2).flop;
+		magsphases = [origmagsphases[0].reverse, origmagsphases[1].reverse];
+		magsphases = magsphases.size.switch(
+			1, {magsphases ++ origmagsphases[1]},
+			2, {magsphases},
+			{[magsphases, origmagsphases[1]]}
+		);
+		magsphases = magsphases.flop.flatten;
+		chain = PackFFT(chain, 1024, magsphases, 0, 250, 0);
+		adjVol * ((IFFT(chain)*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "spectrum reverse", [{|val| val}, {|val| val.linlin(0,1,1,10)}]],
+	[\ssq, {arg mix=0, adjVol=1;
+		var chain, magsphases, input;
+		input = \in;
+		chain = FFT(LocalBuf(1024), input);
+		magsphases = UnpackFFT(chain, 1024);
+		magsphases = magsphases.collect(_.sqrt);
+		chain = PackFFT(chain, 1024, magsphases);
+		adjVol * ((IFFT(chain)*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "spectrum square root", [{|val| val}, {|val| val.linlin(0,1,1,4)}]],
+	[\gate, {arg gates=1, adjVol=1; Gate.ar(\in, gates.round(1))*adjVol}, "Gate with no envelope",
+		[{|val| val.round}, {|val| val.linlin(0,1,1,10)}]
+	],
+	[\lmt, {arg thresh=1, slopeAbove=1, slopeBelow=1, attack=0.0,
+		release=0.02, preVol=1, postVol=1;
+		CompanderD.ar(\in*preVol, thresh: thresh, slopeBelow: slopeBelow, slopeAbove: slopeAbove,
+			clampTime: attack, relaxTime: release)*postVol;
+	}, "limiter", [{|val| val.linlin(0,1,0,-53).dbamp}, {|val| val.linlin(0,1,1,1/30)}]],
+	[\cmp, {arg thresh=0, ratio=1, preVol=1, attack=0.01, release=0.02, slopeBelow=1,
+		postVol=1;
+		CompanderD.ar(\in*preVol, thresh: thresh, slopeBelow: slopeBelow, slopeAbove: 1/ratio,
+			clampTime: attack, relaxTime: release)*postVol;}, "compressor",
+	[{|val| val.linlin(0,1,0,-53).dbamp}, {|val| val.linlin(0,1,1,30)}]
+	],
+	[\lpc1, {arg mix=0, num=64, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = LPCError.ar(input, num);
+		adjVol * ((signal*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));
+	}, "lpc error", [{|val| val}, {|val| val.linlin(0,1,64,1)}]],
+	[\fds1, {arg mix=0, alpha= -0.001, adjVol=1;
+		var kernel, kernel2, signal, signal2, signal3, freq, hasFreq;
+		signal = \in;
+		#freq, hasFreq = Pitch.kr(signal);
+		kernel= WeaklyNonlinear.ar(signal,0,1,1,freq*2,0,0,alpha,3,0,0);
+		kernel2= WeaklyNonlinear2.ar(signal,0,1,1,freq*2,0,0,alpha,3,0,0);
+		signal2 = Convolution.ar(kernel+signal,kernel2, 2048, 0.0005)
+		* EnvGen.kr(Env.asr(0.01, 1.0, 0.01), Amplitude.kr(signal));
+		signal3 = Limiter.ar(signal2*adjVol);
+		adjVol * ((signal3*mix.linlin(0,1,0,1))+(signal*mix.linlin(0,1,1,0)));}, "fede violence weakly",
+	[{|val| val}, {|val| val.linlin(0,1,-0.1,0.1).round(0.001)}]
+	],
+	[\fds2, {arg mix=0, num=64, adjVol=1;
+		var kernel, signal, signal2, signal3, input;
+		input = \in;
+		kernel = LPCError.ar(input, input.linlin(-1,1,num,1));
+		signal = Convolution.ar(input,kernel, 2048);
+		signal2 = LPCError.ar(signal, input.linlin(-1,1,1,num));
+		signal3 = ((signal2+(input.clip2(0.05)*0.05))).clip2(1.0);
+		adjVol * ((signal3*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));}, "fede lpc error",
+	[{|val| val}, {|val| val.linlin(0,1,64,1)}]],
+	[\vol, {arg gain1=0, gain2=0;
+		\in*gain1.dbamp*gain2.dbamp;}, "extra gain",
+	[{|val| val.linlin(0,1,0,53)}, {|val| val.linlin(0,1,-53,0)}]
+	],
+	[\rm1, {arg mix=0, freq=493.8833, sinamp=0.5, lagTime=10, adjVol=1;
+		var signal, input;
+		input = \in;
+		signal = input*SinOsc.ar(freq.lag(lagTime),0,sinamp);
+		adjVol * ((signal*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));}, "ring modulation 1",
+	[{|val| val}, {|val| val.linexp(0.0,1,10,20000.0)}, {|val| val}, {|val| val.linlin(0.0,1,0.0,10.0)},
+		{|val| val.linlin(0.0,1,1,10.0).round(0.01)-0.01}]],
+	[\rm2, {arg mix=0, sinamp=0.5, lagTime=0.1, adjVol=1;
+		var signal, freq, hasFreq, input;
+		input = \in;
+		# freq, hasFreq = Pitch.kr(input, ampThreshold: 0.0, median: 7);
+		signal = input*SinOsc.ar(freq.lag(lagTime),0,sinamp);
+		adjVol * ((signal*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));}, "ring modulation 1",
+	[{|val| val}, {|val| val}, {|val| val.linlin(0.0,1,0.0,10.0)},
+		{|val| val.linlin(0.0,1,1,10.0).round(0.01)-0.01}]],
+	[\rm3, {arg mix=0, adjVol=1, sinamp=1.0, lagTime=0.1;
+		var signal, freq, hasFreq, amp, input;
+		input = \in;
+		# freq, hasFreq = Pitch.kr(input, ampThreshold: 0.0, median: 7);
+		amp = Amplitude.kr(input, 0.05, 0.05);
+		signal = input*SinOsc.ar(freq.lag(lagTime),0,sinamp*amp);
+		adjVol * ((signal*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));}, "ring modulation 1",
+	[{|val| val}, {|val| val.linlin(0.0,1,1,30.0).round(0.01)-0.01}, {|val| val},
+		{|val| val.linlin(0.0,1,0.0,10.0)}]
+	],
+	[\bpf, {arg vol=1, q=30, mix=1, lagTime=40;
+		var signal, input, freq=622.25;
+		input = \in;
+		signal = BPF.ar(input, freq, q.lag(lagTime))*q.lag(lagTime).linlin(0.01,30,10,1);
+		vol.dbamp * ((signal*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)));}, "fixed band pass",
+	[{|val| val.linlin(0,1,-53,0)}, {|val| val.linexp(0.0,1,0.01,30.0)},
+		{|val| val}, {|val| val.linlin(0.0,1,0.0,10.0)}]
+	],
+	[\chr1, {arg mix=0, depth=0.1, predelay=0.08, speed=0.05, ph_diff=0.5, lagTime=0.1;
+		var soundin, input, sig, modulators, numDelays = 12;
+		soundin = \in;
+		input = soundin * numDelays.reciprocal;
+		modulators = Array.fill(numDelays, {arg i;
+			LFPar.kr(speed * rrand(0.94, 1.06), ph_diff * i, depth.lag(lagTime),
+				predelay.lag(lagTime));});
+		sig = DelayC.ar(input, 2.0, modulators);
+		sig = sig.sum;
+		sig = sig * 3;
+		((sig*mix.linlin(0,1,0,1))+(soundin*mix.linlin(0,1,1,0)))
+	}, "chorus 1", [{|val| val}, {|val| val.linlin(0.0,1,0,2)}, {|val| val.linlin(0.0,1,0,2.0)},
+		{|val| val.linexp(0.0,1,0.01,10.0)}, {|val| val.linlin(0.0,1,0,6.2831)},
+		{|val| val.linlin(0.0,1,0.0,10.0)}]],
+	[\chr2, {arg mix=0, depth=0.1, predelay=0.08, speed=0.05, ph_diff=0.5, lagTime=0.1;
+		var input, sig, soundin, modulators, numDelays = 24;
+		soundin = \in;
+		input = soundin * numDelays.reciprocal;
+		modulators = Array.fill(numDelays, {arg i;
+			LFPar.kr(speed * rrand(0.94, 1.06), ph_diff * i, depth.lag(lagTime),
+				predelay.lag(lagTime));});
+		sig = DelayC.ar(input, 7.0, modulators);
+		sig = sig.sum;
+		sig = sig * 3;
+		((sig*mix.linlin(0,1,0,1))+(soundin*mix.linlin(0,1,1,0)))
+	}, "chorus 2", [{|val| val}, {|val| val.linlin(0.0,1,0,2)}, {|val| val.linlin(0.0,1,0,2.0)},
+		{|val| val.linexp(0.0,1,0.01,10.0)}, {|val| val.linlin(0.0,1,0,6.2831)},
+		{|val| val.linlin(0.0,1,0.0,10.0)}]],
+	[\cut1, {arg freq=3, decayTime=0.025; var trig;
+		trig = Decay.kr(Impulse.kr(freq), decayTime);
+		Gate.ar(\in, trig)}, "cut 1", [{|val| val.linexp(0.0,1,0.01,100.0)},
+		{|val| val.linexp(0.0,1,0.0001,0.1)}]],
+	[\cut2, {arg freq=3, decayTime=0.025; var trig;
+		trig = Decay.kr(Dust.kr(freq), decayTime);
+		Gate.ar(\in, trig)}, "cut 2", [{|val| val.linexp(0.0,1,0.01,50.0)},
+		{|val| val.linexp(0.0,1,0.0001,0.1)}]],
+	[\gdy1, {arg mix=0, maxMul=1, ampdist=2, durDist=3, adParam=1, ddParam=1,
+		ampScale=0.5, durScale=0.0, kNum=40, transp=1;
+		var freq, hasFreq, amp, minFreq, sig, input;
+		input = \in;
+		#freq, hasFreq = Pitch.kr(input, minFreq: 20, ampThreshold: 0.0, median: 7);
+		amp = Amplitude.kr(input, 0.05, 0.05).lag(0.1);
+		minFreq = ((freq[0] * transp).fold2(1000)).abs.max(20);
+		sig = Gendy1.ar(ampdist.max(0).min(6), durDist, adParam, ddParam, minFreq,(minFreq*maxMul).min(1000),ampScale,durScale,50,kNum)*amp;
+		((sig*mix.linlin(0,1,0,1))+(input*mix.linlin(0,1,1,0)))
+	}, "gendy 1", [{|val| val.linexp(0.0,1,0.01,50.0)}, {|val| val.linexp(0.0,1,0.0001,0.1)}]],
+];
+
+~getFx = {arg ndef, filter='dl1';
+	var index;
+	index = ~fxs.flop[0].indexOf(filter);
+	if(index.notNil, {
+		(~fxs.flop[1][index]).cs.replace("\\in",  (ndef.cs ++ ".ar")).interpret;
+	}, {"filter not found".warn; nil});
+};
+
+~fxNames = {~fxs.flop[0].do{|item, index| (item ++ " -> " ++ ~fxs.flop[2][index]).postln}};
+
+~fxArgs = {arg filter='dl1';
+	var index;
+	index = ~fxs.flop[0].indexOf(filter);
+	if(index.notNil, {
+		(~fxs.flop[1][index]).argNames.cs
+		.replace("SymbolArray", "").interpret;
+	}, {"filter not found".warn; nil});
+};
+
+~fxArg = {arg filter='dl1', filterArg=0;
+	var filterArgument;
+	filterArgument = ~fxArgs.value(filter)[filterArg];
+	if(filterArgument.notNil, {
+		filterArgument
+	}, {
+		"filter argumnet not found".warn; nil;
+	});
+};
+
+~setFxArg = {arg filter='dl1', filterArg=0, val=0, bool=true;
+	var index, result;
+	index = ~fxs.flop[0].indexOf(filter);
+	if(index.notNil, {
+		result = (~fxs.flop[3][index][filterArg]).value(val);
+		if(bool, {
+			[~fxArg.value(filter, filterArg), result].postln;
+		});
+		result
+	}, {"filter not found".warn; nil});
+};
+
+~setFxNdef = {arg ndef, filter='dl1', filterArg=0, val=0, bool=true;
+	var getValue, getKey;
+	getValue = ~setFxArg.value(filter,filterArg,val,bool);
+	getKey = ~fxArg.value(filter, filterArg).asSymbol;
+	if(getValue.notNil, {
+		if(getKey.notNil, {
+	ndef.set(getKey, getValue);
+		});
+	}, {"this value is not mapped".warn; nil });
+};
+
+)
+::
+
+section::Now start using it!
+
+This is a very basic example - you can do much more exciting things with these effects if you combine them in interesting ways, and if you use intersting source sounds. Also, since most of them are already mapped, it they are very good for  interfacing.
+
+note::Feel free to use this code for your project or as you please::
+
+code::
+Ndef(\master).play; //a master Ndef
+
+(
+//set fade times to 1
+Ndef(\master).fadeTime = 1;
+Ndef(\sound1).fadeTime = 1;
+Ndef(\sound2).fadeTime = 1;
+Ndef(\fx1).fadeTime = 1;
+Ndef(\fx2).fadeTime = 1;
+)
+
+Ndef(\sound1, {Dust.ar(5)}); //dust in Ndef
+
+~fxNames.value; //lists all fxs
+
+~fx1 = \fds1; //select fx
+
+Ndef(\fx1, ~getFx.value(Ndef(\sound1), ~fx1) ); //put fx in ndef
+
+Ndef(\master, {Pan2.ar(Ndef(\fx1).ar(1), 0) }); //master fader
+
+Ndef(\fx1).controlKeysValues; //see current values in ndef
+
+Ndef(\fx1).set(\mix, 0.5); //set values manualy
+
+//with assigned mapping (values 0-1)
+Ndef(\fx1).set(\mix, ~setFxArg.value(~fx1,0,1));
+
+~fxArgs.value(~fx1); //returns fx arguments
+
+~setFxNdef.value(Ndef(\fx1), ~fx1, 1, 0.4); //set fx argument at index 1
+
+
+Ndef(\sound2, {Saw.ar(400)*0.01}); //another ndef
+
+~fxNames.value; //lists all fxs
+
+~fx2 = \dl2; //choose fx
+
+Ndef(\fx2, ~getFx.value(Ndef(\sound2), ~fx2) );
+
+~setFxNdef.value(Ndef(\fx2), ~fx2, 1, 0.75); //set value for fx2
+
+//both sounds in master
+(
+Ndef(\master, {
+	Pan2.ar(Ndef(\fx1).ar(1), -0.6) +
+	Pan2.ar(Ndef(\fx2).ar(1), 0.6, 0.5)
+});
+)
+
+Ndef.clear;
+::

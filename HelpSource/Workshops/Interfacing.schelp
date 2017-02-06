@@ -1,0 +1,520 @@
+TITLE:: Interfacing
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Workshops/Playing with UGens, Seminars/Human-Computer Interaction
+
+section::MIDIIn
+
+code::MIDIIn:: receives messages.
+
+Initiating the MIDI client and connecting all MIDI equipment:
+code::
+MIDIIn.connectAll;
+::
+
+subsection::Receiving MIDIIn messages
+
+The way of receiving MIDI inputs is if they respond to a function, the function is evaluated the moment the MIDI message is detected. A function is assigned to one of the following messages:
+code::
+MIDIIn.connectAll
+
+MIDIdef.cc(\test1, {arg ...args; args.postln}); // all cc vales
+MIDIdef.cc(\test1, {arg ...args; args.postln}, 1); // match cc 1
+MIDIdef.cc(\test2, {arg ...args; args.postln}, 1, 1); // match cc1, chan 1
+MIDIdef.cc(\test3, {arg ...args; args.postln}, (1..10)); // match cc 1-10
+MIDIdef.noteOn(\test4, {arg ...args; args.postln}); // match any noteOn
+
+MIDIIn.doNoteOnAction(1, 1, 64, 64); // spoof a note on
+MIDIIn.doControlAction(1, 1, 1, 64); // spoof a cc
+MIDIIn.doControlAction(1, 1, 9, 64);
+MIDIIn.doControlAction(1, 10, 1, 64);
+
+MIDIdef.noteOn(\testOn, {arg ...args; args.postln}); // all noteOn vales
+MIDIdef.noteOff(\testOff, {arg ...args; args.postln}); // all noteOff vales
+MIDIdef.noteOn(\testOn).free;
+MIDIdef.noteOff(\testOff).free;
+
+MIDIdef.noteOn(\testOn, {arg ...args; args.postln}, 1); // match noteOn 1
+MIDIdef.noteOn(\testOn).free;
+
+MIDIdef(\test1).free; // free one def
+MIDIdef.freeAll; // free all registered MIDIdefs
+::
+
+subsection::Sending MIDI values to a Ndef
+code::
+Ndef(\theremin).play;
+
+Ndef(\theremin).fadeTime = 1;
+
+(
+Ndef(\theremin, {arg freq=440, amp=0.3, pos=0;
+	var signal;
+	signal = SinOsc.ar(freq.lag(0.1), 0, amp);
+	Pan2.ar(signal, pos);
+});
+)
+
+Ndef(\theremin).set(\freq, 300);
+
+(
+MIDIdef.cc(\freqs, {arg ...args; "freq: ".post;
+	Ndef(\theremin).set(\freq, args[0].linexp(0,127,100,5000).postln);
+	}, 16); //maps to cc number 16
+MIDIdef.cc(\amps, {arg ...args; "amp: ".post;
+	Ndef(\theremin).set(\amp, args[0].linlin(0,127,0,1.0).postln);
+	}, 19); //maps to cc number 19
+MIDIdef.cc(\pos, {arg ...args; "pos: ".post;
+	Ndef(\theremin).set(\pos, args[0].linlin(0,127,-1,1.0).postln);
+	}, 18); //maps to cc number 18
+)
+
+//new ndef
+(
+Ndef(\theremin, {arg freq=440, amp=0.3, pos=0, cutFreq=1000;
+	var signal;
+	signal = Pulse.ar(freq.lag(0.1), 0.5, amp);
+	signal = LPF.ar(signal, cutFreq);
+	Pan2.ar(signal, pos);
+});
+)
+
+(
+MIDIdef.cc(\cutFreq, {arg ...args; "cutFreq: ".post;
+	Ndef(\theremin).set(\cutFreq, args[0].linexp(0,127,20,10000).postln);
+	}, 17);
+)
+
+MIDIIn.doControlAction(num: 17, val: 64); // spoof a cc (arg src, chan, num, val)
+
+MIDIdef.all
+MIDIdef.freeAll;
+Ndef.clear
+::
+
+section:: Human Input Devices (HID)
+
+Human input devices can be used as controllers for making music. In SuperCollider the code::HID:: and code::HIDdef:: classes handle HIDs.
+code::
+HID.findAvailable; // check which devices are attached
+HID.postAvailable; // check which devices are attached
+::
+When you find the device you want to use, look at its IDs and copy the first two numbers following "IDs".
+code::
+~myhid = HID.open( 9571, 1397 ); //IDs: open my game pad
+
+//or
+HID.postAvailable;
+~myhid = HID.openAt(1); // open by index
+
+~myhid.elements.do{|item| item.postln}; //post elements
+
+HID.debug = true; //to post input
+HID.debug = false; //stop posting
+
+~myhid.postUsages;
+~myhid.elements.do{|item| item.postln };
+
+
+HIDdef.element(\try, {|...args| args.postln;}); //HIDdef for all elements
+HIDdef.element(\try, {|...args| args;});
+
+HIDdef.element(\try, {|...args| if(args[4] != 15, {args.copyRange(0,4).postln }); });
+HIDdef.element(\try, {|...args| if(args[4] != 15, {args.postln }); });
+
+
+HIDdef.usage(\usage, {|...args| args.postln});
+HIDdef.usage(\usage, {|...args| args.postln}, [\b1, \b2]);
+
+
+~myhid.close;
+HID.closeAll;
+::
+
+section::Open Sound Control (OSC)
+
+code::OSC:: is a communication protocol used for sending information across a computer network. It is promoted as the successor to MIDI (with greatly increased bandwidth and user-customisable representations), and is supported by most modern music software.
+
+
+It is the lifeblood of SuperCollider since all communication from the language application to the localhost server uses OSC! You may also send messages to any other SuperCollider Servers for which you have an IP location. So SuperCollider is immediately equipped for network music.
+
+
+You can also use it to communicate with other computers or/and applications. You can use TouchOSC in your phone or other applications like Max/MSP, PD or Processing to make the applications talk to each other.
+
+First, let's use the iPad and send OSC messages from TouchOSC to SuperCollider
+
+Make sure you follow these steps:
+
+1. Make sure both your computer and iPad are connected in the same network.
+note::You can make your own 'ad-hoc' network if necessary. On Mac go to Wi-Fi and "Create Network"::
+
+2. Look at the IP address on your computer. You should be able to see it on your network settings. If you are on Mac, try running this unix command:
+code::
+"ipconfig getifaddr en0 & ipconfig getifaddr en1".unixCmdGetStdOut;
+::
+
+3. In TouchOSC, go to the settings, and make sure you write the computer IP address where it says: Host.
+
+4. In TouchOSC, where it says Port (outgoing) you should write the number that shows up when you evaluate this code:
+code::
+NetAddr.langPort;
+::
+note::This is SuperCollider's language port number and usually (but not always!) it is 57120.::
+
+5. Once you're done, choose a nice TouchOSC interface (you can even make your own!).
+code::
+Computer.url("http://hexler.net/software/touchosc"); //check the TouchOSC editor!
+::
+6. Now, let's start receiving some OSC information!
+code::
+//this will post all incoming OSC messages
+(
+f = { |msg, time, addr|
+    if(msg[0] != '/status.reply') {
+        "time: % sender: %\nmessage: %\n".postf(time, addr, msg);
+    }
+};
+thisProcess.addOSCRecvFunc(f);
+);
+
+// stop posting.
+thisProcess.removeOSCRecvFunc(f);
+
+//if you get nothing try opening the port (this is usually not necessary)
+thisProcess.openUDPPort(57120);
+
+//now let's filter the accelerometer data to be able to see other messages
+(
+f = { |msg, time, addr|
+    if(msg[0] != '/status.reply') {
+		//this filters the accelerometer data:
+		if(msg[0] != '/accxyz', {
+        "time: % sender: %\nmessage: %\n".postf(time, addr, msg);
+		});
+    }
+};
+thisProcess.addOSCRecvFunc(f);
+);
+
+// stop posting.
+thisProcess.removeOSCRecvFunc(f);
+::
+
+7. Use code::OSCdef:: for mapping OSC information. code::OSCdef:: is the standard way of doing it - it works like code::MIDIdef:: or code::HIDdef::, meaning you can change its contents as you go. You will need to give a specific key (you decide on the name) and limit the path (matching the ones you want to use) for each code::OSCdef::.
+code::
+OSCdef(\fader1, { arg msg, time, addr, recvPort; msg.postln}, '/1/faderA'); //key, func, path
+OSCdef(\fader2, { arg msg, time, addr, recvPort; msg.postln}, '/1/faderB');
+OSCdef(\fader3, { arg msg, time, addr, recvPort; msg.postln}, '/1/faderC');
+OSCdef(\fader4, { arg msg, time, addr, recvPort; msg.postln}, '/1/faderD');
+
+OSCdef(\button1,  { arg msg, time, addr, recvPort; msg.postln}, '/toggleA_1');
+OSCdef(\button2,  { arg msg, time, addr, recvPort; msg.postln}, '/toggleA_2');
+
+OSCdef.freeAll;
+::
+warning::You can skip step 6 if you have already mapped your TouchOSC interface and you are ready to go!::
+
+
+subsection::Sending OSC messages
+
+So far we have only been receiving OSC messages.
+
+To send general OSC to a known IP we use the code::NetAddr:: class:
+
+Here, we are talking directly to the server:
+code::
+(
+var n, id;
+//loopback address is 127.0.0.1- try substituting the IP address of another user's machine!!
+n=NetAddr("127.0.0.1", 57110); //57110 is the port number that is the standard number used by the Server
+id=s.nextNodeID.postln;
+n.sendMsg("s_new",\default,id,0,0);   //sendMsg works out the correct OSC message for you
+SystemClock.sched(1.0,{n.sendMsg("n_free",id); });
+)
+::
+Now, we are going to send and receive messages within SuperCollider.
+note::Even though we are now just sending OSC messages from and to SuperCollider, remember that you can send OSC messages from other applications like Max or Pd!::
+
+code::
+//OSCdef to receive OSC messages
+(
+OSCdef(\news, { arg msg, time, addr, recvPort; [time, msg, addr, recvPort].postln;
+	msg[1].postln;
+	if(msg[1].asSymbol == '/osc', { {SinOsc.ar(400)}.play });
+}, '/badnews');
+)
+
+n = NetAddr("localhost", 57120); // 57120 is sclang default port.
+//"localhost" give the local IP address
+
+n = NetAddr("localhost", NetAddr.langPort);  //sometimes it changes so better use this
+
+//limit OSC messages to a specific port
+(
+OSCdef(\goodnews, { arg msg, time, addr, recvPort;
+	[time, msg, addr, recvPort].postln }, '/good/news');
+)
+
+n.sendMsg("/badnews", "from", "SuperCollider");
+n.sendMsg("/good/news", "you", "monkey");
+
+n.disconnect;
+::
+If you want to send messages to other computers, you need to know their IP address and portnumber (probabily SC portnumber if sending/receiving messages from SC!):
+code::
+n = NetAddr("192.168.0.2", 57120); //change IP to the computer you want to send
+// 57120 is sclang default port
+
+//in computer 2, make sure you evaluate this:
+(
+OSCdef(\goodnews, { arg msg, time, addr, recvPort;
+	[time, msg, addr, recvPort].postln }, '/good/news');
+)
+
+n.sendMsg("/good/news", "from", "SuperCollider");
+n.sendMsg("/good/news", "you", "monkey");
+
+OSCdef.freeAll;
+::
+
+subsection::SendTrig
+
+UGen to send triggered OSC messages from the server through OSC messages.
+code::
+(
+{SendTrig.kr(Impulse.kr(MouseX.kr(1,50)),0,SinOsc.ar(MouseX.kr(1,100),
+	0,MouseY.kr(1,4.0)*300,400*MouseY.kr(1,4.0)));
+}.play;
+)
+
+OSCdef(\sendTrig, { arg msg, time, addr, recvPort; msg.postln }, 'tr');
+
+OSCdef(\sendTrig, { arg msg, time, addr, recvPort; msg[3].cpsmidi.round(1).postln }, 'tr');
+
+MIDIIn.connectAll;
+
+m = MIDIOut(0);
+m.latency = 0.01;
+m.noteOn(0, 60, 60);
+m.noteOff(0, 60, 60);
+
+(
+OSCdef(\sendTrig, { arg msg, time, addr, recvPort;
+	{
+	m.noteOn(0, msg[3].cpsmidi.round(1).postln, 60);
+	0.1.yield;
+	m.noteOff(0, msg[3].cpsmidi.round(1).postln, 60);
+	 }.fork
+}, 'tr');
+)
+
+(
+{SendTrig.kr(Onsets.kr(FFT(LocalBuf(1,512), SoundIn.ar(0)),
+	MouseX.kr(0,1), \rcomplex),0,1)}.play;
+)
+
+(
+OSCdef(\sendTrig, { arg msg, time, addr, recvPort;
+	var randNote;
+	randNote = rrand(30,100);
+	{m.noteOn(0, randNote, 60);
+		0.1.yield;
+	m.noteOff(0, randNote, 60);}.fork
+}, 'tr');
+)
+::
+
+section::Exercises
+numberedlist::
+##Select at least 2 types of devices (MIDI, HID, OSC) to interface with SuperCollider (for example, an iPad and a game controller)
+##Conect the devices and make sure you are receiving incomming data
+##Map the values to a set of Ndefs, SynthDef and/or Patterns.
+::
+
+note::You can use the sounds, effects, etc., from the following examples: link::Code Examples/FX Fun::, link::Code Examples/Synth Fun:: ::
+
+section::Keyboard and Mouse
+
+subsection::Triggering from the computer keyboard:
+
+A code::SynthDef:::
+code::
+(
+SynthDef("SineGrain", {
+	|out = 0, freq, amp = 1, decay = 0.01|
+	var signal;
+	signal = SinOsc.ar(freq, mul: amp) *
+			EnvGen.kr(Env.perc(0.001,decay,0.2),1,doneAction: 2);
+	signal = Pan2.ar(signal, Rand(-1.0,1.0));//random pan
+	Out.ar(out, signal)
+}).send(s);
+)
+
+Synth(\SineGrain, [\freq,116.midicps])
+::
+Windows of text correspond to the Document class. For this class a function can be assigned such that a new instance of a Synth is evaluated when the keys are typed within the code::ScIDE:: document. The document we are using is: code::Document.current::.
+
+The function for current document uses ASCII numbers (each key has an ASCII number) to select the frequency of the Synth.
+code::
+//first, copy this piece of code into the ScIDE document
+//now start control with keyboard
+(
+Document.current
+	.keyDownAction_({|doc,key,modifiers,num|
+	[doc,key,modifiers,num].postln;
+	Synth(\SineGrain,[\freq, num.midicps])
+  });
+)
+::
+
+Writing in this window, produces small grains with the frequencies of the key numbers that are pressed.
+
+code::
+//turn off the keyboard action
+Document.current.keyDownAction_(nil);
+::
+
+If you don't want to use the current ScIDE Document. You can create a GUI code::Window:: and use the code::TextField:: class. All code::View:: GUI classes respond to the code::.keyDownAction:: message.
+code::
+(
+w = Window.new("Make some noise: type here", Rect(200,200,400,40)).front;
+a = TextField(w, Rect(0, 0, w.bounds.width, 20));
+a.keyDownAction_({|doc,key,modifiers,num|
+	[doc,key,modifiers,num].postln;
+	Synth(\SineGrain,[\freq, num.midicps])
+  });
+)
+::
+
+subsection::Limiting interaction with Mouse
+
+code::MouseX, MouseY:: produce continuous values for control parameters.
+code::
+	{SinOsc.ar(MouseX.kr(100,1000))}.play
+::
+
+If discreet values are desired, use Index to read mouse values from a table in a buffer at the server.
+code::
+Index(bufnum, in, mul, add)
+
+//assigns buffers and fills them with desired values (that will be read with an index)
+(
+t = [200,300,400,500,600,700,800]; /// a table (of frequencies)
+b = Buffer(s,t.size,1); // server, size, number of channels
+s.listSendMsg(b.allocMsg(b.setnMsg(0,t))); // sends values to a buffer in the server
+)
+::
+
+The following methods are used to send values to the buffer:
+
+code::
+    allocMsg (completionMessage)
+::
+Needed to allocate the memory specified by Buffer. The completion message is evaluated after the allocation.
+code::
+setnMsg(start, values)
+::
+To allocate the values from the array to the buffer starting with the index specified by the start argument
+
+
+The code below reads the values at the index.
+note::only the frequencies at the table will sound::
+code::
+(
+{ SinOsc.ar(Index.kr(b.bufnum, MouseX.kr(0,t.size)),
+            mul: 0.1)
+}.play
+)
+
+b.free;
+::
+
+subsection::Mouse as Trigger
+
+We’ve seen how MouseButton can be used as trigger. Another way of using the mouse as trigger is by establishing a threshold.  More precisely, if the mouse is within an area in the screen, then it’s used as trigger.
+code::
+(
+{
+	var trigger, thisX, thisY;
+	thisX = MouseX.kr;
+	thisY = MouseY.kr;
+	trigger = if ((thisX > 0.3) * (thisX < 0.4) *
+				(thisY > 0.4) * (thisY < 0.5),
+				1,0);
+	WhiteNoise.ar(mul: 0.1 * trigger);
+}.play
+)
+::
+
+subsection::Triggering strings
+
+McCartney has an example of “playing” strings with the mouse. This is an implementation of the Karplus-Strong algorithm. First, a simplified version:
+code::
+(
+//a string, triggered when the mouse crosses the middle of the screen
+{
+	var pitch, out, mousex;
+	pitch = 62;
+	out = { var trigger, pluck, period, string;
+		  trigger = HPZ1.kr(MouseX.kr > 0.5).abs;
+		  pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+		  period = pitch.midicps.reciprocal;
+		  string = CombL.ar(pluck,period, period, 4);
+		  Pan2.ar(string, 0);
+		};
+	LPF.ar(out,12000);
+	LeakDC.ar(out);
+}.play
+)
+::
+list::
+##code::HPZ1:: two point differentiator
+list::##emphasis::out(i) = 0.5 * (in(i) - in(i-1))::::
+##code::LeakDC:: removes DC offset from a signal
+##code::Decay(in, decayTime)::
+::
+
+Guitar strings played with mouse:
+code::
+(
+{
+	var pitch, out;
+	pitch = [ 52, 57, 62, 67, 71, 76 ];		// midi for: E A D G B E
+	out = Mix.fill(pitch.size, { | i |
+		var trigger, pluck, period, string;
+		trigger = HPZ1.kr(MouseX.kr > (0.25 + (i * 0.1))).abs;
+		pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+		period = pitch[i].midicps.reciprocal;
+		string = CombL.ar(pluck, period, period, 4);
+		Pan2.ar(string, i * 0.2 - 0.5);
+	});
+	LPF.ar(out, 12000);
+	LeakDC.ar(out);
+}.play;
+)
+::
+An instrument with more strings:
+code::
+(
+// adjusted so than they are randomly out of tune
+// num is the amount of strings
+{
+	var pitch, out, num = 30;
+	pitch = {rrand(52,76.0)}.dup(num).sort.postln;
+
+	out = Mix.fill(pitch.size, { | i |
+		var trigger, pluck, period, string;
+		trigger = HPZ1.kr(MouseX.kr >
+		                         (linlin(i, 0,num-1,0.25,0.75))).abs;
+		pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+		period = pitch[i].midicps.reciprocal;
+		string = CombL.ar(pluck, period, period, 4);
+		Pan2.ar(string, i * num.reciprocal - 0.5);
+	});
+	LPF.ar(out, 12000);
+	LeakDC.ar(out);
+}.play;
+)
+::
+
+

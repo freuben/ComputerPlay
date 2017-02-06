@@ -62,6 +62,7 @@ list::
 ## link::Workshops/Playing with UGens::
 ## link::Workshops/Patterns and Ndefs::
 ## link::Workshops/Programming Concepts 2::
+## link::Workshops/Interfacing::
 ::
 ## Study Guides ||
 list::
@@ -74,6 +75,8 @@ list::
 list::
 ## link::Code Examples/Code for Fun::
 ## link::Code Examples/MIDI Fun::
+## link::Code Examples/FX Fun::
+## link::Code Examples/Synth Fun::
 ::
 ::
 
