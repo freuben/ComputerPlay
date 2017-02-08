@@ -1,7 +1,7 @@
 TITLE::Human-Computer Interaction
 summary:: Computer.play(Music, Creativity & Code)
 categories:: Tutorials/ComputerDotPlay
-related:: Computer, Wrokshop/Interfacing
+related:: Computer, Workshops/Interfacing
 
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.001.png#Laetitia Sonami - bbc.co.uk::
 code::
@@ -51,10 +51,10 @@ image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.023.png::
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.024.png::
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.025.png::
-image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.026.png::
+
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.027.png::
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.028.png::
-image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.029.png::
+
 
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.030.png::
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.031.png::
@@ -75,6 +75,7 @@ Computer.url("http://youtu.be/3ZOzUVD4oLg?t=5m43s");
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.037.png#Nicolas Collins: Trombone-Propelled Electronics - artschoolshithead.files.wordpress.com::
 code::
 Computer.url("http://youtu.be/89jbl0ZuaH4?t=4m55s");
+Computer.url("http://nicolascollins.com/texts/lowbrass.pdf");
 ::
 image::http://www.federicoreuben.com/computerdotplay/seminars/seminar3/seminar3.038.png#Michel Waisvisz (STEIM) - The Hands - carlavanthijnfotografie.nl::
 code::
