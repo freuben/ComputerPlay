@@ -327,7 +327,7 @@ OSCdef(\sendTrig, { arg msg, time, addr, recvPort;
 section::Exercises
 numberedlist::
 ##Select at least 2 types of devices (MIDI, HID, OSC) to interface with SuperCollider (for example, an iPad and a game controller)
-##Conect the devices and make sure you are receiving incomming data
+##Connect the devices and make sure you are receiving incoming data
 ##Map the values to a set of Ndefs, SynthDef and/or Patterns.
 ::
 

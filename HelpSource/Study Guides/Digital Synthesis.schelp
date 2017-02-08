@@ -153,11 +153,11 @@ code::Impulse.kr:: produces a trigger with a certain frequency
 
 code::
 (
-	var start = 1/2;
-	{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum),
-		Impulse.kr(1/3),
-		startPos: BufFrames.kr(b.bufnum) * start, loop: 0)
-	}.scope
+var start = 1/2;
+{ PlayBuf.ar(2, b.bufnum, BufRateScale.kr(b.bufnum),
+	Impulse.kr(1/3),
+	startPos: BufFrames.kr(b.bufnum) * start, loop: 0)
+}.scope
 )
 ::
 Using a trigger with looping:
@@ -195,20 +195,23 @@ code::
 //granular example
 b = Buffer.loadDialog; //choose sound file
 
+(
 SynthDef("envPlay", {arg freqMod=1;
 	var signal, env;
 	signal = PlayBuf.ar(2,b.bufnum, Rand(0.5,4), startPos: BufFrames.kr(b.bufnum)*Rand(0,1));
 	env = EnvGen.kr(Env.perc(0.01,0.1), doneAction:2);
 	Out.ar([0,1], signal * env * 0.2);
 }).send(s);
+)
 
+(
 {
-	inf.do{
+inf.do{
 Synth("envPlay");
-	rrand(0.1,0.01).yield;
+rrand(0.1,0.01).yield;
 }
-}.fork
-
+}.fork;
+)
 ::
 
 subsection::DiskIn
