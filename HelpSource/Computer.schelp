@@ -70,6 +70,7 @@ list::
 ## link::Study Guides/Deconstructing SC code::
 ## link::Study Guides/Digital Audio::
 ## link::Study Guides/Digital Synthesis::
+## link::Study Guides/Audio Analysis and Machine Listening::
 ::
 ## Code Examples ||
 list::
@@ -77,6 +78,7 @@ list::
 ## link::Code Examples/MIDI Fun::
 ## link::Code Examples/FX Fun::
 ## link::Code Examples/Synth Fun::
+## link::Code Examples/Buffer Tricks::
 ::
 ::
 

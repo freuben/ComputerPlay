@@ -18,27 +18,6 @@ list::
 ##Models based on human auditory system (research in biological auditory systems - modelling listening) -> Machine Listening
 ::
 
-strong::Machine Listening Research::
-list::
-##Models inspired on physiology of auditory system
-##Trying to reproduce some aspects of how humans listen and process sound
-##Physiological aspects of auditory system, neuroscience, cognitive science, cognitive musicology
-##Computational models of music and sound perception and cognition
-##Science & Engineering Research, Signal Processing and Analysis, Music and Audio Analysis.
-::
-
-strong::Machine Listening::
-list::
-##Feature extraction
-##Sound/Music descriptors:
-list::
-##Sound events (onsets/segments)
-##Pitch (monophonic/polyphonic)
-##Rhythm (beat/tempo)
-##Timbal categorisations (instrument/sound recognition, noise/pitch)
-::
-::
-
 strong::Analysis/Synthesis::
 list::
 ##Often analysis and synthesis are coupled
@@ -52,8 +31,8 @@ list::
 ##Visual representation of the frequency spectrum of a signal as a function of time.
 ##Useful for audio and music signals.
 ##Can be used as a creative tool in composition
-##Can be used for sprectral processing
-##Most common analysis in computer music is Fourier Analysis - using the code::FFT:: (Fast Fourier Transform) algorithm
+##Can be used for spectral processing
+##Most common analysis in computer music is Fourier Analysis - using the FFT (Fast Fourier Transform) algorithm
 ::
 
 section::Fourier Analysis
@@ -111,16 +90,16 @@ note::This is a very simplified explanation of Fourier Analysis... The actual ma
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/fft_class1.png::
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/fft_class2.png#FFT class at MIT - ocw.mit.edu::
 
-note::ASK JEZ, if you want some Engineering insights into FFT! In fact a lot of Jez's research is related to spectral analysis and modeling!::
+note::ASK JEZ, if you want some Engineering insights into FFT! In fact a lot of Jez's research is related to spectral analysis and modelling!::
 
-subsection::Spectograms
+subsection::Spectrograms
 
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram1.png::
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram2.png::
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram3.png::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram4.png#Spectograms!::
+image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram4.png#Spectrograms!::
 
-A strong::spectogram:: is a plot over time indicating energy in a sound at different frequency components. Typical figures might be: fundamental frequency 43 Hz, 86 frames per second (analysis regions overlap by one half)
+A strong::spectrogram:: is a plot over time indicating energy in a sound at different frequency components. Typical figures might be: fundamental frequency 43 Hz, 86 frames per second (analysis regions overlap by one half)
 
 strong::Free Software:::
 
@@ -133,6 +112,14 @@ emphasis::SPEAR::, Michael Kingbeil (McAulay and Quatieri - peak matching algori
 image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/SPEAR.png#SPEAR::
 code::
 Computer.url("http://www.klingbeil.com/spear/");
+::
+
+strong::FreqScope in SC::
+
+There is a GUI implementation of a Frequency Spectrum Visualiser:
+code::
+{LPF.ar(WhiteNoise.ar(1), LFNoise1.kr(1).range(20,12250))}.play;
+FreqScope.new;
 ::
 
 subsection::Fourier Analysis in more detail
@@ -179,7 +166,938 @@ list::
 ##Spectral processing changes magnitudes and phases to get a different result. Used for sound transformations. Also to combine different spectral information from different sources
 ::
 
+section::Fourier in SuperCollider
+
+subsection::FFT and IFFT
+SuperCollider implements a number of UGens supporting Fast Fourier Transform (FFT) based processing. The most basic of these are code::FFT:: and code::IFFT:: (inverse-FFT) which convert data between the time and frequency domains:
+code::
+chain = FFT(buffer, input)
+output = IFFT(chain)
+::
+code::FFT:: stores spectral data in a local buffer ( see link::Classes/LocalBuf:: ). The code::LocalBuf:: should be the same size as the window of your Fast Fourier Transform. You can change the emphasis::hop size:: (default is 0.5), emphasis::window type:: (default is Sine) and emphasis::window size:: (if different from buffer). Look at link::Classes/FFT##FFT helpfile:: for more information.
+
+The most simple code::FFT/IFFT:: chain example is by not performing any processing between these two algorithms.
+
+Note::This is just a demonstration - there is no purpose to perform an code::IFFT:: just after an code::FFT::!::
+
+code::
+Ndef(\fft).ar(2); //2 channel ndef
+Ndef(\fft).play;
+
+ServerMeter(s);
+
+(
+Ndef(\fft, {var input, chain, output;
+	input = WhiteNoise.ar(0.1);
+	chain = FFT(LocalBuf(2048), input);
+	output = IFFT(chain)
+});
+)
+::
+This is how you do code::FFT:: multichannel expansion:
+code::
+(
+Ndef(\fft, {var input, chain, output;
+	input =  Ringz.ar(Impulse.ar([2, 3]), [700, 800], 0.1) * 1;
+	chain = FFT(LocalBuf(2048!2), input);
+	output = IFFT(chain)
+});
+)
+::
+
+note::Notice that the buffer has an array as argument for multichannel expansion::
+
+subsection::Phase Vocoder UGens
+In between an FFT and an IFFT one can chain together a number of Phase Vocoder UGens (i.e. 'PV_...') to manipulate blocks of spectral data before reconversion. The process of buffering the appropriate amount of audio, windowing, conversion, overlap-add, etc. is handled for you automatically.
+
+strong::Some PV UGens::
+
+The following PV UGens are included in the standard SC distribution:
+list::
+##	code::FFT:: -	Fast Fourier Transform
+##	code::IFFT:: -	Inverse Fast Fourier Transform
+##	code::PV_Add:: -	complex addition
+##	code::PV_BinScramble:: -	scramble bins
+##	code::PV_BinShift	:: - shift and stretch bin position
+##	code::PV_BinWipe	:: - combine low and high bins from two inputs
+##	code::PV_BrickWall:: -	zero bins
+##	code::PV_ConformalMap:: -	complex plane attack
+##	code::PV_Copy:: -	copy an FFT buffer
+##	code::PV_CopyPhase:: -	copy magnitudes and phases
+##	code::PV_Diffuser:: -	random phase shifting
+##	code::PV_HainsworthFoote:: - onset dectection
+##	code::PV_JensenAndersen:: - onset dectection
+##	code::PV_LocalMax:: - 	pass bins which are a local maximum
+##	code::PV_MagAbove:: - 	pass bins above a threshold
+##	code::PV_MagBelow:: - 	pass bins below a threshold
+##	code::PV_MagClip:: - 	clip bins to a threshold
+##	code::PV_MagFreeze:: - 	freeze magnitudes
+##	code::PV_MagMul:: - 	multiply magnitudes
+##	code::PV_MagDiv:: - 	division of magnitudes
+##	code::PV_MagNoise:: - 	multiply magnitudes by noise
+##	code::PV_MagShift:: - 	shift and stretch magnitude bin position
+##	code::PV_MagSmear	:: - average magnitudes across bins
+##	code::PV_MagSquared:: - 	square magnitudes
+##	code::PV_Max:: - 	maximum magnitude
+##	code::PV_Min:: - 	minimum magnitude
+##	code::PV_Mul:: - 	complex multiply
+##	code::PV_PhaseShift:: - 	shift phase of all bins
+##	code::PV_PhaseShift270:: - 	shift phase by 270 degrees
+##	code::PV_PhaseShift90:: - 	shift phase by 90 degrees
+##	code::PV_RandComb:: - 	pass random bins
+##	code::PV_RandWipe:: - 	crossfade in random bin order
+##	code::PV_RectComb:: - 	make gaps in spectrum
+##	code::PV_RectComb2:: - make gaps in spectrum
+##	code::UnpackFFT, PackFFT, Unpack1FFT::		"unpacking" components used in pvcalc, pvcalc2, pvcollect (can also be used on their own)
+::
+note::Most of these PV UGes only deal with the magnitude values.::
+
+strong::PV UGen demonstrations::
+
+Now we're going to see some of these PV UGens in action! These demonstrations will be based mostly on playing a buffer containing a sound file and using this signal as input to the FFT. You can however, of course use any input for the Phase Vocoder.
+code::
+Ndef(\fft).ar(2); //2 channel ndef
+Ndef(\fft).play;
+
+//load buffer
+a = Buffer.loadDialog;
+
+Ndef(\input, {PlayBuf.ar(a.numChannels, a.bufnum, BufRateScale.kr(a.bufnum), loop: 1)});
+::
+The contents of buffer a can be changed to test different sounds with the UGens.
+
+In most of the UGens demonstrations, input parameters will be derived from the mouse to allow quick testing of the meaning of the parameters.
+
+strong::PV_MagAbove::
+
+emphasis::plays bins above a certain amp threshold.::
+list::
+##(buffer, threshold)
+##buffer: the fft buffer
+##threshold: the magnitude threshold. In this example, it is controlled by MouseX.
+::
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagAbove(chain, MouseX.kr(0,100));  // note, no use of .ar of PV_MagAbove
+IFFT(chain);
+})
+)
+
+Ndef(\input, {WhiteNoise.ar(1)});
+
+Ndef(\input, {PlayBuf.ar(a.numChannels, a.bufnum, BufRateScale.kr(a.bufnum), loop: 1)});
+::
+
+strong::PV_MagBelow::
+
+emphasis::plays bins below a certain amp threshold::
+
+list::
+##(buffer, threshold)
+##buffer: fft buffer
+##threshold: magnitude threshold. In this example, it is controlled by MouseX.
+::
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagBelow(chain, MouseX.kr(0,100));
+IFFT(chain);
+});
+)
+::
+
+strong::PV_MagFreeze::
+
+emphasis::freeze magnitudes when freeze > 0::
+
+list::
+##(buffer, freeze)
+##buffer: fft buffer
+##freeze: when > 0, magnitudes will freeze at their current levels
+::
+
+In these examples, pushing the (left) mouse button will freeze the magnitudes. Releasing the button will thaw them out again.
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagFreeze(chain, MouseButton.kr(0,1));  // freeze when button pressed
+IFFT(chain);
+});
+)
+::
+
+strong::PV_MagShift::
+
+emphasis::stretch and shift magnitudes of bins::
+list::
+##(buffer, stretch, shift)
+##shift (add offset to the magnitude of a bin)
+::
+In this demo, the amount of shift is controlled by the mouse and is in the range -5 to 5.
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagShift(chain, shift: MouseX.kr(-5.0,5));  // add offset to bin
+IFFT(chain);
+})
+)
+::
+list::
+##scale (multiply magnitudes of bins, a crude frequency scaler)
+::
+In this demo, the amount of scaling is controlled by the Mouse and is in the range of 0.001 to 2.
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagShift(chain, MouseX.kr(0.001,2));  // scale
+IFFT(chain);
+});
+)
+::
+
+strong::PV_RandComb::
+
+emphasis::randomly clear bins::
+list::
+##(buffer,wipe,trig)
+##wipe: (the higher the value (in the range 0-1), the more bins that get wiped (cleared)
+##trigger: select a new random ordering
+::
+In this demo, the wipe parameter is controlled by the mouse. The random ordering is controlled by the (left) mouse button.
+
+When the UGen is started, a random order of bins is created. Changing the wipe argument will clear bins in the order chosen. When triggered, a  new order is made and bins will be cleared in that new random order.
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_RandComb(chain, MouseX.kr(0.0,1), MouseButton.kr);  // wipe determined mouse, trigger is button
+IFFT(chain);
+});
+)
+::
+
+strong::PV_MagNoise::
+
+emphasis::multiplies magnitudes with noise::
+
+list::
+##no amp control for noise
+##(buffer)
+::
+
+This can be seen as a type of amplitude jitter but without any control over the amount of jitter.
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_MagNoise(chain);
+IFFT(chain);
+})
+)
+::
+
+strong::PV_BrickWall::
+
+emphasis::clears bins above or below a cutoff point::
+
+list::
+##(buffer,wipe)
+##wipe: should be in the range -1 to 1
+##wipe ==0, no effect
+##wipe > 0, high pass filter, clears bins from the bottom up
+##wipe < 0, low pass filter, clears bins from the top down
+::
+
+In this demo, the wipe argument is supplied by the mouse.
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_BrickWall(chain, MouseX.kr(-1,1));
+IFFT(chain);
+})
+)
+::
+
+strong::PV_BinScramble::
+
+emphasis::Randomises the order of the bins.::
+
+list::
+##(buffer, wipe, width, trig)
+##wipe: scrambles more bins as it goes from 0-1
+##width: in the range 0-1, indicating the maximum distance of a bin from its original location
+##trig: selects a new random ordering
+::
+
+In this demo:
+list::
+## wipe is controlled by the mouse on the X axis
+##  width is controlled by the mouse on the Y axis (the nearer the top of the screen, the smaller the value)
+##  trigger is controlled by the (left) mouse button
+::
+
+code::
+(
+Ndef(\fft, {var in, chain;
+in = Ndef(\input).ar;
+chain = FFT(LocalBuf(2048!2), in);
+chain = PV_BinScramble(chain, MouseX.kr, MouseY.kr, MouseButton.kr);
+IFFT(chain);
+})
+)
+
+Ndef.clear;
+a.free;
+::
+
+strong::Requiring 2 inputs::
+
+A few of the PV UGens use two inputs, e.g. to multiply the values of two spectra. To demonstrate these UGens,2 PlayBuf UGens will be used for input. These buffers will be a (already allocated) and c.
+
+code::
+a = Buffer.loadDialog;
+
+b = Buffer.loadDialog;
+
+Ndef(\fft).ar(2);
+Ndef(\fft).play;
+
+Ndef(\in1, {PlayBuf.ar(a.numChannels, a.bufnum, BufRateScale.kr(a.bufnum), loop: 1);}); //input 1
+
+Ndef(\in2, {PlayBuf.ar(b.numChannels, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1);}); //input 2
+::
+
+strong::PV_Mul::
+
+emphasis::complex multiplication of two spectra. (This is a form of convolution).::
+
+Note that both spectra are multiplied as produced by the FFT. It is not the case that one of the spectra is modified to be an amplitude spectrum before use.
+list::
+##(bufferA, bufferB)
+::
+In the demo, an amplitude argument has been defined to control the amplitude of the signals going into the FFT. The signal from buffer a is controlled by MouseX. The signal from buffer c is controlled by MouseY.
+
+code::
+(
+Ndef(\fft, {var inA, inB, chain, chainA, chainB;
+inA = Ndef(\in1).ar * MouseX.kr(0,0.5);
+inB = Ndef(\in2).ar * MouseY.kr(0,0.5);
+chainA = FFT(LocalBuf(2048!2), inA);
+chainB = FFT(LocalBuf(2048!2), inB);
+chain = PV_Mul(chainA, chainB);
+IFFT(chain);
+})
+)
+
+Ndef(\in2, {SoundIn.ar(0);}); //mic input
+
+Ndef(\in2, {PlayBuf.ar(b.numChannels, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1);}); //input 2
+::
+
+
+strong::PV_RandWipe::
+
+emphasis::crossfade in random bin order::
+
+list::
+##(bufferA, bufferB, wipe, trig)
+##wipe: if 0, bins are from bufferA, if 1 bins are from bufferB
+##trig:   trigger selects new random ordering
+::
+
+In the demo, wipe is controlled by MouseX. The trigger is pressing the (left) mouse button.
+
+code::
+(
+Ndef(\fft, {var inA, inB, chain, chainA, chainB, amp = 0.7;
+inA = Ndef(\in1).ar * amp;
+inB = Ndef(\in2).ar * amp;
+chainA = FFT(LocalBuf(2048!2), inA);
+chainB = FFT(LocalBuf(2048!2), inB);
+chain = PV_RandWipe(chainA, chainB, MouseX.kr, MouseButton.kr);
+IFFT(chain);
+})
+)
+::
+
+strong::PV_Max::
+
+emphasis::output copies the bins with the max magnitude of the two inputs::
+
+This should mean that each pair of bins is compared, and the largest magnitude value is used for the new spectrum.
+list::
+##(chainA, chainB)
+::
+
+There is no user control for this UGen except to specify the two input signals.
+
+code::
+(
+Ndef(\fft, {var inA, inB, chain, chainA, chainB, amp = 0.7;
+inA = Ndef(\in1).ar  * amp;
+inB = Ndef(\in2).ar * amp;
+chainA = FFT(LocalBuf(2048!2), inA);
+chainB = FFT(LocalBuf(2048!2), inB);
+chain = PV_Max(chainA, chainB);
+IFFT(chain);
+})
+)
+::
+
+strong::PV_Min::
+
+emphasis::output copies the bins with the minimum magnitude of the two inputs::
+
+This should mean that each pair of bins is compared, and the largest magnitude value is used for the new spectrum.
+list::
+##(chainA, chainB)
+::
+
+There is no user control for this UGen except to specify the two input signals.
+code::
+(
+Ndef(\fft, {var inA, inB, chain, chainA, chainB, amp = 0.7;
+inA = Ndef(\in1).ar  * amp;
+inB = Ndef(\in2).ar * amp;
+chainA = FFT(LocalBuf(2048!2), inA);
+chainB = FFT(LocalBuf(2048!2), inB);
+chain = PV_Min(chainA, chainB);
+IFFT(chain);
+})
+)
+::
+
+strong::PV_Morph::
+
+emphasis::One kind of spectral morphing.::
+list::
+##Morphs between two fft buffers.
+##(bufferA,  bufferB, morph)
+::
+code::
+(
+Ndef(\fft, {var inA, inB, chain, chainA, chainB, amp = 0.7;
+inA = Ndef(\in1).ar  * amp;
+inB = Ndef(\in2).ar * amp;
+chainA = FFT(LocalBuf(2048!2), inA);
+chainB = FFT(LocalBuf(2048!2), inB);
+chain = PV_Morph(chainA, chainB, MouseX.kr);  //move mouse left to right to morph
+IFFT(chain);
+})
+)
+::
+
+strong::Convolution::
+
+emphasis::Real-time convolver.
+::
+
+list::
+##Strict convolution of two continuously changing inputs.
+##(in, kernel, framesize, mul, add)
+::
+code::
+(
+Ndef(\fft, {var inA, inB, amp = 0.7;
+inA = Ndef(\in1).ar  * amp;
+inB = Ndef(\in2).ar * amp;
+Convolution.ar(inA, inB, 1024, 0.5);
+})
+)
+
+Ndef(\in1, {SoundIn.ar(0);}); //mic input
+Ndef(\in1, {PlayBuf.ar(b.numChannels, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1);}); //input 1
+
+Ndef(\in2, {SoundIn.ar(0);}); //mic input
+Ndef(\in2, {PlayBuf.ar(b.numChannels, b.bufnum, BufRateScale.kr(b.bufnum), loop: 1);}); //input 2
+
+Ndef.clear
+a.free; b.free;
+::
+
+strong::PV_ChainUGen (pvcollect, pvcalc, pvcalc2)::
+
+With code::PV_ChainUGen:: it is possible to access the magnitude and phase information and directly manipulate it through functions/operations. In other words, you can apply some kind of transformation to the frequency-domain signal produced by FFT by directly accessing magnitudes and phases.
+
+code::PV_ChainUGen:: works through the messages: code::pvcollect::, code::pvcalc::, and code::pvcalc2::.
+
+note::For further information see link::Classes/PV_ChainUGen:: and link::Classes/UnpackFFT::. ::
+
+strong::	pvcollect::
+
+emphasis::Process each bin of an FFT chain, separately::
+
+code::chain = chain.pvcollect(numframes, func, frombin, tobin, zeroothers)::
+
+pvcollect applies function func to each bin of an FFT chain. func should be a function that takes magnitude, phase, bin, index as inputs and returns a resulting [magnitude, phase].
+
+The "bin" is the integer bin number, starting at 0 for DC, while "index" is the iteration number, always starting with 0. You can optionally ignore the phase and only return a single (magnitude) value, in which case the phase is assumed to be left unchanged.
+
+frombin, tobin, and zeroothers are optional arguments which limit the processing to a specified integer range of FFT bins. If zeroothers is set to 1 then bins outside of the range being processed are silenced.
+
+code::
+c = Buffer.loadDialog;
+d = Buffer.alloc(s, 1024, 1);
+d.setn(0,0.5!1024)
+
+Ndef(\fft).play;
+
+Ndef(\in, {PlayBuf.ar(c.numChannels, c.bufnum, BufRateScale.kr(c.bufnum), loop: 1)});
+(
+w = GUI.window.new("~", Rect(0, 0, 1024, 200)).front;
+m = GUI.multiSliderView.new(w, Rect(0, 0, 1024, 200)).value_(0.5!512).
+		gap_(0).thumbSize_(2).valueThumbSize_(2).action_({|me|
+			d.setn(0, me.value.postln;)});
+
+~update = {|arr| {m.value_(arr);}.defer; d.setn(0, arr;)};
+
+Ndef(\fft, {var in, chain, v, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcollect(numFrames, {|mag, phase, index|
+		[mag*Index.kr(d.bufnum, index), phase];
+	}, frombin: 0, tobin: 250, zeroothers: 1);
+	0.5 * IFFT(chain).dup;
+	});
+)
+
+Tdef(\bins).play; //task definition
+
+(
+Tdef(\bins, {~update.(~array = {0}!512);
+	inf.do{|j|~update.(~array.put(rrand(0,511),
+			rrand(0.0,1)));
+		0.01.wait}});
+)
+
+Tdef(\bins).pause;
+Tdef(\bins).resume;
+
+Ndef(\in, {WhiteNoise.ar(0.5)});
+
+(
+Tdef(\bins, {var step; step = 0; ~update.(~array = {0}!512);
+	inf.do{|j|~update.(~array.put((0,1..511)[step], rrand(0.0,1)));
+		0.01.wait;
+		if(step < 511, {step = step + 1;},{step = 0});
+	}
+});
+)
+
+Ndef(\in, {PlayBuf.ar(c.numChannels, c.bufnum, BufRateScale.kr(c.bufnum), loop: 1)});
+
+Tdef(\bins).pause;
+Tdef(\bins).resume;
+
+(
+Tdef(\bins, {var step; step = 0; ~update.(~array = {0}!512);
+	inf.do{|j|~update.(~array.put((0,1..511)[step], rrand(0.0,1)));
+		0.01.wait;
+		if(step < 511, {step = step + 1;},{step = 0})
+	}
+});
+)
+
+Tdef(\bins).stop;
+
+~update.(~array = {(0.0,0.001953125..1.0)}.value);
+~array = ~array.reverse;
+~update.(~array);
+
+~update.(Array.fill(1024, {1.0.rand}).postln)
+
+~update.({0}!512)
+
+~update.({|i| sin(i*0.02)+1/2 }!1024)
+
+Ndef.clear
+c.free;
+d.free;
+w.close;
+::
+
+strong::	pvcalc::
+
+emphasis::Process the bins of an FFT chain::
+
+code::chain = chain.pvcalc(numframes, func, frombin, tobin, zeroothers)::
+
+pvcalc applies function func to the frequency-domain data of an FFT chain. func should be a function that takes two arrays as inputs (magnitude, and phase) and returns a resulting pair of arrays [magnitude, phase].
+
+frombin, tobin, and zeroothers are optional arguments which limit the processing to a specified integer range of FFT bins. If zeroothers is set to 1 then bins outside of the range being processed are silenced.
+
+code::
+c = Buffer.loadDialog; //load another soundfile
+
+Ndef(\fft).play;
+Ndef(\in, {PlayBuf.ar(c.numChannels, c.bufnum, BufRateScale.kr(c.bufnum), loop: 1); });
+
+Ndef(\in, {SoundIn.ar(0);}); //mic input
+::
+Arbitrary filter, arbitrary phase shift
+code::
+(
+Ndef(\fft, {
+	var in, chain, v, change, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcalc(numFrames, {|mags, phases|
+		[mags * {1.5.rand}.dup(mags.size), phases + {pi.rand}.dup(phases.size)];
+	}, frombin: 0, tobin: 250, zeroothers: 0);
+	0.5 * IFFT(chain).dup;
+});
+)
+::
+Scramble magnitudes and phases
+code::
+(
+Ndef(\fft, {
+	var in, chain, v, change, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcalc(numFrames, {|mags, phases|
+		[mags.scramble, phases.scramble];
+	}, frombin: 0, tobin: 250, zeroothers: 0);
+	0.5 * IFFT(chain).dup;
+	});
+)
+::
+".rotate"
+code::
+(
+Ndef(\fft, {
+	var in, chain, v, change, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcalc(numFrames, {|mags, phases|
+		[mags.rotate(-32), phases.rotate(32)];
+	}, frombin: 0, tobin: 250, zeroothers: 0);
+	0.5 * IFFT(chain).dup;
+});
+)
+::
+reverse magnitudes and phases
+code::
+(
+Ndef(\fft, {
+	var in, chain, v, change, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcalc(numFrames, {|mags, phases|
+		[mags.reverse, phases.reverse];
+	}, frombin: 0, tobin: 250, zeroothers: 0);
+	0.5 * IFFT(chain).dup;
+});
+)
+::
+".rotate" doesn't work directly, but this is equivalent
+code::
+(
+Ndef(\fft, {
+	var in, chain, v, change, numFrames;
+	numFrames = 1024;
+	in = Ndef(\in).ar;
+	chain = FFT(LocalBuf(numFrames), Mix(in));
+	chain = chain.pvcalc(numFrames, {|mags, phases|
+		[mags[30..] ++ mags[..30], phases[30..] ++ phases[..30]];
+	}, frombin: 0, tobin: 250, zeroothers: 0);
+	0.5 * IFFT(chain).dup;
+});
+)
+
+Ndef.clear;
+c.free;
+::
+
+subsection::Accessing Frequency and Magnitude Data
+
+In SuperCollider it is possible to access the frequencies and magnitudes from an code::FFT:: directly from a buffer. This data can be read from a buffer straight into an array to be used/manipulated as you wish. This is done through the PV_MagBuffer and PV_FreqBuffer classes (sc3-plugins)
+
+First, we need to allocate two buffers, one to store the frequency data and another for the magnitudes. The buffers should be equal to emphasis::size of the window / 2::.
+
+code::
+(
+~windowSize=1024;
+~freqBuf = Buffer.alloc(s, ~windowSize/2, 1, 1);
+~magBuf = Buffer.alloc(s, ~windowSize/2, 1, 1);
+)
+::
+
+Now, let's analyse the sound of the microphone. Notice that PV_MagBuffer & PV_FreqBuf receive arguments for emphasis::buffer:: (FFT buffer) and emphasis::databuffer:: (where we are going to store the data and access it!).
+code::
+Ndef(\input, {SoundIn.ar(0)});
+
+(
+Ndef(\analyse, {arg in, thresh=0.1, num=20;
+	var chain;
+	chain = FFT(LocalBuf(~windowSize), Ndef(\input).ar);
+	chain = PV_MagBuffer(chain, ~magBuf.bufnum);
+	chain = PV_FreqBuffer(chain, ~freqBuf.bufnum);
+	IFFT(chain);
+})
+)
+::
+Now, let's get the data from the buffers! The code::.getn:: message is the way to access the data of a buffer as an array. You need to specify the start and end index of the buffer values you want to store into an array:
+code::
+(
+~freqBuf.getn(0,511,{|msg| ~freqs = msg; });
+~magBuf.getn(0,511, {|msg| ~mags = msg; });
+)
+
+~freqs.do{|item| item.postln };
+~mags.do{|item| item.postln };
+~arr = [~freqs,~mags].flop;
+~arr.do{|item| item.postln };
+::
+
+It takes just a few milliseconds for SC to access the information from the buffer, so we can optimise the timing with the Condition class. The computer waits until the information has been accessed before printing it.
+
+code::
+(
+{
+c = Condition.new(false);
+~freqBuf.getn(0,511,{|msg| ~freqs = msg;
+~magBuf.getn(0,511, {|msg| ~mags = msg; c.test = true; c.signal});
+});
+c.wait;
+[~freqs,~mags].flop.postln; //post [freq,mags]
+}.fork;
+)
+::
+We are getting a lot of information!! Maybe too much for what we want to do. If we want to do partial tracking, it's possible to limit the amount of bins by just accessing the bins with the highest magnitudes. PV_MaxMagN limits the number of bins to a specific number and it takes the maximum magnitudes at a given time:
+code::
+(
+Ndef(\analyse, {arg in, num=6;
+	var chain;
+	chain = FFT(LocalBuf(~windowSize), Ndef(\input).ar);
+	chain = PV_MaxMagN(chain, num);
+	chain = PV_MagBuffer(chain, ~magBuf.bufnum);
+	chain = PV_FreqBuffer(chain, ~freqBuf.bufnum);
+	IFFT(chain);
+})
+)
+::
+Now we can do partial tracking by specifying the number of bins we want.
+code::
+Ndef(\analyse).set(\num, 12);
+
+(
+{
+c = Condition.new(false);
+~freqBuf.getn(0,511,{|msg| ~freqs = msg;
+~magBuf.getn(0,511, {|msg| ~mags = msg; c.test = true; c.signal});
+});
+c.wait;
+//this rejects items with a magnitude of 0
+//we are filtering out all of the bins with less magnitudes
+~arr = [~freqs,~mags].flop.reject({|item| item[1] == 0});
+~arr.do{|item| item.postln};
+}.fork;
+)
+::
+
+Now, this is more manageable! So, for example, we can use the strongest bins now to write some real-time spectral music... We're going to take the frequency and magnitudes from our analysis and use a synth to play them.
+code::
+
+Ndef(\resynthesis, Pdef(\partials)).play;
+
+(
+SynthDef("resynth", {arg out=0, freq=440, gate=0, amp=1;
+	var signal, env;
+	signal = SinOsc.ar(freq, 0, amp);
+	env = EnvGen.kr(Env.adsr(0.05,0.5,0.9,0.2), gate, doneAction:2);
+	Out.ar(out, signal*env);
+}).add;
+)
+//sing a note and while you're singing run this:
+(
+{
+c = Condition.new(false);
+~freqBuf.getn(0,511,{|msg| ~freqs = msg;
+~magBuf.getn(0,511, {|msg| ~mags = msg; c.test = true; c.signal});
+});
+c.wait;
+~arr = [~freqs,~mags].flop.reject({|item| item[1] == 0});
+	Pdef(\partials, Pbind(\instrumnet, \resynth, \freq, ~arr.flop[0].flat,
+		\amp, ~arr.flop[1].flat / ~windowSize, \dur, Prand([3,4],1)) ).play;
+~arr.do{|item| item.postln};
+}.fork;
+)
+::
+
+subsection::FFT stretching
+
+FFT time stretching can be achieved with this two UGens. However they are not part of the standard SC distribution. They are part of the sc3-plugins, so make sure you download SC including the extra plugins.
+
+PV_RecordBuf - records FFT data to a memory buffer
+PV_PlayBuf - plays FFT data from a memory buffer
+
+Analyse a soundfile and store its data to a buffer
+code::
+(
+var sf;
+// path to a sound file here
+p = "/Users/federicoreuben/Music/MastersExamples/01 15 Steps.wav";
+// the frame size for the analysis - experiment with other sizes (powers of 2)
+f = 1024;
+// the hop size
+h = 0.25;
+// get some info about the file
+sf = SoundFile.new( p );
+sf.openRead;
+sf.close;
+// allocate memory to store FFT data to... SimpleNumber.calcPVRecSize(frameSize, hop) will return
+// the appropriate number of samples needed for the buffer
+y = Buffer.alloc(s, sf.duration.calcPVRecSize(f, h));
+// allocate the soundfile you want to analyze
+z = Buffer.read(s, p);
+)
+::
+This does the analysis and saves it to buffer 1... frees itself when done
+code::
+(
+SynthDef("pvrec", { arg bufnum=0, recBuf=1, soundBufnum=2;
+	var in, chain;
+	in = PlayBuf.ar(1, soundBufnum, BufRateScale.kr(soundBufnum), loop: 0, doneAction: 2).poll;
+	bufnum = LocalBuf.new(1024, 1); // uses frame size from above
+	// note the window type and overlaps... this is important for resynth parameters
+	chain = FFT(bufnum, in, 0.25, 1);
+	chain = PV_RecordBuf(chain, recBuf, 0, 1, 0, 0.25, 1);
+	// no ouput ... simply save the analysis to recBuf
+	}).send(s);
+)
+
+a = Synth("pvrec", [\recBuf, y, \soundBufnum, z]);
+::
+You can save your 'analysis' file to disk! I suggest using float32 for the format
+These can be read back in using code::Buffer.read::
+code::
+y.write(p++".scpv", "wav", "float32");
+::
+
+Play your analysis back ... see the playback UGens listed above for more examples.
+code::
+Ndef(\pvplay).play;
+Ndef(\pvplay).fadeTime = 1;
+
+(
+Ndef(\pvplay, { arg rate=1;
+	var in, chain, bufnum;
+	bufnum = LocalBuf.new(1024, 1);
+	chain = PV_PlayBuf(bufnum, y, rate, 50, 1);
+	IFFT(chain, 1).dup;
+	});
+)
+
+Ndef(\pvplay).set(\rate, 1.5);
+
+Ndef(\pvplay).set(\rate, -1.5);
+
+Ndef(\pvplay).set(\rate, 0.25);
+
+(
+Ndef(\pvplay, {
+	var in, chain, bufnum;
+	bufnum = LocalBuf.new(1024, 1);
+	chain = PV_PlayBuf(bufnum, y, MouseX.kr(1, 300), 50, 1);
+	IFFT(chain, 1).dup;
+	});
+);
+
+Ndef(\pvplay, 0); // stop the synth
+::
+Vary the rate... experiment with different FFT sizes and overlaps in the analysis:
+code::
+(
+Ndef(\pvplay, {
+	var in, chain, bufnum;
+	bufnum = LocalBuf.new(1024, 1);
+	chain = PV_PlayBuf(bufnum, y, LFNoise2.kr(10).range(-1, 2), 0, 1);
+	IFFT(chain, 1).dup;
+	})
+)
+
+Ndef(\pvplay, 0); // stop the synth
+
+// free the buffer
+y.free;
+::
+
+Read a file with FFT data:
+code::
+y = Buffer.read(s, "/Users/federicoreuben/Music/MastersExamples/01 15 Steps.wav.scpv");
+
+Ndef(\pvplay).set(\rate, 2);
+
+(
+Ndef(\pvplay, { arg rate=1;
+	var in, chain, bufnum;
+	bufnum = LocalBuf.new(1024, 1);
+	chain = PV_PlayBuf(bufnum, y, rate, 50, 1);
+	IFFT(chain, 1).dup;
+	});
+);
+
+
+(
+Ndef(\pvplay, { arg rate=1;
+	var in, chain, bufnum;
+	bufnum = LocalBuf.new(1024, 1);
+			chain = PV_PlayBuf(bufnum, y, LFNoise1.kr(0.4).linlin(-1,1,-0.5,-2), 0, 1);
+	IFFT(chain, 1).dup;
+	});
+)
+
+Ndef.clear;
+y.free;
+::
+
 section::Machine Listening
+
+list::
+##Models inspired on physiology of auditory system
+##Trying to reproduce some aspects of how humans listen and process sound
+##Physiological aspects of auditory system, neuroscience, cognitive science, cognitive musicology
+##Computational models of music and sound perception and cognition
+##Science & Engineering Research, Signal Processing and Analysis, Music and Audio Analysis.
+::
+
+strong::Modelling human listening?::
+list::
+##Feature extraction
+##Sound/Music descriptors:
+list::
+##Sound events (onsets/segments)
+##Pitch (monophonic/polyphonic)
+##Rhythm (beat/tempo)
+##Timbal categorisations (instrument/sound recognition, noise/pitch)
+::
+::
 
 subsection::Feature Extraction
 
@@ -206,3 +1124,84 @@ list::
 ##emphasis::Instrument recognition::
 ::
 
+subsection::Machine Listening in SuperCollider
+
+These are some of the classes in SuperCollider for Machine Listening:
+
+code::
+Pitch, Tartini, ZeroCrossing
+Loudness
+Onsets
+SpecCentroid
+SpecFlatness
+SpecPcile (spectral roll-off)
+MFCC
+BeatTrack, BeatTrack2
+KeyTrack
+
+MCLDUGens
+FFTFlux
+
+::
+
+note::Go through the helpfiles to understand what each class does::
+
+strong::	Pitch::
+
+emphasis::Pitch follower::
+
+Pitch returns two values (via an Array of OutputProxys, see the OutputProxy help file), a freq which is the pitch estimate and hasFreq, which tells whether a pitch was found.
+
+strong::	Amplitude::
+
+emphasis::Amplitude follower::
+
+Tracks the peak amplitude of a signal.
+
+Now, let's use Pitch and Amplitude together with a live input:
+
+code::
+(
+ {
+    var in, amp, freq, hasFreq, out;
+    in = SoundIn.ar(0);
+    amp = Amplitude.kr(in, 0.05, 0.05);
+    # freq, hasFreq = Pitch.kr(in, ampThreshold: 0.02, median: 7);
+	Saw.ar(freq,amp)*MouseX.kr(0,4);
+}.play;
+)
+::
+strong::	Onsets::
+
+emphasis::Onset detector::
+
+An onset detector for musical audio signals - detects the beginning of notes/drumbeats/etc. Outputs a control-rate trigger signal which is 1 when an onset is detected, and 0 otherwise.
+
+In the following example,  you'll hear percussive "ticks" whenever an onset is detected
+
+First with a signal we are generating:
+code::
+(
+x = {
+    var sig, chain, onsets, pips;
+    sig = LPF.ar(Pulse.ar(TIRand.kr(63, 75, Impulse.kr(2)).midicps), LFNoise2.kr(0.5).exprange(100, 10000)) * Saw.ar(2).range(0, 1);
+    chain = FFT(LocalBuf(512), sig);
+    onsets = Onsets.kr(chain, MouseX.kr(0,1), \rcomplex);
+    pips = WhiteNoise.ar(EnvGen.kr(Env.perc(0.001, 0.1, 0.2), onsets));
+    Out.ar(0, Pan2.ar(sig, -0.75, 0.2) + Pan2.ar(pips, 0.75, 1));
+}.play;
+)
+::
+Now try it with a live input:
+code::
+(
+x = {
+    var sig, chain, onsets, pips;
+	sig = SoundIn.ar(0);
+	chain = FFT(LocalBuf(512), sig);
+    onsets = Onsets.kr(chain, MouseX.kr(0,5), \rcomplex);
+    pips = WhiteNoise.ar(EnvGen.kr(Env.perc(0.001, 0.1, 0.2), onsets));
+    Out.ar(0, Pan2.ar(pips, 0.75, 1));
+}.play;
+)
+::
