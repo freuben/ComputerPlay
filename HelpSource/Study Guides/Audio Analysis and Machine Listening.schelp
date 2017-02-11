@@ -250,7 +250,7 @@ list::
 ##	code::PV_RectComb2:: - make gaps in spectrum
 ##	code::UnpackFFT, PackFFT, Unpack1FFT::		"unpacking" components used in pvcalc, pvcalc2, pvcollect (can also be used on their own)
 ::
-note::Most of these PV UGes only deal with the magnitude values.::
+note::Most of these PV UGens only deal with the magnitude values.::
 
 strong::PV UGen demonstrations::
 
@@ -889,7 +889,7 @@ c.wait;
 }.fork;
 )
 ::
-We are getting a lot of information!! Maybe too much for what we want to do. If we want to do partial tracking, it's possible to limit the amount of bins by just accessing the bins with the highest magnitudes. PV_MaxMagN limits the number of bins to a specific number and it takes the maximum magnitudes at a given time:
+We are getting a lot of information!! Maybe too much for what we want to do. If we want to do partial tracking, it's possible to limit the amount of bins by just accessing the bins with the highest magnitudes. PV_MaxMagN limits the number of bins to a specified number - it only takes the strongest (maximum magnitudes) bins at a given time:
 code::
 (
 Ndef(\analyse, {arg in, num=6;
@@ -902,7 +902,7 @@ Ndef(\analyse, {arg in, num=6;
 })
 )
 ::
-Now we can do partial tracking by specifying the number of bins we want.
+Now we can do partial tracking by specifying the number of strongest bins we want to access.
 code::
 Ndef(\analyse).set(\num, 12);
 
@@ -914,7 +914,7 @@ c = Condition.new(false);
 });
 c.wait;
 //this rejects items with a magnitude of 0
-//we are filtering out all of the bins with less magnitudes
+//we are filtering out all of the weakest bins
 ~arr = [~freqs,~mags].flop.reject({|item| item[1] == 0});
 ~arr.do{|item| item.postln};
 }.fork;
@@ -952,7 +952,7 @@ c.wait;
 
 subsection::FFT stretching
 
-FFT time stretching can be achieved with this two UGens. However they are not part of the standard SC distribution. They are part of the sc3-plugins, so make sure you download SC including the extra plugins.
+FFT time stretching can be achieved with this two UGens. However they are not part of the standard SC distribution. They are part of the sc3-plugins, so make sure you download and install the extra plugins.
 
 PV_RecordBuf - records FFT data to a memory buffer
 PV_PlayBuf - plays FFT data from a memory buffer
@@ -1131,26 +1131,38 @@ These are some of the classes in SuperCollider for Machine Listening:
 code::
 Pitch, Tartini, ZeroCrossing
 Loudness
-Onsets
+Onsets, OnsetStatistics
+BeatTrack, BeatTrack2, BeatStatistics
+KeyTrack
+
+RMS
+LPCAnalyzer
+SensoryDissonance
 SpecCentroid
 SpecFlatness
 SpecPcile (spectral roll-off)
+SpectralEntropy
 MFCC
-BeatTrack, BeatTrack2
-KeyTrack
-
-MCLDUGens
+Cepstrum
 FFTFlux
-
+FFTPower
+FFTSlope
+FFTSpread
+FFTPeak
+FFTCrest
 ::
 
 note::Go through the helpfiles to understand what each class does::
+
+subsection::Examples:
+
+Let's look at some examples in more detail:
 
 strong::	Pitch::
 
 emphasis::Pitch follower::
 
-Pitch returns two values (via an Array of OutputProxys, see the OutputProxy help file), a freq which is the pitch estimate and hasFreq, which tells whether a pitch was found.
+code::Pitch:: returns two values (via an Array of OutputProxys, see the OutputProxy help file), a freq which is the pitch estimate and hasFreq, which tells whether a pitch was found.
 
 strong::	Amplitude::
 
@@ -1158,7 +1170,7 @@ emphasis::Amplitude follower::
 
 Tracks the peak amplitude of a signal.
 
-Now, let's use Pitch and Amplitude together with a live input:
+Now, let's use code::Pitch:: and code::Amplitude:: together with a live input:
 
 code::
 (
@@ -1203,5 +1215,63 @@ x = {
     pips = WhiteNoise.ar(EnvGen.kr(Env.perc(0.001, 0.1, 0.2), onsets));
     Out.ar(0, Pan2.ar(pips, 0.75, 1));
 }.play;
+)
+::
+
+strong::BeatTrack::
+
+emphasis::Autocorrelation Beat/Tempo Tracker::
+
+Autocorrelation based beat tracker. The underlying model assumes 4/4, but it should work on any isochronous beat structure, though there are biases to 100-120 bpm; a fast 7/8 may not be tracked in that sense. There are four k-rate outputs, being ticks at quarter, eighth and sixteenth level from the determined beat, and the current detected tempo.
+
+code::
+d=Buffer.loadDialog;
+
+(
+{arg vol=1.0, beepvol=1.0, lock=0;
+var in, fft, resample;
+var trackb,trackh,trackq,tempo;
+var bsound,hsound,qsound, beep;
+in= PlayBuf.ar(1,d,BufRateScale.kr(d),1,0,1);
+fft = FFT(LocalBuf(1024), in);
+#trackb,trackh,trackq,tempo=BeatTrack.kr(fft, lock);
+(60*tempo).poll;
+beep= SinOsc.ar(1000,0.0,Decay.kr(trackb,0.1));
+Out.ar(0,Pan2.ar((vol*in)+(beepvol*beep),0.0));
+}.play
+)
+::
+
+strong::	KeyTrack::
+
+emphasis::A (12TET major/minor) key tracker::
+
+A key tracker based on a pitch class profile of energy across FFT bins and matching this to templates for major and minor scales in all transpositions. It assumes a 440 Hz concert A reference. Output is 0-11 C major to B major, 12-23 C minor to B minor.
+
+code::
+d = Buffer.loadDialog
+
+b = Buffer.alloc(s, 4096, 1); // for sampling rates 44100 and 48000
+
+(
+{
+var in, fft, resample, chord, rootnote, sympath;
+var key, transientdetection;
+
+in = PlayBuf.ar(1, d, BufRateScale.kr(d), 1, 0, 1);
+
+fft = FFT(b, in);
+
+key = KeyTrack.kr(fft, 2.0, 0.5);
+key.poll;
+key = Median.kr(101, key); // Remove outlier wibbles
+
+chord = if(key<12, #[0, 4, 7], #[0, 3, 7]);
+rootnote = if(key<12, key, key-12) + 60;
+
+sympath = SinOsc.ar((rootnote + chord).midicps, 0, 0.4).mean;
+
+Out.ar(0,Pan2.ar(in, -0.5) + Pan2.ar(sympath, 0.5));
+}.play
 )
 ::
