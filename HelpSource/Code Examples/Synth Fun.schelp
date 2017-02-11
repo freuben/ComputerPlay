@@ -400,7 +400,7 @@ Pdef(\pat1, Pbind(\degree, 0));
 Ndef(\play1, Pdef(\pat1));
 )
 
-Pdef(\pat1).quant(32); //quantise
+Pdef(\pat1).quant = 8; //quantise (every 8 beats)
 
 (
 ~pat = Pbind(\instrument, \wavestack1, \degree, Pseq((0..7).scramble, inf),

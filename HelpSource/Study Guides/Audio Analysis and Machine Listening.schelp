@@ -37,13 +37,13 @@ list::
 
 section::Fourier Analysis
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/Fourier.png#Joseph Fourier - cambridgeblog.org::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/Fourier.png#Joseph Fourier - cambridgeblog.org::
 
 strong::Joseph Fourier:: was a French mathematician and physicist (1768-1830) responsible for initiating investigation of the Fourier series and its application in heat transfer and vibrations. The Fourier transform and Fourier’s law are also named in his honour. He also discovered the greenhouse effect. (wikipedia.org)
 
 strong::Fourier Series::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/fourier series.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/fourier series.png::
 
 list::
 ##Decomposes periodic functions/signals into the infinite sum of simple oscillating functions expressed as sines and cosines.
@@ -85,31 +85,31 @@ list::
 ##As long as the signal doesn’t change during this time frame, we can get the measurements for the harmonics of the analysis frequency
 ::
 
-note::This is a very simplified explanation of Fourier Analysis... The actual mathematics of Fourier Transform is quite complicated and there are whole courses dedicated to this subject at Maths and Engineering Departments. People do their PhDs and further research in this topic, so you can imagine how vast it is!::
+note::This is a very simplified explanation of Fourier Analysis. The actual mathematics of Fourier Transform is quite complicated and there are whole courses dedicated to this subject at Maths and Engineering Departments. People do their PhDs and further research in this topic, so you can imagine how vast it is!::
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/fft_class1.png::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/fft_class2.png#FFT class at MIT - ocw.mit.edu::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/fft_class1.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/fft_class2.png#FFT class at MIT - ocw.mit.edu::
 
-note::ASK JEZ, if you want some Engineering insights into FFT! In fact a lot of Jez's research is related to spectral analysis and modelling!::
+note::Ask Jez if you want some engineering insights into FFT! In fact a lot of Jez's research is related to spectral analysis and modelling!::
 
 subsection::Spectrograms
 
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram1.png::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram2.png::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram3.png::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/spectogram4.png#Spectrograms!::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/spectogram1.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/spectogram2.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/spectogram3.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/spectogram4.png#Spectrograms!::
 
 A strong::spectrogram:: is a plot over time indicating energy in a sound at different frequency components. Typical figures might be: fundamental frequency 43 Hz, 86 frames per second (analysis regions overlap by one half)
 
 strong::Free Software:::
 
 emphasis::Sonic Visualiser::, Queen’s Mary, University of London
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/Sonic Visualiser.png#Sonic Visualiser::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/Sonic Visualiser.png#Sonic Visualiser::
 code::
 Computer.url("http://sonicvisualiser.org/");
 ::
 emphasis::SPEAR::, Michael Kingbeil (McAulay and Quatieri - peak matching algorithm)
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/SPEAR.png#SPEAR::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/SPEAR.png#SPEAR::
 code::
 Computer.url("http://www.klingbeil.com/spear/");
 ::
@@ -147,7 +147,7 @@ list::
 ##Kaiser-Bessel
 ::
 ::
-image::/Users/federicoreuben/Documents/York/2016-2017/Teaching/Undergraduate/Computer.play/Seminars/audio analysis/windows.png::
+image::http://www.federicoreuben.com/computerdotplay/guides/guide3/windows.png::
 
 The typical short-time Fourier Transform (STFT) parameters are:
 list::
