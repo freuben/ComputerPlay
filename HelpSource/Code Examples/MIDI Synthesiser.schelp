@@ -1,0 +1,1167 @@
+TITLE:: MIDI Synthesiser
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Code Examples/Synth Fun, Code Examples/MIDI Fun, Code Examples/FX Fun
+
+section::A synthesiser that takes a MIDI input
+
+This is code for a synthesiser that takes MIDI input: MIDI noteOn, noteOff and cc messages. You can select different synths and FXs. You can even code new synths and FXs in!
+
+First, run this bit of code. Once you do, scroll down to see the next set of instructions.
+
+note::It's also quite useful to study the code if you want to get an insight into how you can do more complex SC code! ::
+
+code::
+(
+s.waitForBoot{
+//SynthDefs:
+SynthDef(\prophet5pwmstrings,{|out= 0 freq = 440 bend = 0 amp = 1.0
+		gate=1 lforate = 10 lfowidth= 0.5 cutoff= 12000 rq=0.5 pan = 0.0|
+	var lfo, pulse, filter, env;
+	lfo = LFTri.kr(lforate*[1,1.01],Rand(0,2.0)!2);
+	pulse = Pulse.ar((freq*bend.lag(0.1).midiratio)*[1,1.01],lfo*lfowidth+0.5);
+	filter = RLPF.ar(pulse,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,1.0,0.5),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp*0.5,pan));
+}, metadata: (specs:(lforate:[0.01,18,\lin,0.0,10], lfowidth:[0.0,10,\lin,0.0,0.5],
+		cutoff:[20,20000,\exp,0,12000," Hz"], rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\singleoscillatorwobble,{|out= 0 freq = 440 bend = 0 amp = 1.0
+		gate=1 lforate = 10 lfowidth= 0.5 cutoff= 12000 rq=0.5 pan=0.0|
+	var lfo, pulse, filter, env;
+	lfo = LFTri.kr(lforate,Rand(0,2.0)!2);
+	pulse = Pulse.ar((freq*bend.lag(0.1).midiratio)*(1.0+(lfowidth*lfo)),0.5);
+	filter = RLPF.ar(pulse,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,1.0,0.5),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp*0.5,pan));
+}, metadata: (specs:(lforate:[0.01,18,\lin,0.0,10], lfowidth:[0.0,10,\lin,0.0,0.5],
+		cutoff:[20,20000,\exp,0,12000," Hz"], rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\trianglewavebells,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		lforate = 10 lfowidth= 0.0 cutoff= 100 rq=0.5 pan=0.0|
+	var osc1, osc2, vibrato, filter, env;
+	vibrato = SinOsc.ar(lforate,Rand(0,2.0));
+	osc1 = Saw.ar((freq*bend.lag(0.1).midiratio)*(1.0+(lfowidth*vibrato)),0.75);
+	osc2 = Mix(LFTri.ar(((freq*bend.lag(0.1).midiratio).cpsmidi+[11.9,12.1]).midicps));
+	filter = RHPF.ar((osc1+(osc2*0.5))*0.5,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.1,1.0,0.5),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(lforate:[0.01,18,\lin,0.0,10], lfowidth:[0.0,10,\lin,0.0,0.5],
+		cutoff:[20,20000,\exp,0,100," Hz"], rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\organdonor,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1 lforate = 10
+		lfowidth= 0.0 cutoff= 100 rq=0.5 pan=0.0|
+	var vibrato, pulse, filter, env;
+	vibrato = SinOsc.ar(lforate,Rand(0,2.0));
+	pulse = Mix(VarSaw.ar(([1,1.9953843530485,3.0139733629359]
+			*(freq*bend.lag(0.1).midiratio))
+			*(1.0+(lfowidth*vibrato)),Rand(0.0,1.0)!3,Rand(0.3,0.5)!3,[1.0,0.7,0.3]))*0.5;
+	filter = RLPF.ar(pulse,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.5,1.0,0.5),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(lforate:[0.01,18,\lin,0.0,10], lfowidth:[0.0,10,\lin,0.0,0.0],
+		cutoff:[20,20000,\exp,0,6000," Hz"], rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\werkit,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1 cutoff= 100
+		rq=0.1 pan=0.0|
+	var source, filter, env;
+	source = WhiteNoise.ar;
+	filter = BLowPass4.ar(source,(freq*bend.lag(0.1).midiratio),rq)*0.3;
+	env = EnvGen.ar(Env([0,1,0.5,0.0],[0.02,0.1,0.1]),doneAction:2);
+	Out.ar(out,Pan2.ar((0.7*filter+(0.3*filter.distort))*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,100," Hz"],
+		rq:[0.001,1,\lin,0.0,0.01]))).add;
+
+SynthDef(\laserbeam,{|out= 0 freq = 440 bend = 0 amp = 0.1 atkTime= 0.04
+		gate=1 pan=0.0|
+	var osc1, freqenv, ampenv;
+	freqenv = EnvGen.ar(Env([4,0.5,1,1],[atkTime,0.01,1.0]));
+	osc1 = LFTri.ar((freq*bend.lag(0.1).midiratio)*freqenv);
+	//env = EnvGen.ar(Env.adsr(0.01,0.0,1.0,0.1),gate,doneAction:2);
+	//no gate, fixed envelope size
+	ampenv = EnvGen.ar(Env([0,1,0.5,0.0],[0.02,0.2,0.1]),doneAction:2);
+	Out.ar(out,Pan2.ar(osc1*ampenv*amp,pan));
+}, metadata: (specs:(atkTime:[0.001,0.1,\lin,0.0,0.04]))).add;
+
+SynthDef(\moogbasstone,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff= 1000 gain=2.0 lag = 0.01 pan=0.0, lagFilter=0.01|
+	var osc, filter, env, filterenv;
+	osc = Mix(VarSaw.ar((freq*bend.lag(0.1).midiratio).lag(lag)*[1.0,1.001,2.0],
+			Rand(0.0,1.0)!3,Rand(0.5,0.75)!3,0.33));
+	filterenv = EnvGen.ar(Env.adsr(0.2,0.0,1.0,0.2),gate,doneAction:2);
+	filter =  MoogFF.ar(osc,cutoff.lag(lagFilter)*(1.0+(0.5*filterenv)),gain);
+	env = EnvGen.ar(Env.adsr(0.001,0.3,0.9,0.2),gate,doneAction:2);
+	Out.ar(out,Pan2.ar((0.7*filter+(0.3*filter.distort))*env*amp*1.5,pan));
+}, metadata: (specs:(cutoff:[20,14500,\exp,0,1000," Hz"], lag:[0.0,10,\lin,0.0,0.01],
+		lagFilter:[0.0,10,\lin,0.0,0.01], gain:[2,4.0,\lin,0.0,2.0]))).add;
+
+SynthDef(\moogbasstone2,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		atkTime= 0.2 fenv=0.5 cutoff= 1000 gain=2.0 pan=0.0|
+	var osc, filter, env, filterenv;
+	osc = Mix(Pulse.ar((freq*bend.lag(0.1).midiratio).lag(0.05)*[1.0,1.001,2.0],
+			Rand(0.45,0.5)!3,0.33));
+	filterenv = EnvGen.ar(Env.adsr(atkTime,0.0,1.0,0.2),gate,doneAction:2);
+	filter =  MoogFF.ar(osc,cutoff*(1.0+(fenv*filterenv)),gain);
+	env = EnvGen.ar(Env.adsr(0.001,0.3,0.9,0.2),gate,doneAction:2);
+	Out.ar(out,Pan2.ar((0.7*filter+(0.3*filter.distort))*env*amp,pan));
+}, metadata: (specs:(atkTime:[0.0,0.3,\lin,0.0,0.2], cutoff:[20,14500,\exp,0,1000," Hz"],
+		fenv:[0.0,2.0,\lin,0.0,0.5], gain:[2,4.0,\lin,0.1,2.0]))).add;
+
+SynthDef(\mrostinato,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		lforate = 10 lfowidth= 0.5 pan = 0.0|
+	var lfo, pulse, filter, env;
+	lfo = LFTri.kr(lforate,Rand(0,2.0)!3);
+	pulse = Pulse.ar((freq*bend.lag(0.1).midiratio)*[1,1.01,0.5],lfo*lfowidth+0.5);
+	env = EnvGen.ar(Env.adsr(0.01,0.05,0.5,0.1),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(Mix(pulse)*env*amp,pan));
+}, metadata: (specs:(lforate:[0.01,3.0,\lin,0.0,10], lfowidth:[0.0,5,\lin,0.0,0.5]))).add;
+
+SynthDef(\plastickystrings,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 lforate = 5900 lfowidth= 0.01 cutoff= 12000 rq=0.5 pan=0.0|
+	var lfo, saw, filter, env;
+	lfo = LFTri.ar(lforate,Rand(0,2.0));
+	saw = Saw.ar((freq*bend.lag(0.1).midiratio)*(1.0+(lfowidth*lfo)),0.5);
+	filter = BHiPass.ar(saw,(freq*bend.lag(0.1).midiratio),rq); 	//or using cutoff
+	env = EnvGen.ar(Env.adsr(0.4,0.0,1.0,1.0),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,12000," Hz"],
+		lforate:[0.01,6.0,\lin,0.0,10], lfowidth:[0.0,1.0,\lin,0.0,0.5],
+		rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\handclapsmash,{|out= 0 amp = 0.1 gate=1 cutoff= 12000
+		rq=0.5 reltime=0.5 pan=0.0|
+	var noise, filter, filterenv, env;
+	noise = WhiteNoise.ar;
+	filterenv = EnvGen.ar(Env([0.0,1.0,0.3,0.0],[0.0,0.3,0.3]));
+	filter = BHiPass.ar(RLPF.ar(noise,cutoff*filterenv,rq),150);
+	filter = BPeakEQ.ar(filter,440,1.0,8);
+	filter = BPeakEQ.ar(filter,1200,1.0,14);
+	env = EnvGen.ar(Env.perc(0.005,reltime),doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,12000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.5], reltime: [0.01,1.0,\lin,0.0,0.5]))).add;
+
+SynthDef(\handclapsmash2,{|out= 0 amp = 0.1 gate=1 cutoff= 12000
+		cutoff2=10000 rq=0.5 mod=0.0 modrate=50 reltime=0.7 pan=0.0|
+	var noise, filter, filterenv, modulation, env;
+	noise = WhiteNoise.ar;
+	filterenv = EnvGen.ar(Env([0.0,1.0,0.3,0.0],[0.0,0.3,0.3]));
+	modulation = (LFSaw.ar(modrate).range(0.0,1.0))
+		*EnvGen.ar(Env([1,1,0,0],[0.1,0.0,1.0]));
+	filter = BHiPass.ar(RLPF.ar(noise,cutoff*filterenv+
+			(cutoff2*mod*modulation),rq),150);
+	filter = BPeakEQ.ar(filter,440,1.0,8);
+	filter = BPeakEQ.ar(filter,1200,1.0,14);
+	env = EnvGen.ar(Env.perc(0.005,reltime),doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,6000," Hz"],
+		cutoff2:[20,20000,\exp,0,12000," Hz"], rq:[0.001,1,\lin,0.0,0.5],
+		modrate: [1,80,\lin,0.0,50], mod: [0.1,2.0,\lin,0.0,0.5],
+		reltime: [0.01,1.0,\lin,0.0,0.5]))).add;
+
+SynthDef(\bassfoundation,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff= 1000 rq=0.5 pan=0.0|
+	var osc, filter, env, filterenv;
+	osc = Saw.ar((freq*bend.lag(0.1).midiratio));
+	filterenv = EnvGen.ar(Env.adsr(0.0,0.5,0.2,0.2),gate,doneAction:2);
+	filter =  RLPF.ar(osc,cutoff*filterenv+100,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,0.9,0.05),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp*2,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,1000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.5]))).add;
+
+SynthDef(\basshighend,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff= 3000 rq=0.1 drive = 2.0 pan=0.0|
+	var osc, filter, env, filterenv;
+	var ab;
+	osc = Mix(VarSaw.ar((freq*bend.lag(0.1).midiratio)*[0.25,1,1.5],
+			Rand(0.0,1.0)!3,0.9,[0.5,0.4,0.1]));
+	filterenv = EnvGen.ar(Env.adsr(0.0,0.5,0.2,0.2),gate,doneAction:2);
+	filter =  RLPF.ar(osc,cutoff*filterenv+100,rq);
+ 	filter = filter.distort.softclip;
+	ab = abs(filter);
+ 	filter = (filter*(ab + drive)/(filter ** 2 + (drive - 1) * ab + 1));
+	filter = BLowShelf.ar(filter,300,1.0,-12);
+	filter = BPeakEQ.ar(filter,1600,1.0,-6);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,0.9,0.05),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp*2,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,1000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.5], drive:[0.0,8,\lin,0.0,2.0]))).add;
+
+SynthDef(\winwoodlead,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff=8000 rq=0.8 lfowidth=0.01 lforate= 8 lag=0.01 pan=0.0|
+	var pulse, filter, env, lfo;
+	lfo = LFTri.kr(lforate,Rand(0,2.0)!2);
+	pulse = Mix(Pulse.ar(((freq*bend.lag(0.1).midiratio).lag(lag))
+			*[1,1.001]*(1.0+(lfowidth*lfo)),[0.2,0.19]))*0.5;
+	filter =  RLPF.ar(pulse,cutoff,rq);
+	filter = BLowShelf.ar(filter,351,1.0,-9);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,0.9,0.05),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.8], lforate:[0.01,18,\lin,0.0,8],
+		lfowidth:[0.0,3,\lin,0.0,0.01], lag:[0.0,10,\lin,0.0,0.01]))).add;
+
+SynthDef(\spookystrings,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff=8000 rq=0.2 lfowidth=0.01 lforate=3.8 pan=0.0|
+	var pulse, filter, env, lfo;
+	lfo = LFTri.kr(lforate,Rand(0,2.0)!2);
+	pulse = Mix(Saw.ar((freq*bend.lag(0.1).midiratio)*[1,1.001]
+			*[1.0,1.0+(lfowidth*lfo)]))*0.5;
+	filter = BHiPass.ar(pulse,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.1,0.0,1.0,3),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.2], lforate:[0.01,10,\lin,0.0,3.8],
+		lfowidth:[0.0,10,\lin,0.0,0.01]))).add;
+
+SynthDef(\spookystrings2,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff=8000 rq=0.2 pan=0.0|
+	var saw, pulse, filter, env, lfo, pulsewidthlfo;
+	lfo = LFTri.kr([3.5,5],Rand(0,2.0)!2);
+	pulsewidthlfo = SinOsc.kr(4.5);
+	saw = Saw.ar((freq*bend.lag(0.1).midiratio)*(1.0+(0.052*lfo[0])));
+	pulse = Pulse.ar((freq*bend.lag(0.1).midiratio)*(1.0+(0.072*lfo[1])),
+			pulsewidthlfo*0.25+0.5);
+	pulse = 0.5*(saw+pulse);
+	filter = BLowPass.ar(pulse,XLine.kr(678,cutoff,0.378),rq);
+	env = EnvGen.ar(Env.adsr(0.1,0.0,1.0,3),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.2]))).add;
+
+SynthDef(\synchronicity,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff=8000 rq=0.2 pan=0.0|
+	var pulse, filter, env, slavefreq;
+	slavefreq = EnvGen.ar(Env([1,5,1],[0.04,0.9]))
+		*(freq*bend.lag(0.1).midiratio);
+	pulse = SyncSaw.ar((freq*bend.lag(0.1).midiratio),slavefreq);
+	filter = BLowPass.ar(pulse,cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.01,0.0,1.0,0.1),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.2]))).add;
+
+SynthDef(\situationsynth,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 cutoff=8000 rq=0.8 lfowidth=0.001 lforate= 3.3 pan=0.0|
+	var pulse, filter, env, filterenv, lfo;
+	lfo = LFTri.kr(lforate,Rand(0,2.0)!2);
+	pulse = Mix(Pulse.ar(((((freq*bend.lag(0.1).midiratio).cpsmidi)
+			+[0,0.14])+(lfo*lfowidth)).midicps,[0.5,0.51]+(lfowidth*lfo)))*0.5;
+	filterenv = EnvGen.ar(Env([0.0,1.0,0.3,0.0],[0.005,0.57,0.1],-3));
+	filter =  RLPF.ar(pulse,100+(filterenv*cutoff),rq);
+	env = EnvGen.ar(Env.adsr(0.002,0.57,1.0,0.3),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.8], lforate:[0.01,18,\lin,0.0,3.3],
+		lfowidth:[0.0,5,\lin,0.0,0.001]))).add;
+
+SynthDef(\ressquares,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff=8000 rq=0.8 pan=0.0|
+	var pulse, filter, env;
+	pulse = Mix(Pulse.ar( (((freq*bend.lag(0.1).midiratio).cpsmidi)
+			+[0,0.02]).midicps, 0.5))*0.5;
+	filter =  BLowPass.ar(pulse,100+cutoff,rq);
+	env = EnvGen.ar(Env.adsr(0.002,0.1,1.0,0.2),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.8]))).add;
+
+SynthDef(\whoorgan,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff=8000 rq=0.8 pan=0.0|
+	var osc, filter, env;
+	var basefreq =  (((freq*bend.lag(0.1).midiratio).cpsmidi)+[0,0.1]).midicps;
+  	osc = Mix.fill(10,{|i| SinOsc.ar(basefreq*(i+1),0.0,
+			(0.25+(0.75*LFNoise0.kr(10.1+i,0.5,0.5)))/(1.0+(0.5*i)))})*0.2;
+	filter =  BLowPass.ar(osc,2000+(amp*cutoff),rq);
+	env = EnvGen.ar(Env.adsr(0.02,0.1,0.9,1.0),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.8]))).add;
+
+SynthDef(\whoorgan2,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff=8000 rq=0.8 pan=0.0|
+	var osc, filter, env;
+	var basefreq =  (((freq*bend.lag(0.1).midiratio).cpsmidi)+[0,0.1]).midicps;
+	osc = Mix(Blip.ar(basefreq,16))*0.5;
+  	filter =  BLowPass.ar(osc,2000+(amp*cutoff),rq);
+	env = EnvGen.ar(Env.adsr(0.02,0.1,0.9,1.0),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,8000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.8]))).add;
+
+SynthDef(\eightoeightkick,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		ringtime=10.0 reltime=1.0 dist = 0.1 pan=0.0|
+	var impulse, filter, env;
+  	impulse = Impulse.ar(0);
+	filter = Ringz.ar(impulse,XLine.ar((freq*bend.lag(0.1).midiratio),60,0.1),ringtime);
+	env = EnvGen.ar(Env.perc(0.001,reltime),doneAction:2);
+	filter = (1.0-dist)*filter + (dist*(filter.distort));
+	Out.ar(out,Pan2.ar(filter*env*amp,pan));
+}, metadata: (specs:(reltime: [0.01,1.0,\lin,0.0,0.5],
+		ringtime: [0.01,20.0,\lin,0.0,1.0], dist:[0.0,2,\lin,0.0,0.1]))).add;
+
+SynthDef(\pwmbling,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		lforate = 4.85 lfowidth= 0.5 cutoff= 12000 rq=0.25 pan = 0.0|
+	var lfo, pulse, filter, env;
+	var basefreq =  (((freq*bend.lag(0.1).midiratio).cpsmidi)+[0,12.12]).midicps;
+	lfo = LFTri.kr(lforate*[1,1.01],Rand(0,2.0)!2);
+	pulse = Pulse.ar(basefreq,lfo*lfowidth+0.5);
+	env = EnvGen.ar(Env.adsr(0.0,1.0,0.2,1.5),gate,doneAction:2);
+	filter = RLPF.ar(pulse,(cutoff*(env.squared))+100,rq);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,12000," Hz"], rq:[0.001,1,\lin,0.0,0.25],
+		lforate:[0.01,18,\lin,0.0,4.85], lfowidth:[0.0,5,\lin,0.0,0.5]))).add;
+
+SynthDef(\tonewheeltwo,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		lforate = 4.85 lfowidth= 0.1 cutoff= 5000 rq=0.25 pan = 0.0|
+	var lfo, pulse, filter, env;
+	lfo = LFTri.kr(lforate*[1,1.01],Rand(0,2.0)!2);
+	pulse = Pulse.ar( ((((freq*bend.lag(0.1).midiratio)*[1,3]).cpsmidi)
+			+ (lfo*lfowidth)).midicps,[0.5,0.51],[0.4,0.6]);
+	env = EnvGen.ar(Env.adsr(0.0,0.0,1.0,0.1),gate,doneAction:2);
+	filter = BLowPass4.ar(pulse,cutoff,rq);
+	filter= BPeakEQ.ar(filter,500,1.0,3);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,5000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.25], lforate:[0.01,18,\lin,0.0,4.85],
+		lfowidth:[0.0,5,\lin,0.0,0.1]))).add;
+
+SynthDef(\everythingrhodes,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		gate=1 lforate = 4.85 lfowidth= 0.5 cutoff= 2000 rq=0.5 pan = 0.0|
+	var pulse, filter, env;
+	pulse = Mix.ar(Pulse.ar((freq*bend.lag(0.1).midiratio)
+			*[1,33.5.midiratio],[0.2,0.1],[0.7,0.3]));
+	env = EnvGen.ar(Env.adsr(0.0,1.0,0.8,3.0),gate,doneAction:2);
+	filter = BLowPass4.ar(pulse,(cutoff)+200+(freq),rq);
+	Out.ar(out,Pan2.ar(Mix.ar(filter)*env*amp,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,2000," Hz"], rq:[0.001,1,\lin,0.0,0.5],
+		lforate:[0.01,18,\lin,0.0,4.85], lfowidth:[0.0,5,\lin,0.0,0.5]))).add;
+
+SynthDef(\justwannahavefun,{|out= 0 freq = 440 bend = 0 amp = 0.1
+		ringtime=10.0 pan=0.0|
+	var impulse, filter, env;
+  	impulse = Impulse.ar(0);
+	filter = Ringz.ar(impulse,((freq*bend.lag(0.1).midiratio).cpsmidi +
+			(Rand(0.2,1.2)*SinOsc.kr(Rand(10,50)))).midicps,ringtime);
+	env = EnvGen.ar(Env([0.0,1.0,1.0,0.0],[0.001,0.04,0.04]),doneAction:2);
+	Out.ar(out,Pan2.ar((filter.softclip(0.9))*env*amp,pan));
+}, metadata: (specs:(ringtime: [0.01,20.0,\lin,0.0,1.0]))).add;
+
+SynthDef(\spacetheremin,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		lforate = 6 lfowidth= 0.5 cutoff= 4000 rq=0.25 lag=0.1 pan=0.0|
+	var lfo, osc, filter, env;
+	lfo = LFTri.kr(lforate+(LFNoise1.kr(5,0.3,0.3)),Rand(0,2.0));
+	osc = Saw.ar(((freq*bend.lag(0.1).midiratio).lag(lag).cpsmidi
+			+(lfo*lfowidth)).midicps,0.5);
+	filter = BLowPass4.ar(osc,cutoff.lag(lag*4),rq);
+	env = EnvGen.ar(Env.adsr(0.6,0.0,1.0,0.05),gate,doneAction:2);
+	Out.ar(out,Pan2.ar(filter*env*amp.lag(lag*4),pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,4000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.25], lforate:[0.01,18,\lin,0.0,6],
+		lfowidth:[0.0,5,\lin,0.0,0.5], lag:[0.0,10,\lin,0.0,0.01]))).add;
+
+SynthDef(\fatvelocitybass,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff= 12000 rq=0.25 lag=0.01 pan = 0.0|
+	var lfo, osc, filter, env;
+	var basefreq =  (((freq*bend.lag(0.1).midiratio).lag(lag).cpsmidi)
+			+[0,11.95,31.03]).midicps;
+	osc = Saw.ar(basefreq,[0.5,0.4,0.1]);
+	env = EnvGen.ar(Env.adsr(0.01,1.0,1.0,0.25),gate,doneAction:2);
+	filter = BLowPass4.ar(osc,100+((amp.squared)*
+			((freq*bend.lag(0.1).midiratio)+cutoff)),rq);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp*0.8,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,12000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.25], lag:[0.0,10,\lin,0.0,0.01]))).add;
+
+SynthDef(\fatvelocitybass2,{|out= 0 freq = 440 bend = 0 amp = 0.1 gate=1
+		cutoff= 12000 rq=0.25 lag=0.01 pan = 0.0|
+	var lfo, osc, filter, env;
+	var basefreq =  (((freq*bend.lag(0.1).midiratio).lag(lag).cpsmidi)
+			+[0,11.95,31.03]).midicps;
+	osc = Saw.ar(basefreq,[0.5,0.4,0.1])+PinkNoise.ar(Line.kr(1.0,0,0.03));
+	env = EnvGen.ar(Env.adsr(0.01,1.0,1.0,0.25),gate,doneAction:2);
+	filter = BLowPass4.ar(osc,100+((amp.squared)*
+			((freq*bend.lag(0.1).midiratio)+cutoff)),rq);
+	Out.ar(out,Pan2.ar(Mix(filter)*env*amp*0.8,pan));
+}, metadata: (specs:(cutoff:[20,20000,\exp,0,12000," Hz"],
+		rq:[0.001,1,\lin,0.0,0.25], lag:[0.0,10,\lin,0.0,0.01]))).add;
+
+SynthDef(\wavecross1, {|out=0 freq=440 bend=0 attack=0.01 dec=0.4
+		sus=0.3 sus2=0.4, rel=2 amp=0.5 pan|
+	var wave1, wave2, wave3, wave4, nowFreq;
+	var env1,env2,env3,env4, globalEnv;
+	env1 = EnvGen.kr(Env([0,1,0],[attack,dec]));
+	env2 = EnvGen.kr(Env([0,0,1,0],[attack,dec,sus]));
+	env3 = EnvGen.kr(Env([0,0,1,0],[attack+dec,sus,sus2]));
+	env4 = EnvGen.kr(Env([0,0,1,0],[attack+dec+sus,sus2,rel]));
+	globalEnv = EnvGen.kr(Env([0,1,0.5,0.5,0.4,0],[attack,dec,sus,sus2,rel]));
+	nowFreq = (freq*bend.lag(0.1).midiratio);
+	wave1 = Pulse.ar(nowFreq)*env1;
+	wave2 = Formant.ar(nowFreq)*env2;
+	wave3 = Saw.ar(nowFreq)*env3;
+	wave4 = SinOsc.ar(nowFreq)*env4;
+	Out.ar(out, Pan2.ar((wave1 + wave2 + wave3 + wave4), pan)*globalEnv*amp);
+}, metadata: (specs:(attack:[0.001,0.1,\lin,0.0,0.04], dec:[0.01,1.5,\lin,0.0,0.4],
+		sus:[0.01,1.5,\lin,0.0,0.3], sus2:[0.01,1.5,\lin,0.0,0.4],
+		rel:[0.1,5.0,\lin,0.0,2.0]))).add;
+
+SynthDef(\wavestack1, {|out=0 freq=440 bend=0 attack=1 sus=1 rel=1
+		amp=0.5 pan|
+	var globalEnv, harm, signal, envArr;
+	var wave1, wave2, wave3, wave4, nowFreq;
+	globalEnv = EnvGen.kr(Env.linen(0.01*attack,0.3*sus,2*rel), doneAction:2);
+	[0.01*attack,0.3*sus,2*rel].sum*[[0.3*attack,0.6*sus,0.1*rel],
+			[0.1*attack,0.5*sus,0.4*rel],[0.01*attack,0.3*sus,0.69*rel],
+			[0.8*attack,0.1*sus,0.1*rel]].do{|item|
+			envArr = envArr.add(Env.linen(item[0], item[1], item[2]))};
+	harm = [1,2,3,4];
+	nowFreq = (freq*bend.lag(0.1).midiratio);
+	wave1 = Pulse.ar(freq*harm[3])*EnvGen.kr(envArr[0]);
+	wave2 = Formant.ar(freq*harm[1])*EnvGen.kr(envArr[1]);
+	wave3 = Saw.ar(freq*harm[2])*EnvGen.kr(envArr[2]);
+	wave4 = SinOsc.ar(freq*harm[0])*EnvGen.kr(envArr[3]);
+	signal = ((wave1 + wave2 + wave3 + wave4)/4)*globalEnv;
+	Out.ar(out, Pan2.ar(signal*amp*2, pan));
+}, metadata: (specs:(attack:[0.01,4,\lin,0.0,1], sus:[0.1,10,\lin,0.0,1],
+		rel:[0.1,4,\lin,0.0,1]))).add;
+
+//add new SynthDefs here:
+SynthDef(\simplesine,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
+		atk=0.01 dec=0.0 sus=1.0 rel=0.5 pan=0.0|
+	var signal, env;
+	signal = SinOsc.ar(freq,0,0.5);
+	env = EnvGen.ar(Env.adsr(atk,dec,sus,rel),gate,doneAction:2);
+	Out.ar(out, Pan2.ar(signal*env*amp, pan));
+	}, metadata:(specs:(atk:[0.001,0.1,\lin,0.0,0.01], dec:[0.01,1.5,\lin,0.0,0.0],
+		sus:[0.01,1.5,\lin,0.0,1.0], rel:[0.1,5.0,\lin,0.0,0.5], pan:[-1,1,\lin,0.0,0]))).add;
+
+SynthDef(\pitchshift,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
+		bus=0 winSize=0.2 bassfreq=440 pitchDis=0.0, timeDis=0.01|
+	var signal, env, in, pan;
+	in = SoundIn.ar(bus);
+	signal = PitchShift.ar(in, winSize, (freq/bassfreq), pitchDis, timeDis);
+	env = EnvGen.ar(Env.linen(0.1,1.0,0.4),gate,doneAction:2);
+	pan = freq.cpsmidi.linlin(21,108,-1,1);
+	Out.ar(out, Pan2.ar(signal*env*amp, pan));
+	}, metadata:(specs:(bus:[0,8,\lin,1,0], winSize:[0.001,1,\lin,0.0,0.2],
+		bassfreq:[100,3000,\exp,1,440], pitchDis:[0.0,1,\lin,0.0,0.0],
+		timeDis:[0.0,1,\lin,0.0,0.01]))).add;
+
+//Most of these Synth Defs are coming from Mitchell Sigman (2011) Steal this Sound.
+//Milwaukee, WI: Hal Leonard Books
+//Adapted for SuperCollider and elaborated by Nick Collins.
+
+//You can add more SynthDefs here!!
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+//FXs
+~fxs = [
+[\channelVol, {|in vol=1|
+	in * vol;
+}, (vol:[0,2,\lin,0.0,1])], //fx name, fx func, fx spec
+[\choruseffect, {|in|
+	Mix.fill(7, {
+		var maxdelaytime= rrand(0.005,0.02);
+		DelayC.ar(in, maxdelaytime,LFNoise1.kr(Rand(4.5,10.5),0.25
+					*maxdelaytime,0.75*maxdelaytime) )
+	});
+}, ()],
+[\choruseffect2, {|in|
+	Mix.fill(17, {
+		var maxdelaytime= rrand(0.005,0.02);
+		DelayC.ar(in, maxdelaytime,LFNoise1.kr(Rand(4.5,10.5),0.25
+					*maxdelaytime,0.75*maxdelaytime) )
+	})*0.5;
+}, ()],
+[\delayeffect, {|in|
+	CombC.ar(in,0.25,0.25,2.0);
+}, ()],
+[\simplecompress,{|in ratio=3 atkTime=0.016 relTime=0.05 gain=2 |
+	var source = in;
+	Compander.ar(2*source,source,(-8).dbamp,1.0,ratio.reciprocal,
+				atkTime,relTime);
+}, (ratio:[1,10,\lin,0.0,3], atkTime:[0,2,\lin,0.0,0.016],
+			relTime:[0,6,\lin,0.0,0.05], gain:[0,2,\lin,0.0,2])],
+[\simpleeq1, {|in|
+	var eq;
+	eq= BLowShelf.ar(in,100,1.0,3);
+	eq= BPeakEQ.ar(eq,600,1.0,-3);
+}, ()],
+[\simpleeq2, {|in|
+	BHiPass.ar(in,150,0.3);
+}, ()],
+[\simplereverb, {|in|
+	FreeVerb.ar(in,1.0,0.6,0.6);
+}, ()],
+[\spookyeffect, {|in delaytime=0.25 phaserate=0.1|
+	var delay,phaser;
+	delay= DelayN.ar(in,0.8,delaytime);
+	phaser = delay;
+	phaser = AllpassN.ar(delay,0.04,SinOsc.kr(phaserate,0,0.005,0.035));
+	phaser
+}, (delaytime:[0,2,\lin,0.0,0.25], phaserate:[0,2,\lin,0.0,0.1])],
+[\yazoodelayeffect, {|in gate=1 pan= 0.1|
+	var delay;
+	var env = Linen.kr(gate, 0.0, 1, 0.1, 2);
+	delay= DelayC.ar(in[0].distort,0.25,0.25);
+	Pan2.ar(delay*env,pan);
+}, (pan:[-1,1,\lin,0.0,0])],
+[\synthdistortion, {|in gate= 1|
+	var source = in;
+	var env = Linen.kr(gate, 0.0, 1, 0.1, 2);
+	var abs, excess,output;
+	abs = source.abs;
+	excess = (abs-0.1).max(0.0).min(0.9)/0.9;
+	//original plus sinusoidal perturbation of amount based on absolute amplitude
+	output = source+(excess*(sin(excess*2pi*5)*0.5-0.5));
+	output*env;
+}, ()],
+[\filtereffect, {|in gate= 1|
+	var env = Linen.kr(gate, 0.0, 1, 0.1, 2);
+	var output;
+	output = BLowPass.ar(BLowPass.ar(in,SinOsc.ar(0.25,0,5000,5500),0.4),
+				(200+(5000*SinOsc.ar(4.01,0.5,0.5,0.5))),0.6);
+	//output = BLowPass.ar(in,SinOsc.ar(0.275,0,5000,5500),0.1);
+	output*env;
+}, ()],
+[\choruscompresseffect, {|in|
+	var source = in;
+	var chorus;
+	chorus= Splay.ar(Array.fill(4,{
+	var maxdelaytime= rrand(0.005,0.02);
+	DelayC.ar(source[0], maxdelaytime,LFNoise1.kr(Rand(0.1,0.6),0.25
+					*maxdelaytime,0.75*maxdelaytime) )
+	}));
+	chorus = Compander.ar(4*(source + chorus),source,0.4,1,4);
+	chorus;
+}, ()],
+[\gatedreverb,{|in gate= 1 threshold= 0.1 amp=0.1|
+	var a,c,z,y;
+	var env = Linen.kr(gate, 0.1, 1, 0.1, 2);
+	c = 5; // number of comb delays
+	a = 4; // number of allpass delays
+	gate = if((in.mean)>threshold,in.mean,DC.ar(0)!2);
+	// reverb predelay time :
+	z = gate; //DelayN.ar(gate, 0.048,0.048);
+	//for delaytime if want modulation-	//LFNoise1.kr(0.1.rand, 0.04, 0.05)
+	y=Mix.fill(c,{CombL.ar(z,0.1,rrand(0.01, 0.1),rrand(1.5,4))});
+	// chain of 4 allpass delays on each of two channels (8 total) :
+	a.do({ y = AllpassN.ar(y, 0.051, [rrand(0.01, 0.05),rrand(0.01, 0.05)], 1) });
+	Pan2.ar(y,0)*env*amp;
+}, (threshold:[0,1,\lin,0.0,0.1], amp:[0,2,\lin,0.0,0.1])],
+[\spacereverb,{|in gate= 1 threshold= 0.1 amp=0.1|
+	var a,c,z,y;
+	var env = Linen.kr(gate, 0.1, 1, 0.1, 2);
+	c = 6; // number of comb delays
+	a = 4; // number of allpass delays
+	// reverb predelay:
+	z = DelayN.ar(in, 0.048,0.048);
+	y=Mix.fill(c,{CombL.ar(z,0.1,rrand(0.01, 0.1),5)});
+	// chain of 4 allpass delays on each of two channels (8 total) :
+	a.do({ y = AllpassN.ar(y, 0.051, [rrand(0.01, 0.05),rrand(0.01, 0.05)], 1) });
+	Pan2.ar(y,0)*env*amp;
+}, (threshold:[0,1,\lin,0.0,0.1], amp:[0,2,\lin,0.0,0.1])],
+[\rmsine, {|in freq=200|
+	in * SinOsc.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+[\amsine, {|in freq=10|
+	in * SinOsc.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+[\rmsaw, {|in freq=200|
+	in * Saw.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+[\amsaw, {|in freq=10|
+	in * Saw.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+[\rmpulse, {|in freq=200|
+	in * Pulse.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+[\ampulse, {|in freq=10|
+	in * Pulse.ar(freq);
+}, (freq:[80,5000,\exp,0.0,200])],
+];
+//You can add new FXs at the end of the array above!
+
+~synthInstrument = {arg instNum = 1, fxsArr;
+	var instMidiChan, setVoiceNum;
+	var voiceNum, fxInst, instName, instNode;
+	var noteOn, noteOff, fxFunc, fxSpec;
+	var synths, filters;
+	var ccIn, arrNote, count, hicup, transpose, indexOffset;
+	var midCCin, volSlider, bendSlider, transSlider;
+	var midiCCArr, guiSliders, guiWindow, fxSliders;
+
+	//add new SynthDef names here:
+	synths = [\prophet5pwmstrings, \singleoscillatorwobble, \trianglewavebells,
+			\organdonor, \werkit, \laserbeam, \moogbasstone, \moogbasstone2,
+			\mrostinato, \plastickystrings, \handclapsmash, \handclapsmash2,
+			\bassfoundation, \basshighend, \winwoodlead, \spookystrings,
+			\spookystrings2, \synchronicity, \situationsynth, \ressquares,
+			\whoorgan, \whoorgan2, \eightoeightkick, \pwmbling, \tonewheeltwo,
+			\everythingrhodes, \justwannahavefun, \spacetheremin, \fatvelocitybass,
+			\fatvelocitybass2, \wavecross1, \wavestack1, \simplesine, \pitchshift];
+
+	//node proxy
+	instNode = NodeProxy.audio(s, 2);
+	instNode.play;
+	instMidiChan = instNum;
+	setVoiceNum = {arg numVoices=16, nameInst=\prophet5pwmstrings;
+		instNode.removeAll;
+		numVoices.do{|item| instNode.put(item, nameInst, extraArgs: [\amp,0]);};
+		voiceNum = numVoices;
+		fxInst.value(voiceNum+9,\channelVol);
+	};
+
+	fxFunc = {arg fxName; fxsArr.flop[1][fxsArr.flop[0].indexOf(fxName);]};
+	fxSpec = {arg fxName; var array; fxsArr.flop[2][fxsArr.flop[0].indexOf(fxName)]
+			.keysValuesDo{|keys values|
+			array = array.add([keys, values])};
+		array};
+
+	instName = \prophet5pwmstrings;
+	setVoiceNum.value(16, instName);
+	///////////////////////////////
+	//set voices to 24 in intrument 1
+	//setVoiceNum.value(24);
+
+	noteOn = {arg voiceIndex=0, synthName= \prophet5pwmstrings,
+			noteNum=56, velo=100;
+		instNode.put(voiceIndex,synthName, extraArgs: [\freq, noteNum.midicps,
+				\amp, velo.linlin(0,127,0,1.0), \pan, noteNum.linlin(21,108,-1,1)]);
+	};
+
+	noteOff = {arg voiceIndex=0;
+	instNode.objects[voiceIndex].set(\gate, 0);
+	};
+
+	fxInst = {|instSlot=1, fxName=\channelVol|
+	if((fxName == \direct).or(fxName == 0), {
+	instNode[voiceNum+1+instSlot] = 0;
+	}, {
+	instNode[voiceNum+1+instSlot] = \filter -> fxFunc.value(fxName);
+	instNode[(voiceNum+1+instSlot)];
+	});
+	};
+
+	instNode.fadeTime = 3.0; //initial fade time
+
+	filters = [\direct] ++ fxsArr.flop[0].copyRange(1,fxsArr.size-1); //get filters
+	ccIn = 1;
+	arrNote = [];
+	count = 0;
+	hicup = false;
+	transpose = 0;
+	indexOffset=3;
+
+	MIDIdef.noteOn((\on++instNum).asSymbol, {arg ...args;
+		'noteOn: '.post; [args[0],args[1]+transpose,args[2], args[3]].postln;
+
+		if(args[2] == (instMidiChan-1), {
+
+		noteOn.value(count,instName,args[1]+transpose,args[0]);
+
+		arrNote = arrNote.add([count, args[1]+transpose]);
+
+		count = count + 1;
+
+		});
+
+		});
+
+	MIDIdef.noteOff((\off++instNum).asSymbol, {arg ...args;
+			var index, realIndex;
+		'noteOff: '.post; [args[0],args[1]+transpose,args[2], args[3]].postln;
+
+		if(args[2] == (instMidiChan-1), {
+
+			if(count > (voiceNum-1), {
+				count=0;
+			});
+
+		if(arrNote.isEmpty.not, {
+
+		realIndex = arrNote.flop[1].indexOf(args[1]+transpose);
+		index = arrNote.flop[0][realIndex];
+
+		if([4,5,10,11,25].includes(synths.indexOf(instName)).not, {
+			noteOff.value(index);
+		});
+
+		arrNote.removeAt(realIndex);
+		});
+
+		});
+
+		});
+
+	MIDIdef.cc((\cc++instNum).asSymbol, {arg ...args; var index, realIndex;
+		//'cc: '.post; args.postln;
+
+		if(args[2] == (instMidiChan-1), {
+
+		if(args[1] != ccIn, {
+		ccIn = args[1];
+		if(midCCin.notNil, {
+		if(hicup.not, {
+			{midCCin.value = ccIn;}.defer;
+		});
+		});
+		});
+
+		[volSlider, bendSlider, transSlider].do{|item, index|
+		if(args[1] == midiCCArr[index], {
+		{item.value = item.controlSpec.map(args[0].linlin(0,127,0,1));
+		item.doAction;
+			}.defer;
+		});
+		};
+
+		guiSliders.do{|item, index|
+		if(args[1] == midiCCArr[index+indexOffset], {
+		{item.value = item.controlSpec.map(args[0].linlin(0,127,0,1));
+		item.doAction;
+			}.defer;
+		});
+		};
+
+		fxSliders.do{|item, index|
+		if(args[1] == midiCCArr[index+indexOffset+guiSliders.size], {
+		{item.value = item.controlSpec.map(args[0].linlin(0,127,0,1));
+		item.doAction;
+			}.defer;
+		});
+		};
+
+		});
+	});
+
+	//GUI
+	guiWindow = {
+	var defaultSet, guiNumers, fxNum, fxArr, resetFX, closeFxWin;
+	var synthSettings, settingsHeight, window, fxCCArr;
+	var guiFxHead, fxMenuArr, fxButtonArr, fxMenuFunc, fxValArr, resetFXGUI;
+	var newFxArr, fxHeight, instMenu, ezNum;
+	defaultSet = false; //defaultSettings bool
+	guiNumers = [];
+	guiSliders = [];
+	fxNum = 4; //initial number of fxs
+	fxArr = Array.fill(8, \direct);
+	fxValArr = Array.fill(8, []);
+	fxCCArr = Array.fill(8, []);
+	resetFX = true;
+	resetFXGUI = true;
+	//close fx windows
+	closeFxWin = {|index|
+	if(fxButtonArr.notNil, {
+	fxButtonArr[index].valueAction = 0;
+	fxSliders = [];
+	});
+	};
+	//synth settings func
+	synthSettings = {arg win, nameInst, nodeInst;
+	var specs;
+
+	{
+	win.view.decorator.reset;
+	win.view.decorator.top_(settingsHeight);
+
+	specs = [];
+	SynthDescLib.global[nameInst].metadata.specs.pairsDo{|a,b|
+						specs = specs.add([a,b]);
+					};
+
+	guiNumers = [];
+	guiSliders = [];
+	guiFxHead = [];
+
+	//specs.postln;
+
+	specs.do{|item, index|
+	var keyValues, defaultVal;
+	keyValues = nodeInst.getKeysValues;
+	if(defaultSet, {
+	defaultVal = keyValues.flop[1][keyValues.flop[0].indexOf(item[0]).asInteger];
+	}, {
+	defaultVal = item[1].asSpec.default;
+	});
+	guiNumers = guiNumers.add(
+	EZNumber(win, 50@22, "cc: ", [0,127,\lin,1].asSpec, { |ez|
+		midiCCArr[index+indexOffset] = ez.value;
+	}, midiCCArr[index+indexOffset], true, 95, 25).setColors(stringColor: Color.white);
+	);
+	guiSliders = guiSliders.add(
+	EZSlider(win,win.view.decorator.indentedRemaining.width-10@22,item[0].asString,
+			item[1].asSpec,
+	{ |ez|
+	nodeInst.set(item[0], ez.value);
+	},
+	defaultVal;
+	).setColors(stringColor: Color.white);
+	);
+	guiSliders.do{|item| item.doAction};
+	};
+
+	6.do{win.view.decorator.nextLine;};
+
+	//FXs
+	guiFxHead = guiFxHead.add(
+	StaticText(win, win.view.decorator.indentedRemaining.width@22)
+				.string_("SYNTH FXs").align_(\center).stringColor_(Color.blue);
+	);
+	2.do{win.view.decorator.nextLine;};
+	//fade time
+	guiFxHead = guiFxHead.add(
+	EZNumber(win, 115@22, "Fade Time: ", [0.0,10,\lin,0.0].asSpec, { |ez|
+	instNode.fadeTime = ez.value;
+	 }, instNode.fadeTime, true, 95, 45).setColors(stringColor: Color.white);
+	 );
+	//number of fx slots
+	guiFxHead = guiFxHead.add(
+	EZNumber(win, 90@22, "FX Slots: ", [1,8,\lin,1].asSpec, { |ez|
+
+	fxMenuArr.do{|item| item.remove};
+	fxButtonArr.do{|item| item.remove};
+	window.refresh;
+
+	window.view.decorator.reset;
+	window.view.decorator.top_(fxHeight);
+
+	fxNum.do{|item| (item+1);
+	fxInst.value(item,\direct)
+	};
+
+	fxNum = ez.value;
+	fxMenuFunc.value; //reset fx menus
+
+	newFxArr = Array.fill(8,\direct);
+	if(resetFX.not, {
+	fxNum.do{|item|
+	fxMenuArr[item].value = filters.indexOf(fxArr[item]);
+	fxMenuArr[item].doAction;
+	newFxArr[item] = fxArr[item];
+	};
+	});
+	fxArr = newFxArr;
+
+	 }, fxNum, false, 95, 25).setColors(stringColor: Color.white);
+	 );
+	guiFxHead = guiFxHead.add(
+	window.view.decorator.left_(280);
+	Button(window, 45@22)
+        .states_([
+            ["reset", Color.black, Color.gray(0.8)],
+            ["same", Color.red(1.3, 1.0), Color.gray(0.8)],
+        ])
+        .action_({ arg butt;
+            if(butt.value == 0, {
+			resetFX = true;
+			}, {
+			resetFX = false;
+			});
+        });
+	);
+
+	//FX menus
+	fxHeight = win.view.decorator.currentBounds.height;
+
+	fxMenuFunc.value;
+
+	newFxArr = Array.fill(8,\direct);
+	if(resetFX.not, {
+	fxNum.do{|item|
+	fxMenuArr[item].value = filters.indexOf(fxArr[item]);
+	fxMenuArr[item].doAction;
+	newFxArr[item] = fxArr[item];
+	};
+	});
+	fxArr = newFxArr;
+
+	}.defer;
+};
+
+	fxMenuFunc = {var nodeGUIArr, fxSpecFunc, winOffArr, winOff;
+	4.do{window.view.decorator.nextLine;};
+
+	fxMenuArr = [];
+	fxButtonArr = [];
+	fxNum.do{|item| fxMenuArr = fxMenuArr.add(
+	EZPopUpMenu(window, 252@22, "FX" ++ (item+1).asString
+						++ ": ", labelWidth: 50);
+	);
+
+	window.view.decorator.left_(280);
+
+	//fx win arr
+	nodeGUIArr = Array.fill(fxNum,nil);
+
+	//specs for effect window
+	fxSpecFunc = {|index|
+	if(fxArr[index] != \direct, {
+	fxSpec.value(fxArr[index]); //get fxSpecs
+	}, {
+	[];
+	});
+	};
+
+	fxButtonArr = fxButtonArr.add(
+	Button(window, 45@22)
+        .states_([
+            ["GUI", Color.white, Color.gray(0.8)],
+            ["Close", Color.green(1.3, 1.0), Color.gray(0.8)],
+        ])
+	);
+
+	fxButtonArr.do{|item, index|
+	item.action_({ arg butt;
+		var winFx, fxNumers, fxSpecs, indexOff;
+
+            if(butt.value == 0, {
+	if(nodeGUIArr[index].notNil, {nodeGUIArr[index].close;});
+	nodeGUIArr[index] = nil;
+	fxSliders = [];
+	}, {
+	//effects window
+	fxArr[index].postln;
+	fxSpecs = fxSpecFunc.value(index);
+	nodeGUIArr[index] =
+	winFx = Window(("FX" ++ (index+1).asString),
+			Rect(338+(338*(instNum-1)),Window.screenBounds.height-
+			(450+(30*fxSpecs.size)+((index+1)*25)),338,30*fxSpecs.size+30)).front;
+	winFx.view.background_(Color.grey;);
+	winFx.view.decorator = FlowLayout(winFx.view.bounds);
+	winFx.userCanClose = false;
+	StaticText(winFx, winFx.view.decorator.indentedRemaining.width@22)
+		.string_(fxArr[index].toUpper).align_(\center).stringColor_(Color.blue);
+	fxSpecs.do{|item, indx|
+		var storeArr;
+	indexOff = guiSliders.size + indexOffset;
+	winOff = winOffArr[index][indx];
+	fxNumers = fxNumers.add(
+	EZNumber(winFx, 50@22, "cc: ", [0,127,\lin,1].asSpec, { |ez|
+		midiCCArr[indexOff+winOff] = ez.value;
+	},
+	midiCCArr[indexOff+winOff],
+	true, 95, 25).setColors(stringColor: Color.white);
+	);
+	fxSliders = fxSliders.add(
+	EZSlider(winFx,winFx.view.decorator.indentedRemaining.width-10@22,
+			item[0].asString, item[1].asSpec,
+	{ |ez|
+	instNode.objects[voiceNum+1].set(item[0], ez.value);
+	fxValArr[index][indx] = ez.value;
+	},
+	//defaultVal;
+	if(fxValArr[index][indx].isNumber, {fxValArr[index][indx]}, {nil});
+	).setColors(stringColor: Color.white);
+	);
+	fxSliders.do{|item| item.doAction};
+	};
+
+	});
+	});
+	};
+
+	};
+	fxMenuArr.do{|item|
+	item.setColors(stringColor: Color.white, menuBackground: Color.rand,
+						menuStringColor: Color.yellow(1.1));
+	};
+
+	//change fxslot actions
+	fxMenuArr.do{|it, index|
+	filters.do{|item| it.addItem(item, {
+	fxArr[index] = item;  //name of fx
+	fxInst.value(index,item); //set fx
+	//get fxSpecs
+	fxValArr[index] = Array.fill(fxSpecFunc.value(index).size, []);
+
+	//cc value array
+	if(fxValArr[index].isEmpty.not, {
+	fxCCArr[index] = (0..fxSpecFunc.value(index).size-1);
+	}, {fxCCArr[index] = []});
+	winOffArr = (0..fxCCArr.flat.size-1).reshapeLike(fxCCArr);
+
+	closeFxWin.value(index); //close all fx windows
+	//randomise colours
+	it.setColors(menuBackground: Color.rand);
+	}); };
+
+	};
+};
+
+	midiCCArr = Array.series(16,1);
+
+	window = Window(("Synthesiser " ++ instNum), Rect(5+(338*(instNum-1)),
+			255,338,Window.screenBounds.height-300)).front;
+	window.view.background_(Color.grey;);
+	window.view.decorator = FlowLayout(window.view.bounds);
+
+	StaticText(window, window.view.decorator.indentedRemaining.width@22)
+			.string_("INSTRUMENT " ++ instNum)
+			.align_(\center).stringColor_(Color.blue);
+	instMenu = EZPopUpMenu(window, 252@22, "Synth: ", labelWidth: 50);
+	instMenu.setColors(stringColor: Color.white, menuBackground: Color.rand,
+				menuStringColor: Color.yellow(1.1));
+	synths.do{|item, index| instMenu.addItem(item, {
+	//instrument change
+	//close fx windows
+	fxNum.do{|index|
+	closeFxWin.value(index);
+	};
+	//remove gui and refresh window
+	if(guiNumers.isEmpty.not, {
+	guiNumers.do{|item| item.remove};
+	guiSliders.do{|item| item.remove};
+	guiFxHead.do{|item| item.remove};
+	fxMenuArr.do{|item| item.remove};
+	fxButtonArr.do{|item| item.remove};
+	});
+	window.refresh;
+	//new instrument, and new gui for settings
+	instName = item.postln;  //name at instrument 1
+	{setVoiceNum.value(voiceNum,instName);
+	hicup = true;
+	0.2.yield;
+	hicup = false;
+	synthSettings.value(window, instName, instNode);
+	}.fork;
+	//randomise colours
+	instMenu.setColors(menuBackground: Color.rand);
+	}); };
+
+	2.do{window.view.decorator.nextLine;};
+	//midi channel
+	ezNum = EZNumber(window, 115@22, "Midi Channel: ", [1,16,\lin,1].asSpec,
+				{ |ez| ("Midi Channel: " ++ ez.value.asString).postln;
+		instNode.objects.do{|item| item.set(\gate, 0);};
+		instMidiChan = ez.value;
+		 }, instMidiChan, true, 95, 25);
+	ezNum.setColors(stringColor: Color.white);
+	//number of voices
+	ezNum = EZNumber(window, 80@22, "Voices: ", [1,48,\lin,1].asSpec,
+				{ |ez| ("Number of Voices: " ++ ez.value.asString).postln;
+		setVoiceNum.value(ez.value,instName);
+
+		 }, voiceNum, true, 95, 25);
+	ezNum.setColors(stringColor: Color.white);
+	midCCin = EZNumber(window, 75@22, "CCIn: ", [0,127,\lin,1].asSpec,
+				{}, 1, true, 95, 35);
+	midCCin.setColors(stringColor: Color.white);
+
+	4.do{window.view.decorator.nextLine;};
+	//volume and bend sliders
+
+	EZNumber(window, 50@22, "cc: ", [0,127,\lin,1].asSpec, { |ez|
+			midiCCArr[0] = ez.value;
+		}, midiCCArr[0], true, 95, 25).setColors(stringColor: Color.white);
+
+	volSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
+				"Volume: ", [-inf, 6, \db, 0, -inf, " dB"].asSpec,
+		{ |ez|
+		//(ez.value.asString ++" is the value of " ++ ez).postln;
+		instNode.set(\vol, ez.value.dbamp);
+		},
+		0;
+		).setColors(stringColor: Color.white);
+
+	EZNumber(window, 50@22, "cc: ", [0,127,\lin,1].asSpec, { |ez|
+			midiCCArr[1] = ez.value;
+		}, midiCCArr[1], true, 95, 25).setColors(stringColor: Color.white);
+
+	bendSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
+				"Bend: ",
+				[-200,200,\lin,1,0].asSpec.shift(2),
+		{ |ez|
+		instNode.set(\bend, ez.value/100);
+		},
+		0;
+		).setColors(stringColor: Color.white);
+
+	EZNumber(window, 50@22, "cc: ", [0,127,\lin,1].asSpec, { |ez|
+			midiCCArr[2] = ez.value;
+		}, midiCCArr[2], true, 95, 25).setColors(stringColor: Color.white);
+
+	transSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
+				"Transp: ",
+				[-48,48,\lin,1,0].asSpec,
+		{ |ez|
+		transpose = ez.value;
+		},
+		0;
+		).setColors(stringColor: Color.white);
+
+	//first instrument
+	instMenu.value = 0;
+	instMenu.doAction;
+
+	6.do{window.view.decorator.nextLine;};
+
+	StaticText(window, window.view.decorator.indentedRemaining.width@22)
+			.string_("SYNTH SETTINGS").align_(\center).stringColor_(Color.blue);
+	window.view.decorator.left_(280);
+	Button(window, 45@22)
+        .states_([
+            ["default", Color.black, Color.gray(0.8)],
+            ["now", Color.red(1.3, 1.0), Color.gray(0.8)],
+        ])
+        .action_({ arg butt;
+            if(butt.value == 0, {
+			defaultSet = false;
+			}, {
+			defaultSet = true;
+			});
+			defaultSet.postln;
+        });
+
+	2.do{window.view.decorator.nextLine;};
+
+	settingsHeight = window.view.decorator.currentBounds.height;
+
+};
+
+{
+	0.5.yield;
+	{guiWindow.value;}.defer;
+}.fork;
+};
+
+}
+)
+::
+
+section::Now let's play this Synthesiser!
+
+Now that we loaded the program, first we need to start MIDI:
+
+code::
+//start midi
+MIDIIn.connectAll;
+::
+
+Then we can start the synthesiser. You can choose how many instances of synthesiser instruments you want - let's start with one:
+code::
+(
+~synthNum = 1; //set number of synthesiser instruments you want to use by changing number
+~synthNum.do{|item| ~synthInstrument.value((item+1), ~fxs);};
+)
+::
+
+This should generate a Graphical User Interface (GUI) in a new window. In the window you will see below strong::Instrument1:: at the top a dropdown menu to select different SynthDefs. In the next line, you'll see that you can select things like the midi channel you want to receive in, the amount of voices in the polyphonic synth, etc. Then you will see controls for the synthesiser, like its volume, bend and transposition. Below that, you will see strong::Synth Settings:: that should be the arguments in your SynthDef, again, these should be already mapped. Notice where it says: "cc: " followed by a number, this is to map the cc values from your midi controller to the appropriate sliders if you want to control them through MIDI. Lastly, you'll find the strong::Synth FXs:: You can add effects to you synths from the dropdown menus. You can add up to 4 effects. Then, if you want even more, you can change the value in FX Slots to the number of effects you want up to 8 - you need to press reset after you change the number of FX Slots. You can change the values for the effects by pressing GUI, which will show a slider with these values that will be matched to the arguments in the FXs synths.
+
+Ok, now try it with more instruments:
+
+code::
+(
+~synthNum = 4; //set number of synthesiser instruments you want to use by changing number
+~synthNum.do{|item| ~synthInstrument.value((item+1), ~fxs);};
+)
+::
+
+Now you can play with more instruments at the same time by mapping them to different MIDI channels!
+
+warning::ENJOY!!!::
+
+note::You can freely use and modify this code!!::

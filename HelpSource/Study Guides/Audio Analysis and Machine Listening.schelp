@@ -85,7 +85,7 @@ list::
 ##As long as the signal doesn’t change during this time frame, we can get the measurements for the harmonics of the analysis frequency
 ::
 
-note::This is a very simplified explanation of Fourier Analysis. The actual mathematics of Fourier Transform is quite complicated and there are whole courses dedicated to this subject at Maths and Engineering Departments. People do their PhDs and further research in this topic, so you can imagine how vast it is!::
+note::This is a very simplified explanation of Fourier Analysis. The actual mathematics of Fourier Transform is complex and there are whole courses dedicated to this subject at Maths and Engineering Departments. People do a lot of research on this topic, and it has many applications across different disciplines.::
 
 image::http://www.federicoreuben.com/computerdotplay/guides/guide3/fft_class1.png::
 image::http://www.federicoreuben.com/computerdotplay/guides/guide3/fft_class2.png#FFT class at MIT - ocw.mit.edu::
@@ -836,7 +836,7 @@ c.free;
 
 subsection::Accessing Frequency and Magnitude Data
 
-In SuperCollider it is possible to access the frequencies and magnitudes from an code::FFT:: directly from a buffer. This data can be read from a buffer straight into an array to be used/manipulated as you wish. This is done through the PV_MagBuffer and PV_FreqBuffer classes (sc3-plugins)
+In SuperCollider it is possible to access the frequencies and magnitudes from an code::FFT:: directly from a buffer. This data can be read from a buffer straight into an array to be used/manipulated as you wish. This is done through the code::PV_MagBuffer:: and code::PV_FreqBuffer:: classes (sc3-plugins)
 
 First, we need to allocate two buffers, one to store the frequency data and another for the magnitudes. The buffers should be equal to emphasis::size of the window / 2::.
 
@@ -848,7 +848,7 @@ code::
 )
 ::
 
-Now, let's analyse the sound of the microphone. Notice that PV_MagBuffer & PV_FreqBuf receive arguments for emphasis::buffer:: (FFT buffer) and emphasis::databuffer:: (where we are going to store the data and access it!).
+Now, let's analyse the sound of the microphone. Notice that code::PV_MagBuffer:: and code::PV_FreqBuf:: receive arguments for emphasis::buffer:: (FFT buffer) and emphasis::databuffer:: (where we are going to store the data and access it!).
 code::
 Ndef(\input, {SoundIn.ar(0)});
 
@@ -889,7 +889,7 @@ c.wait;
 }.fork;
 )
 ::
-We are getting a lot of information!! Maybe too much for what we want to do. If we want to do partial tracking, it's possible to limit the amount of bins by just accessing the bins with the highest magnitudes. PV_MaxMagN limits the number of bins to a specified number - it only takes the strongest (maximum magnitudes) bins at a given time:
+We are getting a lot of information!! Maybe too much for what we want to do. If we want to do partial tracking, it's possible to limit the amount of bins by just accessing the bins with the highest magnitudes. code::PV_MaxMagN:: limits the number of bins to a specified number - it only takes the strongest (maximum magnitudes) bins at a given time:
 code::
 (
 Ndef(\analyse, {arg in, num=6;
@@ -954,8 +954,9 @@ subsection::FFT stretching
 
 FFT time stretching can be achieved with this two UGens. However they are not part of the standard SC distribution. They are part of the sc3-plugins, so make sure you download and install the extra plugins.
 
-PV_RecordBuf - records FFT data to a memory buffer
-PV_PlayBuf - plays FFT data from a memory buffer
+code::PV_RecordBuf:: - records FFT data to a memory buffer
+
+code::PV_PlayBuf:: - plays FFT data from a memory buffer
 
 Analyse a soundfile and store its data to a buffer
 code::
@@ -1251,26 +1252,18 @@ A key tracker based on a pitch class profile of energy across FFT bins and match
 code::
 d = Buffer.loadDialog
 
-b = Buffer.alloc(s, 4096, 1); // for sampling rates 44100 and 48000
-
 (
 {
 var in, fft, resample, chord, rootnote, sympath;
 var key, transientdetection;
-
 in = PlayBuf.ar(1, d, BufRateScale.kr(d), 1, 0, 1);
-
-fft = FFT(b, in);
-
+fft = FFT(LocalBuf(4096), in);
 key = KeyTrack.kr(fft, 2.0, 0.5);
 key.poll;
 key = Median.kr(101, key); // Remove outlier wibbles
-
 chord = if(key<12, #[0, 4, 7], #[0, 3, 7]);
 rootnote = if(key<12, key, key-12) + 60;
-
 sympath = SinOsc.ar((rootnote + chord).midicps, 0, 0.4).mean;
-
 Out.ar(0,Pan2.ar(in, -0.5) + Pan2.ar(sympath, 0.5));
 }.play
 )
