@@ -264,7 +264,7 @@ a = Buffer.loadDialog;
 
 Ndef(\input, {PlayBuf.ar(a.numChannels, a.bufnum, BufRateScale.kr(a.bufnum), loop: 1)});
 ::
-The contents of buffer a can be changed to test different sounds with the UGens.
+The contents of buffer emphasis::a:: can be changed to test different sounds with the UGens.
 
 In most of the UGens demonstrations, input parameters will be derived from the mouse to allow quick testing of the meaning of the parameters.
 
@@ -902,9 +902,9 @@ Ndef(\analyse, {arg in, num=6;
 })
 )
 ::
-Now we can do partial tracking by specifying the number of strongest bins we want to access.
+Now we can do partial tracking by specifying the number of strongest partials we want to access.
 code::
-Ndef(\analyse).set(\num, 12);
+Ndef(\analyse).set(\num, 12); //change number of partials
 
 (
 {
@@ -924,16 +924,18 @@ c.wait;
 Now, this is more manageable! So, for example, we can use the strongest bins now to write some real-time spectral music... We're going to take the frequency and magnitudes from our analysis and use a synth to play them.
 code::
 
-Ndef(\resynthesis, Pdef(\partials)).play;
-
+//synth for resynthesis - here just a SinOsc
 (
-SynthDef("resynth", {arg out=0, freq=440, gate=0, amp=1;
-	var signal, env;
-	signal = SinOsc.ar(freq, 0, amp);
-	env = EnvGen.kr(Env.adsr(0.05,0.5,0.9,0.2), gate, doneAction:2);
-	Out.ar(out, signal*env);
-}).add;
+Ndef(\resynthesis, {arg out=0, freq=440, amp=0, atk=0.01,sus=1,rel=1;
+    var signal, env;
+    signal = SinOsc.ar(freq, 0, amp);
+	env = EnvGen.kr(Env.linen(atk,sus,rel), doneAction:2);
+    Out.ar(out, signal*env);
+}).play;
 )
+
+Ndef(\analyse).set(\num, 10); //change number of partials
+
 //sing a note and while you're singing run this:
 (
 {
@@ -943,9 +945,10 @@ c = Condition.new(false);
 });
 c.wait;
 ~arr = [~freqs,~mags].flop.reject({|item| item[1] == 0});
-	Pdef(\partials, Pbind(\instrumnet, \resynth, \freq, ~arr.flop[0].flat,
-		\amp, ~arr.flop[1].flat / ~windowSize, \dur, Prand([3,4],1)) ).play;
-~arr.do{|item| item.postln};
+	~arr.do{|item| item.postln;
+		Ndef(\resynthesis).spawn([\freq, item[0],\amp, item[1] / ~windowSize,
+			\sus, rrand(0.1,2), \rel, rrand(0.2,1) ]);
+			};
 }.fork;
 )
 ::
@@ -1268,3 +1271,9 @@ Out.ar(0,Pan2.ar(in, -0.5) + Pan2.ar(sympath, 0.5));
 }.play
 )
 ::
+
+
+Note::
+Various examples, ideas, etc. have been taken or derived from the SC documentation, Nick Collins, Paul Berg, David Cottle and lots of other people in the SuperCollider community.
+::
+	

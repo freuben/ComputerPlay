@@ -4,35 +4,38 @@ categories:: Tutorials/ComputerDotPlay
 
 section::Latest
 
-subsection::Project Proposals
 
-You will have to write a strong::project proposal:: per group for your strong::final project::. The proposal will be approximately a page long (A4) and should include a list of group members (full names please) and a brief summary of the project you wish to undertake. It doesn't matter if you slightly change your project later - this is just for me to get an idea of what to expect so that I can advise and support you.
-Note::You will need to send me the proposal via email before strong::Friday, 10 February::.::
-
-subsection::Computer.play - Seminar Presentations
+subsection::Computer.play - Tutorial 2: Monday, 20 February
 
 table::
-##strong::Tuesday, 14 February:: || strong::Friday, 17 February::
-## WILLIAM	 BARNARDO	||	 ELIZABETH	 PHIPPARD
-## DOMINIC	 CRAMP	||	 TOBIAS	 RANDALL-PALEY
-## FELCITY	 MARGERESON	||	 EMILY	 SULLIVIN
-## CHRISTOPHER	 MURPHY	||	 JAN	 TAN
-## TOM	 HORNER	||	 FREDERICK	 WORDSWORTH
-## THOMAS	 JAMES	||	 BENJAMIN	 STRANGE
-## ATHENE	 BROAD	||	 GABRIEL	 WALKER
-## BARRINGTON	 BROOK	||	 SARAH	 PENDLETON
-## ALAN	 FOWLER	||	 POPPY	 RICE
-## MATILDA	 GANNON	||	 ERIN	 ROBINSON
-## KATHARINE	 LOVELL	||	 CATHERINE	 ROBSON
+## 09:00 ||  TOM	 HORNER
+## 09:20 ||  ALAN	 FOWLER
+## 09:40 ||  CHRISTOPHER	 MURPHY
+## 09:40 ||  DOMINIC	 CRAMP
+## 09:40 ||  FREDERICK	 WORDSWORTH
+## 10:35 ||  JAN	 TAN
+## 10:35 ||  WILLIAM	 BARNARDO
+## 11:15 ||  GABRIEL	 WALKER
+## 11:15 ||  BENJAMIN	 STRANGE
+## 11:15 ||  THOMAS	 JAMES
+## 12:10 ||  ELIZABETH	 PHIPPARD
+## 12:10 ||  TOBIAS	 RANDALL-PALEY
+## 12:10 ||  POPPY	 RICE
+## 14:00 ||  FELCITY	 MARGERESON
+## 14:00 ||  KATHARINE	 LOVELL
+## 14:00 ||  ATHENE	 BROAD
+## 14:55 ||  MATILDA	 GANNON
+## 14:55 ||  SARAH	 PENDLETON
+## 14:55 ||  EMILY	 SULLIVIN
+## 15:50 ||  BARRINGTON	 BROOK
+## 15:50 ||  ERIN	 ROBINSON
+## 15:50 ||  CATHERINE	 ROBSON
 ::
 
-subsection::Class Presentations
+warning::Given that the MRC is undergoing a lift replacement next to my office (including emphasis::BEAUTIFUL:: drilling noises all day...), I've booked the strong::Lyons Studio:: for the tutorials. For those who are not familiar with the strong::Lyons Studio::, it is the studio located in the upper floor of the Music Department main building (SJLCH), past the door, to the left.
+::
 
-I have decided to postpone the strong::class presentations:: a few days because of the session I had to cancel this week due to illness. Instead of them happening on the 10 and 14 of February, now they will be on the 14 and 17. This will give you a few days extra to prepare. You can see which day you are presenting in the table above.
-
-note::The strong::class presentations:: will now be happening on the strong::14 and 17 of February::::
-
-subsection::Extra Sessions
+subsection::Extra Session
 
 I will do an extra session on strong::Tuesday, 21 February:: instead of the session that was cancelled this week. In addition, after that date we will have tutorials and troubleshooting sessions.
 
@@ -55,6 +58,7 @@ list::
 ## link::Seminars/Introduction to ComputerDotPlay::
 ## link::Seminars/Composing with Computers 1::
 ## link::Seminars/Human-Computer Interaction::
+## link::Seminars/Composing with Computers 2::
 ::
 ## Workshops ||
 list::
@@ -94,8 +98,6 @@ section::News
 code::Computer.play:: related news, announcements, events, concerts, talks, links, etc:
 
 subsection::Talks
-
-15/02/2017 Link::https://www.mstrcyork.org/events/event/research-seminar-nick-collins/##Research Seminar: Nick Collins::
 
 18/03/2017 Link::https://www.mstrcyork.org/events/event/research-seminar-john-murray/##Research Seminar: John Murray::
 

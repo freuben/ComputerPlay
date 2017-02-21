@@ -448,7 +448,7 @@ SynthDef(\pitchshift,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
 		bassfreq:[100,3000,\exp,1,440], pitchDis:[0.0,1,\lin,0.0,0.0],
 		timeDis:[0.0,1,\lin,0.0,0.01]))).add;
 
-//Most of these Synth Defs are coming from Mitchell Sigman (2011) Steal this Sound.
+//Most of these SynthDefs are coming from Mitchell Sigman (2011) Steal this Sound.
 //Milwaukee, WI: Hal Leonard Books
 //Adapted for SuperCollider and elaborated by Nick Collins.
 
@@ -1058,8 +1058,8 @@ SynthDef(\pitchshift,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
 			midiCCArr[0] = ez.value;
 		}, midiCCArr[0], true, 95, 25).setColors(stringColor: Color.white);
 
-	volSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
-				"Volume: ", [-inf, 6, \db, 0, -inf, " dB"].asSpec,
+	volSlider = EZSlider(window,window.view.decorator.indentedRemaining
+				.width-10@22, "Volume: ", [-inf, 6, \db, 0, -inf, " dB"].asSpec,
 		{ |ez|
 		//(ez.value.asString ++" is the value of " ++ ez).postln;
 		instNode.set(\vol, ez.value.dbamp);
@@ -1071,9 +1071,8 @@ SynthDef(\pitchshift,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
 			midiCCArr[1] = ez.value;
 		}, midiCCArr[1], true, 95, 25).setColors(stringColor: Color.white);
 
-	bendSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
-				"Bend: ",
-				[-200,200,\lin,1,0].asSpec.shift(2),
+	bendSlider = EZSlider(window,window.view.decorator.indentedRemaining
+				.width-10@22, "Bend: ", [-200,200,\lin,1,0].asSpec.shift(2),
 		{ |ez|
 		instNode.set(\bend, ez.value/100);
 		},
@@ -1084,9 +1083,8 @@ SynthDef(\pitchshift,{|out= 0 freq = 440 bend = 0 amp = 1.0 gate=1
 			midiCCArr[2] = ez.value;
 		}, midiCCArr[2], true, 95, 25).setColors(stringColor: Color.white);
 
-	transSlider = EZSlider(window,window.view.decorator.indentedRemaining.width-10@22,
-				"Transp: ",
-				[-48,48,\lin,1,0].asSpec,
+	transSlider = EZSlider(window,window.view.decorator.indentedRemaining
+				.width-10@22, "Transp: ", [-48,48,\lin,1,0].asSpec,
 		{ |ez|
 		transpose = ez.value;
 		},

@@ -1,0 +1,833 @@
+TITLE::Composing with Computers 2
+summary:: Computer.play(Music, Creativity & Code)
+categories:: Tutorials/ComputerDotPlay
+related:: Computer, Seminars/Composing with Computers 1
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.001.png#John Cage and Karlheinz Stockhausen on a plane - 4.bp.blogspot.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.002.png#In Formalised Music, 1971::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.003.png#In The Computer Music Tutorial, 1996::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.004.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.005.png#Schoenberg self-portrait - rosswolfe.files.wordpress.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.006.png#12-tone Matrix - acting-man.com::
+code::
+(
+~matrixFunc = {arg series;
+var invert;
+~invert = (12 - series) % 12;
+~matrix = ~invert.collect{arg num; (num + series) % 12; };
+~matrix = (~matrix + series[0] % 12);
+~retrograde = ~matrix.collect{|item| item.reverse;};
+~inversion = ~matrix.flop;
+~retrogradeInversion = ~inversion.collect({|item| item.reverse;})
+};
+)
+
+~series = ["d ", "g ", "f#", "d#", "c ", "b ", "a ", "e ", "g#", "a#", "f ", "c# "].notemidi
+~series = [ 2, 7, 6, 3, 0, 11, 9, 4, 8, 10, 5, 1 ];
+
+Pbind(\degree, Pseq(~series, 1), \scale, Scale.chromatic, \dur, 0.4).play
+
+~matrixFunc.value(~series);
+
+~matrix.do{|item| item.midinote.postln};
+~retrograde.do{|item| item.midinote.postln};
+~inversion.do{|item| item.midinote.postln};
+~retrogradeInversion.do{|item| item.midinote.postln};
+
+Pbind(\degree, Pseq(~matrix[0], 1), \scale, Scale.chromatic, \dur, 0.4).play;
+Pbind(\degree, Pseq(~retrograde[0], 1), \scale, Scale.chromatic, \dur, 0.4).play;
+Pbind(\degree, Pseq(~inversion[0], 1), \scale, Scale.chromatic, \dur, 0.4).play;
+Pbind(\degree, Pseq(~retrogradeInversion[0], 1), \scale, Scale.chromatic, \dur, 0.4).play;
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.007.png#12-tone Matrix - blog-archive.indabamusic.com::
+code::
+~series = ["c ", "c#", "d ", "b ", "a#", "g#", "e ", "a ", "d#", "f#", "f ", "g "].notemidi
+~series = [ 0, 1, 2, 11, 10, 8, 4, 9, 3, 6, 5, 7 ];
+
+Pbind(\degree, Pseq(~series, 1), \scale, Scale.chromatic, \dur, 0.4).play
+
+~matrixFunc.value(~series);
+
+~matrix.do{|item| item.midinote.postln};
+~retrograde.do{|item| item.midinote.postln};
+~inversion.do{|item| item.midinote.postln};
+~retrogradeInversion.do{|item| item.midinote.postln};
+
+(
+~wonderTones = ~matrix[0].copyRange(0,10);
+~wonderTones = ~wonderTones ++ ~inversion[11].copyRange(0,10);
+~wonderTones = ~wonderTones ++ ~retrograde[11].copyRange(0,10);
+~wonderTones = ~wonderTones ++ ~retrogradeInversion[0];
+)
+
+~wonderTones.midinote.dopostln;
+
+Pbind(\degree, Pseq(~wonderTones, inf), \scale, Scale.chromatic, \dur, 0.1).play;
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.008.png::
+code::
+//Serialisation of other parameters
+(
+Pbind(\degree, Pseq(~wonderTones, inf), \scale, Scale.chromatic,
+	\dur, Pseq((~wonderTones+1)/12*0.6, inf),
+	\amp, Pseq((~wonderTones+1)/12 * 0.4, inf),
+	\legato, Pseq((~wonderTones+1)/12 * 0.75, inf)
+).play
+)
+
+//Permutations
+~series = ["c ", "a#", "c#", "c ", "b ", "d ", "d#", "f#", "f ", "e ", "g ", "g#"].notemidi
+~series = [ 0, 10, 1, 0, 11, 2, 3, 6, 5, 4, 7, 8 ];
+
+Pbind(\degree, Pseq(~series, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~matrix.do{|item, index| item.postln};
+~retrograde.do{|item| item.midinote.postln};
+~inversion.do{|item| item.midinote.postln};
+~retrogradeInversion.do{|item| item.midinote.postln};
+
+~secondarySeries = ~series.rotate(6)
+
+Pbind(\degree, Pseq(~secondarySeries, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~matrixFunc.value(~secondarySeries);
+
+~matrix.do{|item| item.midinote.postln};
+~retrograde.do{|item| item.midinote.postln};
+~inversion.do{|item| item.midinote.postln};
+~retrogradeInversion.do{|item| item.midinote.postln};
+
+//Hadamard matrix
+~series = [ "g# ", "g ", "d# ", "c ", "b ", "e ", "a ", "f ", "d ", "f#", "c#", "a#" ].notemidi
+~series = [ 8, 7, 3, 0, 11, 4, 9, 5, 2, 6, 1, 10 ];
+
+Pbind(\degree, Pseq(~series, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~matrixFunc.value(~series);
+
+~matrix.do{|item| item.postln};
+
+~secondarySeries = ~matrix.collect{|item| item.indexOf(1) }
+
+Pbind(\degree, Pseq(~secondarySeries, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~secondarySeries = ~matrix.flop.collect{|item| item.indexOf(1) };
+
+Pbind(\degree, Pseq(~secondarySeries, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~secondarySeries = ~matrix.flop.collect{|item| item.indexOf(6) };
+
+Pbind(\degree, Pseq(~secondarySeries, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+//Jean Barraqué permutations
+~series = ["c ", "d#", "a ", "c#", "d ", "g ", "f ", "e ", "b ", "g#", "a#", "f#"].notemidi
+~series = [ 0, 3, 9, 1, 2, 7, 5, 4, 11, 8, 10, 6 ];
+
+Pbind(\degree, Pseq(~series, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~permutation = ~series.collect{|item| ~series[item]};
+~permutation.midinote;
+
+Pbind(\degree, Pseq(~permutation, 1), \scale, Scale.chromatic, \dur, 0.4).play;
+
+~matrixFunc.value(~permutation);
+
+~matrix.do{|item| item.midinote.postln};
+
+//Combining several series
+(
+~arr = [ [0, 0], [0], [0, 0], [0], [0, 0], [0], [0, 0], [0]];
+~playPrime = ~matrix[0].reshapeLike(~arr);
+~playInv = ~inversion[3].reshapeLike(~arr);
+~playRetro = ~retrograde[0].reshapeLike(~arr);
+~playRetroInv = ~retrogradeInversion[9].reshapeLike(~arr);
+)
+
+~lace = Ppatlace([Pseq(~playPrime ++ ~playRetro, 3), Pseq((~playInv ++ ~playRetroInv)-12, 3), Pseq(\rest!6, inf)], inf);
+Pbind(\degree, ~lace, \scale, Scale.chromatic, \dur, Prand([1/6, 2/6, 3/6, 4/6, 5/6, 6/6]*0.75, inf)).play;
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.009.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.010.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.011.png#In "The Crisis of Serial Music", 1955::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.012.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.013.png#Iannis Xenakis - youtube.com::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.014.png#Formalised Music - cca.qc.ca::
+code::
+//Simple stochastic example
+(
+SynthDef(\sinePerc, {arg freq=400, out=0, amp=0.5;
+	var sig;
+	sig = SinOsc.ar(freq,0,amp)*EnvGen.kr(Env.perc(0.01,0.1), doneAction: 2);
+	Out.ar(out, sig!2);
+}
+).add;
+)
+//weighted random
+{
+	inf.do{
+Synth(\sinePerc, [\freq, [72, 76, 79].wchoose([0.2,0.3,0.5]).postln.midicps]);
+	[0.1,0.2,0.3,0.05].wchoose([0.3,0.2,0.1,0.4]).yield;
+	};
+}.fork;
+
+~notes = (40..99);
+~prob = Array.series(a.size, 1,1).normalizeSum;
+(
+{
+	inf.do{
+Synth(\sinePerc, [\freq, ~notes.wchoose(~prob).postln.midicps]);
+(~notes/99*0.2).wchoose(~prob.reverse).yield;
+	};
+}.fork;
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.015.png#Gottfried Michael Koenig - 68.media.tumblr.com::
+code::
+//Koenig shotgun filter
+~sound = {Synth(\sinePerc, [\freq, rrand(400,1000), \amp, rrand(0.4,0.6)])}
+~prob = 1; //100% probability of note playing
+(
+{inf.do{
+[~sound, {}].wchoose((~prob-[0,1]).abs).value;
+	0.15.yield;
+}}.fork
+)
+
+~prob = 0.25; //change probability of note playing
+~prob = 0.75;
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.016.png#Andrey Markov - wikipedia.org::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.017.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.018.png#2-state Markov process::
+code::
+//Simple 2-state Markov Chain
+(
+~mChain = [
+[4, [4, 9], [0.3,0.7]],
+[9, [4, 9], [0.4,0.6]]
+]
+)
+
+(
+~index = ~mChain.flop[0].indexOf(4);
+{ inf.do{
+~note = ~mChain[~index][1].choose(~mChain[~index][2]);
+	Synth(\sinePerc, [\freq, (72+~note).midicps]);
+~index = ~mChain.flop[0].indexOf(~note);
+0.2.yield;
+}
+}.fork
+)
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.019.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.020.png::
+
+code::
+//Zero order transition table (weighted random)
+(
+{ inf.do{
+Synth(\sinePerc, [\freq, [72, 71, 69].wchoose([0.25, 0.5, 0.25]).midicps]);
+	0.2.yield;
+};
+}.fork;
+)
+
+//another example using text as data
+//the ascii of each character of the text is used for statistical analysis
+//derived probabilities from text and converted into midi note values
+
+(
+SynthDef(\my_synth, {|dur = 1.0, amp = 1.0, freq = 440|
+	var env = EnvGen.ar(Env.new([1, 0.1, 0], [0.06, dur - 0.06]), doneAction: 2);
+	Out.ar([0, 1], SinOsc.ar([freq * 0.995, freq * 1.005], 0, env * amp))
+}).add;
+~text = "Serialism, along with John Cage's indeterminate music (music composed with the use of chance operations), and Werner Meyer-Eppler's aleatoricism, was enormously influential in post-war music. Theorists such as George Perle codified serial systems, and his 1962 text Serial Composition and Atonality became a standard work on the origins of serial composition in the work of Schoenberg, Berg and Webern.
+Several of the composers associated with Darmstadt, notably Karlheinz Stockhausen, Karel Goeyvaerts, and Henri Pousseur developed a form of serialism that initially rejected the recurring rows characteristic of twelve-tone technique, in order to eradicate any lingering traces of thematicism (Felder 1977, 92). Instead of a recurring, referential row, each musical component is subjected to control by a series of numerical proportions (Morgan 1975, 3). In Europe, the style of some serial as well as non-serial music of the early 1950s emphasized the determination of all parameters for each note independently, often resulting in widely spaced, isolated points of sound, an effect called first in German punktuelle Musik (pointist or punctual music), then in French musique ponctuelle, but quickly confused with pointillistic (German pointillistische, French pointilliste) the familiar term associated with the densely packed dots in paintings of Seurat, despite the fact that the conception was at the opposite extreme (Stockhausen and Frisius 1998, 451).
+Pieces were structured by closed sets of proportions, a method closely related to certain works from the de Stijl and Bauhaus movements in design and architecture called serial art by some writers (Bochner 1967, Gerstner 1964, Guderian 1985, Sykora 1983), specifically the paintings of Piet Mondrian, Theo van Doesburg, Bart van Leck, Georg van Tongerloo, Richard Paul Lohse, and Burgoyne Diller, who had been seeking to “avoid repetition and symmetry on all structural levels and working with a limited number of elements” (Bandur 2001, 54).
+Stockhausen described the final synthesis in this manner:
+So serial thinking is something that's come into our consciousness and will be there forever: it's relativity and nothing else. It just says: Use all the components of any given number of elements, don't leave out individual elements, use them all with equal importance and try to find an equidistant scale so that certain steps are no larger than others. It's a spiritual and democratic attitude toward the world. The stars are organized in a serial way. Whenever you look at a certain star sign you find a limited number of elements with different intervals. If we more thoroughly studied the distances and proportions of the stars we'd probably find certain relationships of multiples based on some logarithmic scale or whatever the scale may be. (Cott 1973, 101)
+Igor Stravinsky's adoption of twelve-tone serial techniques offers an example of the level of influence that serialism had after the Second World War. Previously Stravinsky had used series of notes without rhythmic or harmonic implications (Shatzkin 1977). Because many of the basic techniques of serial composition have analogs in traditional counterpoint, uses of inversion, retrograde and retrograde inversion from before the war are not necessarily indicative of Stravinsky adopting Schoenbergian techniques. However with his meeting Robert Craft and acquaintance with younger composers, Stravinsky began to consciously study Schoenberg's music, as well as the music of Webern and later composers, and began to use the techniques in his own work, using, for example, serial techniques applied to fewer than 12 notes. Over the course of the 1950s he used procedures related to Messiaen, Webern and Berg. While it is difficult to label each and every work as serial in the strict definition, every major work of the period has clear uses and references to its ideas.
+During this period, the concept of serialism influenced not only new compositions but also the scholarly analysis of the classical masters. Adding to their professional tools of sonata form and tonality, scholars began to analyze previous works in the light of serial techniques; for example they found the use of row technique in previous composers going back to Mozart and Beethoven (Jalowetz 1944, 387; Keller 1955, passim). In particular, the orchestral outburst that introduces the development section half-way through the last movement of Mozart's next-to-last symphony is a tone row that Mozart punctuates in a very modern and violent episode that Michael Steinberg called rude octaves and frozen silences (Steinberg 1998, 400).
+Furthermore, the organizing principles of serialism inspired mathematical analogues, such as uses of set theory, group theory, operators, and parametrization, for example in the post-war works of Elliott Carter, Iannis Xenakis, and Witold Lutosławski.[citation needed] Likewise, the mathematical analogues in integral serialism were influential in the development of electronic music and synthesized music. Ruth Crawford Seeger is credited with extending serial controls to parameters other than pitch and to formal planning as early as 1930–33 (Tick 2001)";
+~update = {//have to evaluate this to run new text
+~smallLetters = (97..122).asAscii;
+~capitalLetters = (65..90).asAscii;
+~probabilities = [];
+~smallLetters.do{|item, index| ~probabilities = ~probabilities.add(((~text.findAll(item.asString).size + ~text.findAll(~capitalLetters[index]).size / ~text.size)))};
+~probabilities = ~probabilities++[1-~probabilities.sum];
+};
+)
+//routine to play notes
+(
+{
+var note;
+inf.do{
+note = (48..(48+~probabilities.size)).wchoose((~probabilities));
+if(note == 74, {"silence".postln}, {
+Synth(\my_synth, [\freq, note.postln.midicps, \dur, 0.2])
+});
+0.2.yield;
+~update.value;
+}
+}.fork
+)
+//change text input
+~text = "Hello";
+
+~text = "Hi there";
+
+~text = "a   abc zy";
+
+~text = "aaa a aaz";
+
+~text = "a";
+
+::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.021.png::
+code::
+Quarks.gui; //install MathLib
+
+//There are two classes for doing Markov Chains:
+MarkovSet
+MarkovSetN
+
+//simple example
+(
+m = MarkovSet([
+	[60, [67, 65, 64], [0.5,0.3, 0.2]], //element, nextElement, weights
+	[67, [60], [1]],
+	[65, [67, 64], [0.5,0.5]],
+	[64, [60,65, 67], [0.2,0.4,0.4]]
+	]);
+)
+
+Pbind(\midinote, Pfsm2(m), \dur, 0.5).play; //Pfsm2 creates a pattern from Markov Set
+
+(
+m = MarkovSet([
+[60, [62], [1]],
+[62, [60, 63], [0.5, 0.5]],
+[63, [60, 65], [1, 1]],
+[65, [60, 65, 67], [1, 4, 1]],
+[67, [70], [1]],
+[70, [67, 69], [1, 2]],
+[69, [67, 72], [1, 2]],
+[72, [67, 72, 60], [1,4,2]]
+]);
+)
+
+~mark = Pfsm2(m).asStream;
+~dur = ~mark.collect({|item|
+	case
+	{[60,63,67,69].includes(item);} {1}
+	{[62,65,72].includes(item);} {0.5}
+	{item == 70;} {1.5}
+})
+
+Pdef(\mark, Pbind(\instrument, \sinePerc, \midinote, ~mark, \dur, ~dur*0.33)).play; //Pfsm2 creates a pattern from Markov Set
+
+//another example
+(
+m = MarkovSet([
+[60, [62], [1]],
+[62, [60, 63], [1, 1]],
+[63, [60, 65], [1, 1]],
+[65, [60, 65, 67], [1, 4, 1]],
+[67, [70], [1]],
+[70, [67, 69], [1, 2]],
+[69, [67, 72], [1, 2]],
+[72, [67, 72, 60], [1,4,2]]
+]);
+~mark = Pfsm2(m).asStream;
+~dur = ~mark.collect({|item|
+	case
+	{[60,63,67,69].includes(item);} {1}
+	{[62,65,72].includes(item);} {0.5}
+	{item == 70;} {1.5}
+})
+)
+
+Pdef(\mark, Pbind(\instrument, \sinePerc, \midinote, ~mark, \dur, ~dur*0.33))
+
+// training by a stream
+m = MarkovSet.fill(100, Pseq([1, 2, 3, 4, Prand([5, 55, 555])], inf).asStream);
+8.do { m.next(1).postln };
+8.do { m.next(4).postln };
+8.do { m.next(55).postln };
+
+// training bit by bit
+m = MarkovSet.new;
+m.read(\x, \y);
+m.read(\x, \z);
+m.read(\z, \abcde);
+m.read(\y, nil);
+
+8.do { m.next(\x).postln };
+8.do { m.next(\y).postln };
+8.do { m.next(\z).postln };
+
+m.read(\y, \mmmm);
+8.do { m.next(\y).postln }; // now it sometimes terminates
+
+m.remove(\y, \mmmm);
+8.do { m.next(\y).postln };
+
+//now a musical example:
+//this is our melody which we will train the markov with
+~notes = [ 0, 0, 7, 7, 9, 9, 7, 7, 5, 5, 4, 4, 2, 2, 0, 0 ] + 60;
+
+Pbind(\midinote, Pseq(~notes, 1), \dur, 0.3).play
+
+~pairs = ~notes.slide(2).slice;
+
+~num = (~pairs.size/2);
+~secondPair = Array.iota(~num.asInteger,2);
+~trainMe = ~pairs.reshapeLike(~secondPair);
+
+m = MarkovSet.new;
+
+~trainMe.do{|item| m.read(item[0], item[1]) };
+
+Pbind(\midinote, Pfsm2(m), \dur, 0.5).play;
+
+// 2nd order MarkovSet
+(
+m = MarkovSetN([
+			[[100, 120], [120, 130]],
+			[[120, 100], [100, 1900]]
+		], 2);
+)
+
+8.do { m.next([100, 120]).postln };
+8.do { m.next([120, 100]).postln };
+
+// training by a stream
+m = MarkovSetN.fill(100, Pseq([1, 2, 3, 4, Prand([5, 55, 555])], inf).asStream, 2);
+8.do { m.next([1,2]).postln };
+8.do { m.next([3,4]).postln };
+8.do { m.next([4,5]).postln };
+
+::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.022.png::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.023.png#Lejaren Hiller - cloudfront.net::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.024.png::
+code::
+Computer.url("http://youtu.be/n0njBFLQSk8"); //Experiment 1
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.025.png::
+code::
+Computer.url("http://youtu.be/MrN0pOnA1x4"); //Experiment 2
+Computer.url("http://youtu.be/cuq4smO_4Js"); //Experiment 3
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.026.png#Lejaren Hiller - computermusicblog.com::
+code::
+Computer.url("http://youtu.be/QyqiSbbwHIs"); //Experiment 4
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.027.png#John Cage and Lejaren Hiller - musicainformatica.org::
+code::
+Computer.url("https://youtu.be/t_hTxJpWITw");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.028.png#Iannis Xenakis - pinimg.com::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.029.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.030.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.031.png#Achorripsis - 4.bp.blogspot.com::
+code::
+Computer.url("https://youtu.be/RHQM2-MMXzY");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.032.png#St/4 - musicengraving.de::
+code::
+Computer.url("http://youtu.be/9KsWpuqTYLU");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.033.png#Speaker layout for Analogique B - granularsynthesis.com::
+code::
+Computer.url("https://youtu.be/mXIJO-af_u8");
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.034.png::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.035.png::
+code::
+Quarks.gui //Install Tendency quark
+
+//Tendency mask class:
+Tendency
+
+// Basic example
+(
+~mask = Tendency.new(
+    Env([1.0, 0.5, 1.0], [0.5, 0.5]),
+    Env([0.9, 0.0, 0.9], [0.5, 0.5]));
+~number = 500; // get 500 samples
+~output = ~number.do{arg item; ~mask[item].postln };
+~output = ~number.collect({arg index; index = index / ~number; ~mask.at(index)});
+~output.plot(discrete: true);
+)
+
+Pbind(\midinote, Pseq(~output.linlin(0,1,24,108).round(1), 1), \dur, 0.1, \amp, 0.2).play;
+
+//James McCartney piano synth
+(
+SynthDef("synthPiano",
+{arg out=0, midinote=60, gate=1, amp=1;
+	var strike, env, noise, pitch, delayTime, detune, sig;
+
+	pitch = midinote;
+	strike = Impulse.ar(0.01);
+	env = Decay2.ar(strike, 0.008, 0.04);
+
+	sig = Pan2.ar(
+			// array of 3 strings per note
+			Mix.ar(Array.fill(3, { arg i;
+				// detune strings, calculate delay time :
+				detune = #[-0.05, 0, 0.04].at(i);
+				delayTime = 1 / (pitch + detune).midicps;
+				// each string gets own exciter :
+				noise = LFNoise2.ar(3000, env); // 3000 Hz was chosen by ear..
+				CombL.ar(noise,		// used as a string resonator
+					delayTime, 		// max delay time
+					delayTime,			// actual delay time
+					6) 				// decay time of string
+			})),
+			(pitch - 36)/27 - 1 // pan position: lo notes left, hi notes right
+		);
+		env = EnvGen.kr(Env.adsr(0.01,0.3,0.8,0.5), gate, doneAction: 2);
+		Out.ar(out, sig*env*amp);
+}).add
+)
+
+//betaRand distribution
+(
+~mask = Tendency.new(
+    Env([127, 48, 127], [0.5, 0.5]),
+    Env([91, 16, 102], [0.5, 0.5]),
+	0.2, //high range
+	0.8, //low range
+	\betaRand
+);
+~number = 500; // get 500 samples
+
+~notes = ~number.collect({arg index;
+	index = (index / ~number).postln;
+	~mask[index].round(1)});
+~notes.plot(discrete: true);
+)
+
+Pbind(\instrument, \synthPiano, \midinote, Pseq(~notes, 1), \dur, 0.1, \amp, 0.2).play;
+
+Pbind(\midinote, Pseq(~notes, 1), \dur, 0.05).play;
+
+Pbind(\midinote, Pseq(~notes, 1), \dur, Pfunc({rrand(0.05,0.2)}) ).play;
+
+MIDIIn.connectAll; //starts MIDI
+~midiOut = MIDIOut.newByName("IAC Driver", "Bus 1");
+
+(
+p = Pbind(\midinote, Pseq(~notes, 1), \dur, Pfunc({rrand(0.05,0.2)}), \amp, 0.8 );
+a = Pdef(\x, p);
+e = (a <> (type: \midi, midiout: ~midiOut));
+1.do{e.next.postln(Event.new).play;}
+)
+
+Pdef(\x, Pbind(\midinote, Pseq([60],1))); //stop
+
+// Using different distributions with envelopes and time
+(
+a = Tendency.new(Env([0.01, 1.0], [1]), 1.0);
+z = 500.collect({arg i; a.at(i / 500, \gauss)}); // Tendency at takes a time for the Envs
+z.plot(discrete: true, minval: -3, maxval: 3);
+~pat1 = Pbind(\midinote, Pseq(z.linlin(0,1,24,108).round(1), 1), \dur, 0.05, \amp, 0.2);
+~pat1.play;
+)
+
+(
+a = Tendency.new(Env([0.01, 1.0], [1]));
+y = 500.collect({arg i; a.at(i / 500, \arcsin)});
+y.plot(discrete: true, minval: 0, maxval: 1);
+~pat2 = Pbind(\midinote, Pseq(y.linlin(0,1,24,108).round(1), 1), \dur, 0.05, \amp, 0.2);
+~pat2.play;
+)
+
+(//play two masks at the same time
+~par = Ppar([~pat1, ~pat2]);
+~par.play;
+)
+
+(
+~pat1 = Pbind(\midinote, Pseq(z.linlin(0,1,24,108).round(1), 1), \dur, Pfunc({rrand(0.05,0.2)}), \amp, Pfunc({rrand(0.3,0.8)}));
+~pat2 = Pbind(\midinote, Pseq(y.linlin(0,1,24,108).round(1), 1), \dur, Pfunc({rrand(0.05,0.2)}), \amp, Pfunc({rrand(0.3,0.8)}));
+~par = Ppar([~pat1, ~pat2]);
+e = (~par <> (type: \midi, midiout: ~midiOut));
+1.do{e.next.postln(Event.new).play;}
+)
+
+//UGen for triggered tendency masks
+TTendency
+
+//Server side Tendency Masks
+(
+Ndef(\tendency).play;
+Ndef(\tendency).fadeTime = 2.0;
+)
+
+Ndef(\tendency, {var freq;
+	freq = TTendency.ar(Impulse.kr(5), 0, 200, 800).poll;
+	SinOsc.ar(freq!2)*0.1;
+});
+
+Ndef(\tendency, {})
+
+Ndef(\tendency, {arg modFreq=0.1;
+	var freq, env1, env2;
+	env1 = LFTri.kr(modFreq).linexp(-1,1,200,800);
+	env2 = env1+300;
+	freq = TTendency.ar(Impulse.kr(10), 0, env1, env2).poll;
+	SinOsc.ar(freq!2)*0.1;
+});
+
+Ndef(\tendency, {});
+
+Ndef(\tendency, {arg modFreq=0.1;
+	var freq, env1, env2;
+	env1 = LFTri.kr(modFreq).linexp(-1,1,200,800);
+	env2 = env1+600;
+	freq = TTendency.ar(Impulse.kr(10), 4, env1, env2,  MouseX.kr(1,0), MouseX.kr(0,1)).poll;
+	SinOsc.ar(freq!2)*0.1;
+});
+
+Ndef(\tendency, {});
+
+Ndef(\tendency, {arg trigFreq=10;
+	var freq, env1, env2, modFreq;
+	modFreq = MouseY.kr(0.05,3);
+	env1 = LFTri.kr(modFreq).linexp(-1,1,200,1800);
+	env2 = env1 + 600;
+	freq = TTendency.ar(Impulse.kr(trigFreq), 4, env1, env2, MouseX.kr(1,0), MouseX.kr(0,1)).poll;
+	freq = freq.cpsmidi.round(1).midicps;
+	LPF.ar(Saw.ar(freq!2)*0.1, (env2*2));
+});
+
+Ndef(\tendency).set(\trigFreq, 30);
+Ndef(\tendency).set(\trigFreq, 10);
+Ndef(\tendency).set(\trigFreq, 5);
+
+Ndef(\tendency, {});
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.036.png::
+code::
+Quark.gui //install NatureToolKit
+
+//NatureToolKit includes classes like:
+ModernLife //Cellular Automata
+LSys //L-systems
+GAWorkbench //Genetic Algorithms
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.037.png#Cellular Automata - emanueleferonato.com::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.038.png::
+code::
+ModernLife
+// the default rule is "23/3" (Conway's Game of Life)
+a = ModernLife.new; //will pop up the window
+//press space to run/stop. c to clear, r to randomize.
+//you can also create or kill cells with mouse interaction.
+
+a = ModernLife.new(8, 500); //numDivs, winSize (pixels)
+a.userFunc_({|states, population| states.postcs; population.postln; });
+//press space
+
+
+// conway's gol by default
+a = ModernLife.new.play;
+a.stop;
+::
+strong::setRule (argRuleString)::
+
+Sets the rule for the CA system. The notation for the rule is the same used in Mirek's Cellebration. It is a string in the format x/y where x and y are sequence of unique digits between 0 and 8 (inclusive). The digits in x side (for example digit d) means that a live cell with d live neighbors will survive to the next generation (others will die), and a digits in y side (digit k as an example) means that any dead cell with k alive neighbors will come to life. With this scheme, the Conway's Game of Life is defined as "23/3" (which is the default rule).
+
+code::
+//maze
+a = ModernLife.new.setRule("12345/3").fps_(5).fadeAmount_(1).play;
+a.stop;
+
+//coral
+a = ModernLife.new.setRule("45678/3").fps_(25).fadeAmount_(1).play;
+a.stop;
+
+//replicator, every pattern is replicated by a copy of itself.
+//clear the scene with c and draw a pattern, press space, watch in awe.
+a = ModernLife.new.setRule("1357/1357").fps_(10).fadeAmount_(1);
+a.stop;
+
+::
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.039.png#L-system Tree - bentrubewriter.files.wordpress.com::
+
+image::http://www.federicoreuben.com/computerdotplay/seminars/seminar4/seminar 4.040.png::
+
+strong::LSystems::
+code::
+// simple example, fibonacci numbers
+a = LSys("A", ["A" -> "B", "B" -> "AB"]);
+10.do({ a.applyRules(1).postln; });
+::
+
+list::
+##variables : 0, 1
+##constants: [, ]
+##axiom  : 0
+##rules  : (1 → 11), (0 → 1[0]0)
+::
+strong::Context free examples:::
+code::
+//Koch Snowflake
+(
+a = LSys("F--F--F", ["F" -> "F+F--F+F"]);
+k = a.applyRules(4);
+LSPlant(80@170, 90, argAngle: 60).drawSize_(4).draw(k);
+)
+
+//Dragon Curve
+(
+a = LSys("L", ["L" -> "L+R+", "R" -> "-L-R"]);
+k = a.applyRules(11);÷
+LSPlant(180@270, 180, argAngle: 90).drawSize_(4).draw(k);
+)
+
+//Sierpinsky triangle
+(
+a = LSys("L", ["L" -> "R+L+R", "R" -> "L-R-L"]);
+k = a.applyRules(6);
+LSPlant(60@400, 30, argAngle: 60).drawSize_(6).draw(k);
+)
+
+//Islands and Lakes from Algorithmic Beauty of Plants fig. 1.8.
+(
+a = LSys("F+F+F+F", ["F" -> "F+f-FF+F+FF+Ff+FF-f+FF-F-FF-Ff-FFF", "f" -> "ffffff"]);
+k = a.applyRules(2);
+LSPlant(360@350, 0, argAngle: 90).drawSize_(6).draw(k);
+)
+
+//Quadratic Snowflake from A.B.O.P. fig. 1.7b
+(
+a = LSys("F", ["F" -> "F+F-F-F+F"]);
+k = a.applyRules(5);
+LSPlant(20@350, 90, 90, Rect(300, 300, 530, 500), { Color.rand; }).drawSize_(2).draw(k);
+)
+
+//Fig 1.9a. from A.B.O.P.
+(
+a = LSys("F-F-F-F", ["F" -> "FF-F-F-F-F-F+F"]);
+k = a.applyRules(3).postln;
+LSPlant(270@120, 90, 90, argColor: { Color.rand; }).drawSize_(6).draw(k);
+)
+::
+
+strong::Context sensitive example:::
+code::
+//Signal propagation throughout a string of symbols:
+
+(
+a = LSys("baaaaaaaaaaaaaaaa", ["b<a" -> "b", "b" -> "a"]);
+16.do
+({
+	a.applyRules(1).postln;
+});
+)
+::
+For the syntax of the context sensitive rule definitions, refer to page 30 in the Algorithmic Beauty of Plants.
+
+Branching (bracketed) examples:
+code::
+//Tree b from fig 1.24 in A.B.O.P.
+(
+a = LSys("F", ["F" -> "F[+F]F[-F][F]"]);
+k = a.applyRules(5).postln;
+LSPlant
+	(
+		argAngle: 20,
+		argColor:
+			{
+				[
+					Color.green(0.6.rand + 0.4),
+					Color.gray(0.6.rand)
+				].choose;
+			}
+	).drawSize_(6).draw(k);
+)
+
+//Tree c from fig 1.24 in A.B.O.P.
+(
+a = LSys("F", ["F" -> "FF-[-F+F+F]+[+F-F-F]"]);
+k = a.applyRules(4).postln;
+LSPlant
+	(
+		argAngle: 22.5,
+		argColor:
+			{
+				[
+					Color.green(0.6.rand + 0.4),
+					Color.gray(0.6.rand)
+				].choose;
+			}
+	).drawSize_(6).draw(k);
+)
+
+
+//another tree
+(
+a = LSys("F", ["F" -> "FF+[+F-F-F]-[-F+F+F]"]);
+k = a.applyRules(5);
+LSPlant
+	(
+		argAngle: 22.5,
+		argColor:
+			{
+				[
+					Color.green(0.6.rand + 0.4),
+					Color.gray(0.6.rand)
+				].choose;
+			}
+	).drawSize_(6).draw(k);
+)
+
+
+(
+a = LSys("F", ["F" -> "F[-FF]F[+FF]F"]);
+k = a.applyRules(5);
+LSPlant
+	(
+		argAngle: 22.5,
+		argColor:
+			{
+				[
+					Color.green(0.6.rand + 0.4),
+					Color.gray(0.6.rand)
+				].choose;
+			}
+	).drawSize_(6).draw(k);
+)
+
+//Tree f from fig 1.24 in A.B.O.P.
+(
+a = LSys("X", ["X" -> "F-[[X]+X]+F[+FX]-X", "F" -> "FF"]);
+k = a.applyRules(5).postln;
+LSPlant
+	(
+		argAngle: 22.5,
+		argColor:
+			{
+				[
+					Color.green(0.6.rand + 0.4),
+					Color.gray(0.6.rand)
+				].choose;
+			}
+	).drawSize_(4).draw(k);
+)
+::
