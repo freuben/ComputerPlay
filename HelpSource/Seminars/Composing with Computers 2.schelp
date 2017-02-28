@@ -258,12 +258,18 @@ Furthermore, the organizing principles of serialism inspired mathematical analog
 ~smallLetters = (97..122).asAscii;
 ~capitalLetters = (65..90).asAscii;
 ~probabilities = [];
-~smallLetters.do{|item, index| ~probabilities = ~probabilities.add(((~text.findAll(item.asString).size + ~text.findAll(~capitalLetters[index]).size / ~text.size)))};
+~smallLetters.do{|item, index|
+		~probabilities = ~probabilities.add(
+			~text.findAll(item.asString).size +
+				~text.findAll(~capitalLetters[index]).size / ~text.size;
+	)
+	};
 ~probabilities = ~probabilities++[1-~probabilities.sum];
 };
 )
 //routine to play notes
 (
+~update.value;
 {
 var note;
 inf.do{
@@ -577,13 +583,16 @@ Ndef(\tendency).play;
 Ndef(\tendency).fadeTime = 2.0;
 )
 
+(
 Ndef(\tendency, {var freq;
 	freq = TTendency.ar(Impulse.kr(5), 0, 200, 800).poll;
 	SinOsc.ar(freq!2)*0.1;
 });
+)
 
 Ndef(\tendency, {})
 
+(
 Ndef(\tendency, {arg modFreq=0.1;
 	var freq, env1, env2;
 	env1 = LFTri.kr(modFreq).linexp(-1,1,200,800);
@@ -591,9 +600,11 @@ Ndef(\tendency, {arg modFreq=0.1;
 	freq = TTendency.ar(Impulse.kr(10), 0, env1, env2).poll;
 	SinOsc.ar(freq!2)*0.1;
 });
+)
 
 Ndef(\tendency, {});
 
+(
 Ndef(\tendency, {arg modFreq=0.1;
 	var freq, env1, env2;
 	env1 = LFTri.kr(modFreq).linexp(-1,1,200,800);
@@ -601,9 +612,11 @@ Ndef(\tendency, {arg modFreq=0.1;
 	freq = TTendency.ar(Impulse.kr(10), 4, env1, env2,  MouseX.kr(1,0), MouseX.kr(0,1)).poll;
 	SinOsc.ar(freq!2)*0.1;
 });
+)
 
 Ndef(\tendency, {});
 
+(
 Ndef(\tendency, {arg trigFreq=10;
 	var freq, env1, env2, modFreq;
 	modFreq = MouseY.kr(0.05,3);
@@ -613,6 +626,7 @@ Ndef(\tendency, {arg trigFreq=10;
 	freq = freq.cpsmidi.round(1).midicps;
 	LPF.ar(Saw.ar(freq!2)*0.1, (env2*2));
 });
+)
 
 Ndef(\tendency).set(\trigFreq, 30);
 Ndef(\tendency).set(\trigFreq, 10);
@@ -642,7 +656,6 @@ a = ModernLife.new; //will pop up the window
 a = ModernLife.new(8, 500); //numDivs, winSize (pixels)
 a.userFunc_({|states, population| states.postcs; population.postln; });
 //press space
-
 
 // conway's gol by default
 a = ModernLife.new.play;
